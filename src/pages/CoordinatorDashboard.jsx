@@ -23,6 +23,7 @@ const CoordinatorDashboard = () => {
   const [topCoauthors, setTopCoauthors] = useState([]);
   const [requesting, setRequesting] = useState(false);
   const [siteRequest, setSiteRequest] = useState(null);
+  const [registerRoute, setRegisterRoute] = useState('register/coautor');
 
   useEffect(() => {
     const load = async () => {
@@ -50,6 +51,25 @@ const CoordinatorDashboard = () => {
       .eq('coordinator_id', user.id)
       .maybeSingle()
       .then(({ data }) => setSiteRequest(data || null));
+
+    // Detecta o projeto do coordenador para usar a rota correta
+    async function detectRoute() {
+      const { data: rows } = await supabase
+        .from('project_participants')
+        .select('project_id')
+        .eq('user_id', user.id)
+        .limit(1);
+      const projectId = rows?.[0]?.project_id;
+      if (!projectId) return;
+      const { data: proj } = await supabase
+        .from('projects')
+        .select('name')
+        .eq('id', projectId)
+        .limit(1);
+      const name = proj?.[0]?.name?.toLowerCase() || '';
+      if (name.includes('paulo')) setRegisterRoute('register/autor-sp');
+    }
+    detectRoute();
   }, [user?.id]);
 
   const handleRequestWebsite = async () => {
@@ -58,7 +78,7 @@ const CoordinatorDashboard = () => {
       const now = new Date().toISOString();
 
       const slug = toSlug(user.name);
-    const websiteUrl = `${window.location.origin}/register/coautor/${slug}`;
+    const websiteUrl = `${window.location.origin}/${registerRoute}/${slug}`;
 
     // Salva o slug no referral_code do perfil para lookup posterior
     await supabase.from('profiles').update({ referral_code: slug }).eq('id', user.id);
@@ -177,7 +197,7 @@ const CoordinatorDashboard = () => {
             <Button
               className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
               onClick={() => {
-                const url = siteRequest?.website_url || user?.website_url || `${window.location.origin}/register/coautor/${toSlug(user.name)}`;
+                const url = siteRequest?.website_url || user?.website_url || `${window.location.origin}/${registerRoute}/${toSlug(user.name)}`;
                 window.open(url, '_blank');
               }}
             >

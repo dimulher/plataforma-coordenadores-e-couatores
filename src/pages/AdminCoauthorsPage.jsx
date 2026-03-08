@@ -206,20 +206,21 @@ const AdminCoauthorsPage = () => {
   const fetchCoauthors = useCallback(async () => {
     setLoading(true);
     try {
-      // Busca coordenadores via RPC (contorna RLS)
-      const { data: coordRpc } = await supabase.rpc('get_all_coordinators_admin');
-      const coordProfiles = (coordRpc || []).map(c => ({ id: c.id, name: c.name }));
+      // Busca coordenadores e coautores diretamente (sem RPC restritiva)
+      const [{ data: coordRaw }, { data: coauthorRaw, error }] = await Promise.all([
+        supabase.from('profiles').select('id, name, email, avatar_url, contract_url, contract_status').eq('role', 'COORDENADOR').order('name'),
+        supabase.from('profiles').select('id, name, email, avatar_url, coordinator_id, contract_url, contract_status').eq('role', 'COAUTOR').order('name'),
+      ]);
+      if (error) throw error;
+
+      const coordProfiles = (coordRaw || []).map(c => ({ id: c.id, name: c.name }));
       const coordMap = {};
       coordProfiles.forEach(c => { coordMap[c.id] = c.name; });
       setCoordinators(coordProfiles);
 
-      // Busca coautores via RPC (contorna RLS)
-      const { data: coauthorRpc, error } = await supabase.rpc('get_all_coauthors_admin');
-      if (error) throw error;
-      const coauthorProfiles = (coauthorRpc || []).map(c => ({ ...c, role: 'COAUTOR' }));
+      const coauthorProfiles = (coauthorRaw || []).map(c => ({ ...c, role: 'COAUTOR' }));
 
-      // Coordenadores com dados completos (do RPC)
-      const coordAuthors = (coordRpc || []).map(c => ({
+      const coordAuthors = (coordRaw || []).map(c => ({
         id: c.id,
         name: c.name,
         email: c.email,

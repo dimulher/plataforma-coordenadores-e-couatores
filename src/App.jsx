@@ -51,6 +51,7 @@ import GestorSettingsPage from '@/pages/GestorSettingsPage';
 import GestorFunnelPage from '@/pages/GestorFunnelPage';
 import CoordinatorInvitePage from '@/pages/CoordinatorInvitePage';
 import CoauthorRegisterPage from '@/pages/CoauthorRegisterPage';
+import CoauthorRegisterSPPage from '@/pages/CoauthorRegisterSPPage';
 
 // Coauthor Pages
 import CoauthorDashboard from '@/pages/CoauthorDashboard';
@@ -83,7 +84,9 @@ function AppRoutes() {
       <Route path="/login/admin" element={<AdminLoginPage />} />
       <Route path="/login" element={<Navigate to="/login/coautor" replace />} />
       <Route path="/register/coordinator/:managerId" element={<CoordinatorInvitePage />} />
+      <Route path="/register/coordinator/:managerId/:projectId" element={<CoordinatorInvitePage />} />
       <Route path="/register/coautor/:coordinatorId" element={<CoauthorRegisterPage />} />
+      <Route path="/register/autor-sp/:coordinatorId" element={<CoauthorRegisterSPPage />} />
 
       {/* Main App Routes (Admin) */}
       <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>

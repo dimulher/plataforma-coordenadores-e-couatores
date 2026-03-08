@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, Loader2, UserSquare2 } from 'lucide-react';
 
 const AdminCoordinatorsPage = () => {
+  const navigate = useNavigate();
   const [coordinators, setCoordinators] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,29 +17,37 @@ const AdminCoordinatorsPage = () => {
   const fetchCoordinators = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: profiles, error } = await supabase.rpc('get_all_coordinators_admin');
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('id, name, email, avatar_url, role, coordinator_id, manager_id')
+        .eq('role', 'COORDENADOR')
+        .order('name');
+
       if (error) throw error;
 
       const ids = (profiles || []).map(p => p.id);
+      if (ids.length === 0) { setCoordinators([]); return; }
 
-      // Autores vinculados a cada coordenador (inclui coordenadores que escrevem capítulos)
-      const { data: coauthors } = ids.length > 0
-        ? await supabase
-            .from('profiles')
-            .select('id, coordinator_id')
-            .in('coordinator_id', ids)
-        : { data: [] };
+      const [{ data: coauthors }, { data: participations }, { data: gestorProfiles }] = await Promise.all([
+        supabase.from('profiles').select('id, coordinator_id').in('coordinator_id', ids),
+        supabase.from('project_participants').select('user_id, projects(id, name)').in('user_id', ids),
+        supabase.from('profiles').select('id, name').in('id', (profiles || []).map(p => p.manager_id).filter(Boolean)),
+      ]);
 
       // Capítulos dos coautores
       const coauthorIds = (coauthors || []).map(a => a.id);
       const { data: chapters } = coauthorIds.length > 0
-        ? await supabase
-            .from('chapters')
-            .select('id, author_id, status, deadline')
-            .in('author_id', coauthorIds)
+        ? await supabase.from('chapters').select('id, author_id, status, deadline').in('author_id', coauthorIds)
         : { data: [] };
 
       const now = Date.now();
+      const gestorMap = {};
+      (gestorProfiles || []).forEach(g => { gestorMap[g.id] = g.name; });
+
+      const projectMap = {};
+      (participations || []).forEach(p => {
+        if (p.projects) projectMap[p.user_id] = p.projects.name;
+      });
 
       const enriched = (profiles || []).map(coord => {
         const coordAuthors = (coauthors || []).filter(a => a.coordinator_id === coord.id);
@@ -47,18 +57,14 @@ const AdminCoordinatorsPage = () => {
         const DELIVERED_STATUSES = ['APROVADO', 'PRODUCAO', 'FINALIZADO', 'CONCLUIDO'];
         const delivered = coordChapters.filter(c => DELIVERED_STATUSES.includes(c.status)).length;
         const inProgress = coordChapters.filter(c => !DELIVERED_STATUSES.includes(c.status)).length;
-        const overdue = coordChapters.filter(c =>
-          !DELIVERED_STATUSES.includes(c.status) &&
-          c.deadline && new Date(c.deadline).getTime() < now
-        ).length;
 
         return {
           ...coord,
-          gestorName: coord.gestor_name || '—',
+          gestorName: gestorMap[coord.manager_id] || '—',
           authorsCount: coordAuthors.length,
+          project_name: projectMap[coord.id] || null,
           delivered,
           inProgress,
-          overdue,
         };
       });
 
@@ -138,15 +144,15 @@ const AdminCoordinatorsPage = () => {
                 <tr>
                   <th className="px-6 py-4">Coordenador</th>
                   <th className="px-6 py-4">Gestor</th>
+                  <th className="px-6 py-4">Projeto</th>
                   <th className="px-6 py-4 text-center">Coautores</th>
                   <th className="px-6 py-4 text-center">Caps. em Andamento</th>
-                  <th className="px-6 py-4 text-center">Caps. Atrasados</th>
                   <th className="px-6 py-4 text-center">Caps. Entregues</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filtered.map(coord => (
-                  <tr key={coord.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={coord.id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/app/admin/coordinators/${coord.id}`)}>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {coord.avatar_url
@@ -162,13 +168,21 @@ const AdminCoordinatorsPage = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-slate-600 text-xs">{coord.gestorName}</td>
+                    <td className="px-6 py-4">
+                      {coord.project_name
+                        ? (() => {
+                            const isSP = coord.project_name.toLowerCase().includes('paulo');
+                            return (
+                              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${isSP ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                                {coord.project_name}
+                              </span>
+                            );
+                          })()
+                        : <span className="text-xs text-slate-300 italic">—</span>
+                      }
+                    </td>
                     <td className="px-6 py-4 text-center text-slate-700 font-medium">{coord.authorsCount}</td>
                     <td className="px-6 py-4 text-center text-blue-600 font-medium">{coord.inProgress}</td>
-                    <td className="px-6 py-4 text-center">
-                      {coord.overdue > 0
-                        ? <span className="text-red-600 font-bold bg-red-50 px-2 py-1 rounded">{coord.overdue}</span>
-                        : <span className="text-slate-400">0</span>}
-                    </td>
                     <td className="px-6 py-4 text-center">
                       <span className="text-emerald-600 font-bold">{coord.delivered}</span>
                     </td>

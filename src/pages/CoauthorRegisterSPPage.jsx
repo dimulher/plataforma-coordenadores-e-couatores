@@ -8,11 +8,11 @@ import { Label } from '@/components/ui/label';
 import { BookOpen, Mail, User, AlertCircle, CheckCircle2, Phone, Instagram, Briefcase } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Cores da bandeira de Portugal
-const PT_GREEN = '#006600';
-const PT_RED = '#CC0000';
+const BR_GREEN = '#009C3B';
+const BR_YELLOW = '#FFDF00';
+const BR_BLUE = '#002776';
 
-const CoauthorRegisterPage = () => {
+const CoauthorRegisterSPPage = () => {
   const { coordinatorId: coordinatorSlug } = useParams();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,6 @@ const CoauthorRegisterPage = () => {
         if (coord) {
           setCoordinatorId(coord.id);
           setCoordinatorName(coord.name);
-          // Busca o projeto do coordenador
           const { data: pp } = await supabase
             .from('project_participants')
             .select('project_id')
@@ -65,8 +64,6 @@ const CoauthorRegisterPage = () => {
     setLoading(true);
 
     try {
-      // Salva direto na tabela leads — sem criar conta Auth ainda.
-      // A conta Auth só será criada quando o lead virar COAUTOR (após pagar).
       const { error: leadError } = await supabase.from('leads').insert({
         coordinator_id: coordinatorId,
         project_id: coordinatorProjectId || null,
@@ -94,15 +91,15 @@ const CoauthorRegisterPage = () => {
 
   if (success) {
     const waMessage = encodeURIComponent(
-      `Olá! Acabei de me inscrever como autor internacional${coordinatorName ? ` pelo coordenador ${coordinatorName}` : ''} na plataforma da Novos Autores do Brasil. Quero saber os próximos passos!`
+      `Olá! Acabei de me inscrever como autor na Bienal de São Paulo${coordinatorName ? ` pelo coordenador ${coordinatorName}` : ''} na plataforma da Novos Autores do Brasil. Quero saber os próximos passos!`
     );
     const waLink = `https://wa.me/5511952138107?text=${waMessage}`;
 
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #004d00 0%, #1a1a1a 50%, #990000 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: `linear-gradient(135deg, ${BR_GREEN} 0%, #1a1a2e 50%, ${BR_BLUE} 100%)` }}>
         <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden text-center p-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6" style={{ background: '#e6ffe6' }}>
-            <CheckCircle2 className="h-10 w-10" style={{ color: PT_GREEN }} />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6" style={{ background: '#e6fff0' }}>
+            <CheckCircle2 className="h-10 w-10" style={{ color: BR_GREEN }} />
           </div>
           <h2 className="text-3xl font-bold text-slate-900 mb-3">Parabéns!</h2>
           <p className="text-slate-500 mb-2 leading-relaxed">
@@ -130,40 +127,40 @@ const CoauthorRegisterPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 font-sans antialiased" style={{ background: 'linear-gradient(135deg, #004d00 0%, #1a1a1a 50%, #990000 100%)' }}>
-      <Helmet><title>Seja um Autor Internacional - NAB</title></Helmet>
+    <div className="min-h-screen flex items-center justify-center p-4 font-sans antialiased" style={{ background: `linear-gradient(135deg, ${BR_GREEN} 0%, #1a1a2e 50%, ${BR_BLUE} 100%)` }}>
+      <Helmet><title>Seja um Autor na Bienal - NAB</title></Helmet>
 
       <div className="w-full max-w-lg my-8">
-        {/* Header com as cores de Portugal */}
+        {/* Header com as cores do Brasil */}
         <div className="rounded-t-2xl overflow-hidden shadow-2xl">
           <div className="flex h-3">
-            <div className="w-2/5" style={{ background: PT_GREEN }} />
-            <div className="w-3/5" style={{ background: PT_RED }} />
+            <div className="w-1/3" style={{ background: BR_GREEN }} />
+            <div className="w-1/3" style={{ background: BR_YELLOW }} />
+            <div className="w-1/3" style={{ background: BR_BLUE }} />
           </div>
 
           <div className="bg-white px-8 pt-8 pb-6 text-center border-x border-t-0 border-slate-100">
-            {/* Emblema */}
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-5 shadow-md" style={{ background: 'linear-gradient(135deg, #004d00, #CC0000)' }}>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-5 shadow-md" style={{ background: `linear-gradient(135deg, ${BR_GREEN}, ${BR_BLUE})` }}>
               <BookOpen className="h-8 w-8 text-white" />
             </div>
 
             <h1 className="text-3xl font-extrabold tracking-tight leading-tight text-slate-900">
-              Seja um Autor Internacional
+              Seja um Autor na Bienal
             </h1>
+            <p className="text-base font-semibold mt-1" style={{ color: BR_BLUE }}>São Paulo 2025</p>
 
             <p className="mt-3 text-slate-500 text-base leading-relaxed font-medium">
               {coordinatorName
                 ? <>Você foi convidado por <strong className="text-slate-800">{coordinatorName}</strong> para uma oportunidade única:</>
                 : 'Uma oportunidade única:'}
               <br />
-              <span className="text-slate-700 font-semibold">publique seu capítulo e tenha seu nome em um livro distribuído em Portugal e no Brasil.</span>
+              <span className="text-slate-700 font-semibold">publique seu capítulo e tenha seu nome em um livro exposto na maior feira literária do Brasil.</span>
             </p>
 
-            {/* Faixa de bandeira decorativa */}
             <div className="flex justify-center gap-1 mt-5">
-              <span className="inline-block w-6 h-1.5 rounded-full" style={{ background: PT_GREEN }} />
-              <span className="inline-block w-6 h-1.5 rounded-full" style={{ background: '#FFD700' }} />
-              <span className="inline-block w-6 h-1.5 rounded-full" style={{ background: PT_RED }} />
+              <span className="inline-block w-6 h-1.5 rounded-full" style={{ background: BR_GREEN }} />
+              <span className="inline-block w-6 h-1.5 rounded-full" style={{ background: BR_YELLOW }} />
+              <span className="inline-block w-6 h-1.5 rounded-full" style={{ background: BR_BLUE }} />
             </div>
           </div>
         </div>
@@ -178,7 +175,6 @@ const CoauthorRegisterPage = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Nome */}
             <div className="space-y-1.5">
               <Label htmlFor="name" className="text-slate-700 font-bold uppercase text-[10px] tracking-widest ml-1">Nome Completo</Label>
               <div className="relative">
@@ -187,7 +183,6 @@ const CoauthorRegisterPage = () => {
               </div>
             </div>
 
-            {/* Email */}
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-slate-700 font-bold uppercase text-[10px] tracking-widest ml-1">E-mail</Label>
               <div className="relative">
@@ -196,7 +191,6 @@ const CoauthorRegisterPage = () => {
               </div>
             </div>
 
-            {/* Telefone */}
             <div className="space-y-1.5">
               <Label htmlFor="phone" className="text-slate-700 font-bold uppercase text-[10px] tracking-widest ml-1">Telefone com DDD</Label>
               <div className="relative">
@@ -205,7 +199,6 @@ const CoauthorRegisterPage = () => {
               </div>
             </div>
 
-            {/* Instagram + Profissão lado a lado */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1.5">
                 <Label htmlFor="instagram" className="text-slate-700 font-bold uppercase text-[10px] tracking-widest ml-1">Instagram</Label>
@@ -226,7 +219,7 @@ const CoauthorRegisterPage = () => {
             <GlowButton type="submit" disabled={loading}>
               {loading
                 ? <><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" /><span>Enviando...</span></>
-                : 'Quero ser Autor Internacional →'
+                : 'Quero ser Autor na Bienal →'
               }
             </GlowButton>
 
@@ -240,4 +233,4 @@ const CoauthorRegisterPage = () => {
   );
 };
 
-export default CoauthorRegisterPage;
+export default CoauthorRegisterSPPage;

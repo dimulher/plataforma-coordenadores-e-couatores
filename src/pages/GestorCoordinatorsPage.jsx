@@ -29,20 +29,21 @@ const GestorCoordinatorsPage = () => {
     const [coordinators, setCoordinators] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [inviteModalOpen, setInviteModalOpen] = useState(false);
-    const [copied, setCopied] = useState(false);
+    const [copiedId, setCopiedId] = useState(null);
+    const [projects, setProjects] = useState([]);
     const { toast } = useToast();
 
-    const inviteLink = `${window.location.origin}/register/coordinator/${user?.id}`;
-
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(inviteLink);
-        setCopied(true);
-        toast({
-            title: "Link copiado!",
-            description: "O link de convite foi copiado para sua área de transferência.",
-        });
-        setTimeout(() => setCopied(false), 2000);
+    const copyLink = (url, id) => {
+        navigator.clipboard.writeText(url);
+        setCopiedId(id);
+        toast({ title: 'Link copiado!' });
+        setTimeout(() => setCopiedId(null), 2000);
     };
+
+    useEffect(() => {
+        supabase.from('projects').select('id, name').eq('status', 'ativo').order('name')
+            .then(({ data }) => setProjects(data || []));
+    }, []);
 
     useEffect(() => {
         async function fetchCoordinators() {
@@ -56,14 +57,29 @@ const GestorCoordinatorsPage = () => {
                 const coords = data || [];
 
                 if (coords.length > 0) {
-                    const { data: stats } = await supabase.rpc('get_team_stats');
+                    const coordIds = coords.map(c => c.id);
+
+                    const [{ data: stats }, { data: participations }] = await Promise.all([
+                        supabase.rpc('get_team_stats'),
+                        supabase
+                            .from('project_participants')
+                            .select('user_id, projects(id, name)')
+                            .in('user_id', coordIds),
+                    ]);
+
                     const statsMap = {};
                     (stats || []).forEach(s => { statsMap[s.coordinator_id] = s; });
+
+                    const projectMap = {};
+                    (participations || []).forEach(p => {
+                        if (p.projects) projectMap[p.user_id] = p.projects.name;
+                    });
 
                     setCoordinators(coords.map(c => ({
                         ...c,
                         leads: Number(statsMap[c.id]?.lead_count || 0),
                         coautores: Number(statsMap[c.id]?.coauthor_count || 0),
+                        project_name: projectMap[c.id] || null,
                     })));
                 } else {
                     setCoordinators([]);
@@ -104,33 +120,40 @@ const GestorCoordinatorsPage = () => {
                             <UserSquare2 className="h-4 w-4 mr-2" /> Convidar Coordenador
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
+                    <DialogContent className="sm:max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Convidar Coordenador</DialogTitle>
                             <DialogDescription>
-                                Compartilhe o link abaixo com o novo coordenador. Ele poderá realizar o cadastro e será automaticamente vinculado ao seu time.
+                                Compartilhe o link do projeto com o novo coordenador. Ele será vinculado ao seu time e ao projeto correspondente.
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="flex items-center space-x-2 pt-4">
-                            <div className="grid flex-1 gap-2">
-                                <Label htmlFor="link" className="sr-only">
-                                    Link de Convite
-                                </Label>
-                                <Input
-                                    id="link"
-                                    defaultValue={inviteLink}
-                                    readOnly
-                                    className="bg-slate-50 border-slate-200"
-                                />
-                            </div>
-                            <Button size="sm" className="px-3" onClick={copyToClipboard}>
-                                <span className="sr-only">Copiar</span>
-                                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                            </Button>
+
+                        <div className="space-y-3 pt-2">
+                            {projects.length === 0 ? (
+                                <p className="text-sm text-slate-400 italic text-center py-4">Nenhum projeto ativo encontrado.</p>
+                            ) : projects.map(proj => {
+                                const link = `${window.location.origin}/register/coordinator/${user?.id}/${proj.id}`;
+                                return (
+                                    <div key={proj.id} className="space-y-1.5">
+                                        <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">{proj.name}</Label>
+                                        <div className="flex items-center gap-2">
+                                            <Input
+                                                value={link}
+                                                readOnly
+                                                className="bg-slate-50 border-slate-200 text-xs h-9"
+                                            />
+                                            <Button size="sm" className="px-3 shrink-0 h-9" onClick={() => copyLink(link, proj.id)}>
+                                                {copiedId === proj.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
-                        <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+
+                        <div className="mt-2 p-4 bg-blue-50 rounded-xl border border-blue-100">
                             <p className="text-xs text-blue-800 leading-relaxed font-medium">
-                                <strong>Importante:</strong> Este link é exclusivo para o seu perfil de gestor. Todos os coordenadores que se cadastrarem através dele aparecerão no seu painel.
+                                <strong>Importante:</strong> Cada link é exclusivo para o projeto. O coordenador será vinculado ao seu time e ao projeto ao se cadastrar.
                             </p>
                         </div>
                     </DialogContent>
@@ -160,6 +183,7 @@ const GestorCoordinatorsPage = () => {
                             <thead>
                                 <tr className="bg-slate-50/50">
                                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Coordenador</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Projeto</th>
                                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Leads</th>
                                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Coautores</th>
                                 </tr>
@@ -182,6 +206,19 @@ const GestorCoordinatorsPage = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
+                                            {coord.project_name
+                                                ? (() => {
+                                                    const isSP = coord.project_name.toLowerCase().includes('paulo');
+                                                    return (
+                                                        <Badge variant="outline" className={`whitespace-nowrap ${isSP ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                                                            {coord.project_name}
+                                                        </Badge>
+                                                    );
+                                                  })()
+                                                : <span className="text-xs text-slate-300 italic">—</span>
+                                            }
+                                        </td>
+                                        <td className="px-6 py-4">
                                             <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100">{coord.leads}</Badge>
                                         </td>
                                         <td className="px-6 py-4">
@@ -191,7 +228,7 @@ const GestorCoordinatorsPage = () => {
                                 ))}
                                 {filteredCoordinators.length === 0 && (
                                     <tr>
-                                        <td colSpan="3" className="px-6 py-12 text-center">
+                                        <td colSpan="4" className="px-6 py-12 text-center">
                                             <div className="flex flex-col items-center gap-2 text-slate-400">
                                                 <Users className="h-12 w-12 opacity-20" />
                                                 <p>Nenhum coordenador encontrado.</p>

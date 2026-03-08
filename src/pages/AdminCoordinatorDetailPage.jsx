@@ -1,138 +1,169 @@
-
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Users, FileText, Wallet, Trophy, Link as LinkIcon, ChevronRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Search, ArrowLeft } from 'lucide-react';
+
+const COLUMNS = [
+  { id: 'INDICADO', title: 'Indicado' },
+  { id: 'EM_ATENDIMENTO', title: 'Em Atend.' },
+  { id: 'EM_AVALIACAO', title: 'Em Avaliação' },
+  { id: 'APROVADO', title: 'Aprovado' },
+  { id: 'COAUTOR_ATIVO', title: 'Coautor Ativo' },
+  { id: 'NAO_APROVADO', title: 'Não Aprovado' },
+];
 
 const AdminCoordinatorDetailPage = () => {
   const { coordinatorId } = useParams();
   const navigate = useNavigate();
-  const { getTenantId } = useAuth();
-  const [data, setData] = useState(null);
+  const { toast } = useToast();
+  const [coordinator, setCoordinator] = useState(null);
+  const [leads, setLeads] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const rawData = JSON.parse(localStorage.getItem('nab_data') || '{}');
-    const tenantId = getTenantId();
-    
-    const coord = (rawData.users || []).find(u => u.id === coordinatorId && u.tenant_id === tenantId);
-    if (!coord) return;
+  const load = useCallback(async () => {
+    if (!coordinatorId) return;
+    setLoading(true);
+    try {
+      const [{ data: coord }, { data: leadsData }] = await Promise.all([
+        supabase.from('profiles').select('id, name, email, avatar_url').eq('id', coordinatorId).single(),
+        supabase.from('leads').select('*').eq('coordinator_id', coordinatorId).order('created_at', { ascending: false }),
+      ]);
+      setCoordinator(coord || null);
+      setLeads(leadsData || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [coordinatorId]);
 
-    const allUsers = (rawData.users || []).filter(u => u.tenant_id === tenantId);
-    const coordAuthors = allUsers.filter(u => u.role === 'COAUTOR' && u.coordinator_id === coord.id);
-    const projects = (rawData.projects || []).filter(p => p.tenant_id === tenantId);
-    const chapters = (rawData.chapters || []).filter(c => c.tenant_id === tenantId);
-    const payments = (rawData.payments || []).filter(p => p.tenant_id === tenantId && p.coordinator_id === coord.id);
+  useEffect(() => { load(); }, [load]);
 
-    // Enriched Authors
-    const authorsEnriched = coordAuthors.map(author => {
-      const authorChapters = chapters.filter(c => c.author_id === author.id);
-      const inProgress = authorChapters.filter(c => !['APROVADO', 'FINALIZADO'].includes(c.status)).length;
-      const completed = authorChapters.filter(c => ['APROVADO', 'FINALIZADO'].includes(c.status)).length;
-      
-      const authorProjects = projects.filter(p => p.participants.includes(author.id));
-      
-      return { ...author, chaptersCount: authorChapters.length, inProgress, completed, projects: authorProjects };
-    });
+  const handleDrop = async (e, statusId) => {
+    e.preventDefault();
+    const leadId = e.dataTransfer.getData('leadId');
+    const lead = leads.find(l => l.id === leadId);
+    if (!lead || lead.status === statusId) return;
 
-    const totalRevenue = payments.reduce((sum, p) => sum + (p.contract_amount || 0), 0);
-    const totalCommission = payments.reduce((sum, p) => sum + (p.commission_amount || 0), 0);
-    const paidCommission = payments.filter(p => p.commission_status === 'pago').reduce((sum, p) => sum + (p.commission_amount || 0), 0);
+    const { error } = await supabase
+      .from('leads')
+      .update({ status: statusId, updated_at: new Date().toISOString() })
+      .eq('id', leadId);
 
-    setData({
-      coord,
-      authors: authorsEnriched,
-      metrics: {
-        totalRevenue,
-        totalCommission,
-        paidCommission,
-        pendingCommission: totalCommission - paidCommission,
-        leadsCount: (rawData.leads || []).filter(l => l.coordinator_id === coord.id).length
-      }
-    });
+    if (!error) {
+      setLeads(prev => prev.map(l => l.id === leadId ? { ...l, status: statusId } : l));
+      toast({ title: 'Status atualizado' });
+    } else {
+      toast({ title: 'Erro ao atualizar', variant: 'destructive' });
+    }
+  };
 
-  }, [coordinatorId, getTenantId]);
+  if (loading) return (
+    <div className="flex h-64 items-center justify-center">
+      <div className="animate-spin h-8 w-8 border-b-2 border-blue-500 rounded-full" />
+    </div>
+  );
 
-  if (!data) return <div className="p-8 text-center">Carregando...</div>;
+  if (!coordinator) return (
+    <div className="flex h-64 items-center justify-center text-slate-400">Coordenador não encontrado.</div>
+  );
 
-  const { coord, authors, metrics } = data;
-  const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+  const filtered = leads.filter(l =>
+    l.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    l.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <Helmet><title>{coord.name} - NAB Admin</title></Helmet>
+    <>
+      <Helmet><title>{coordinator.name} - NAB Admin</title></Helmet>
+      <div className="space-y-5 flex flex-col h-[calc(100vh-6rem)]">
 
-      {/* Breadcrumb */}
-      <div className="flex items-center text-sm text-slate-500 gap-2 mb-2">
-        <Link to="/app/admin/coordinators" className="hover:text-blue-600 transition-colors">Coordenadores</Link>
-        <ChevronRight className="w-4 h-4" />
-        <span className="text-slate-800 font-medium">{coord.name}</span>
-      </div>
-
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/app/admin/coordinators')}><ArrowLeft className="w-5 h-5"/></Button>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800">{coord.name}</h1>
-            <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
-              <span>ID: {coord.id}</span>
-              <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-bold uppercase">{coord.role}</span>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-slate-600 hover:text-slate-900"
+              onClick={() => navigate('/app/admin/coordinators')}
+            >
+              <ArrowLeft className="w-4 h-4" /> Voltar
+            </Button>
+            <div className="w-px h-6 bg-slate-200" />
+            <div className="flex items-center gap-2">
+              {coordinator.avatar_url
+                ? <img src={coordinator.avatar_url} className="w-8 h-8 rounded-full object-cover" alt="" />
+                : <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                    {coordinator.name.charAt(0).toUpperCase()}
+                  </div>
+              }
+              <div>
+                <h1 className="text-xl font-bold text-slate-800 leading-tight">{coordinator.name}</h1>
+                <p className="text-xs text-slate-400">{coordinator.email} · Funil de leads — arraste para mover</p>
+              </div>
             </div>
+          </div>
+          <div className="relative w-full md:w-56">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Buscar lead..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="pl-9 bg-white border-slate-200"
+            />
+          </div>
+        </div>
+
+        {/* Kanban */}
+        <div className="flex-1 overflow-x-auto overflow-y-hidden pb-4">
+          <div className="flex gap-4 min-w-max h-full">
+            {COLUMNS.map(col => {
+              const colLeads = filtered.filter(l => l.status === col.id);
+              return (
+                <div
+                  key={col.id}
+                  className="w-56 flex flex-col rounded-xl border border-slate-200 bg-slate-50/60 p-3"
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={e => handleDrop(e, col.id)}
+                >
+                  <div className="flex justify-between items-center mb-3 px-1 shrink-0">
+                    <span className="text-sm font-bold text-slate-700">{col.title}</span>
+                    <Badge variant="secondary" className="bg-white border border-slate-200 text-slate-600">
+                      {colLeads.length}
+                    </Badge>
+                  </div>
+                  <div className="flex-1 overflow-y-auto space-y-2 pr-1 pb-2">
+                    {colLeads.map(lead => (
+                      <div
+                        key={lead.id}
+                        draggable
+                        onDragStart={e => e.dataTransfer.setData('leadId', lead.id)}
+                        className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm cursor-grab hover:border-blue-300 hover:shadow-md transition-all"
+                      >
+                        <p className="text-sm font-semibold text-slate-800 truncate">{lead.name}</p>
+                        {lead.phone && <p className="text-xs text-slate-400 mt-0.5">{lead.phone}</p>}
+                        {lead.email && <p className="text-xs text-slate-300 truncate">{lead.email}</p>}
+                      </div>
+                    ))}
+                    {colLeads.length === 0 && (
+                      <div className="h-12 border border-dashed border-slate-300 rounded-lg flex items-center justify-center text-xs text-slate-400">
+                        Soltar aqui
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-white border-slate-200 shadow-sm"><CardContent className="p-5 flex items-center gap-4"><Users className="w-8 h-8 text-blue-500 bg-blue-50 p-1.5 rounded-lg"/><div><p className="text-sm text-slate-500">Coautores Ativos</p><h3 className="text-2xl font-bold">{authors.length}</h3></div></CardContent></Card>
-        <Card className="bg-white border-slate-200 shadow-sm"><CardContent className="p-5 flex items-center gap-4"><Wallet className="w-8 h-8 text-emerald-500 bg-emerald-50 p-1.5 rounded-lg"/><div><p className="text-sm text-slate-500">Receita Gerada</p><h3 className="text-2xl font-bold">{formatCurrency(metrics.totalRevenue)}</h3></div></CardContent></Card>
-        <Card className="bg-white border-slate-200 shadow-sm"><CardContent className="p-5 flex items-center gap-4"><Wallet className="w-8 h-8 text-orange-500 bg-orange-50 p-1.5 rounded-lg"/><div><p className="text-sm text-slate-500">Comissão Pendente</p><h3 className="text-2xl font-bold">{formatCurrency(metrics.pendingCommission)}</h3></div></CardContent></Card>
-        <Card className="bg-white border-slate-200 shadow-sm"><CardContent className="p-5 flex items-center gap-4"><LinkIcon className="w-8 h-8 text-purple-500 bg-purple-50 p-1.5 rounded-lg"/><div><p className="text-sm text-slate-500">Cliques no Link</p><h3 className="text-2xl font-bold">{coord.click_count || 0}</h3></div></CardContent></Card>
-      </div>
-
-      <Card className="bg-white border-slate-200 shadow-sm mt-6">
-        <CardHeader className="border-b border-slate-100 pb-4">
-          <CardTitle className="text-lg text-slate-800">Coautores Associados</CardTitle>
-        </CardHeader>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-4">Coautor</th>
-                <th className="px-6 py-4">Projetos</th>
-                <th className="px-6 py-4 text-center">Capítulos (Total)</th>
-                <th className="px-6 py-4 text-center">Em Andamento</th>
-                <th className="px-6 py-4 text-center">Finalizados</th>
-                <th className="px-6 py-4 text-center">Ações</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {authors.map(author => (
-                <tr key={author.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-slate-800">{author.name}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-1">
-                      {author.projects.map(p => <Badge key={p.id} variant="outline" className="bg-slate-50 text-slate-600">{p.name}</Badge>)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-center">{author.chaptersCount}</td>
-                  <td className="px-6 py-4 text-center text-orange-600 font-medium">{author.inProgress}</td>
-                  <td className="px-6 py-4 text-center text-emerald-600 font-medium">{author.completed}</td>
-                  <td className="px-6 py-4 text-center">
-                    <Button size="sm" variant="ghost" className="text-blue-600" onClick={() => navigate(`/app/admin/coauthors/${author.id}`)}>Ver Produção</Button>
-                  </td>
-                </tr>
-              ))}
-              {authors.length === 0 && (
-                <tr><td colSpan="6" className="px-6 py-8 text-center text-slate-500">Nenhum coautor associado.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-    </div>
+    </>
   );
 };
 

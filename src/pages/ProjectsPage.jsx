@@ -1,7 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,17 +23,30 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Users, Calendar, Filter } from 'lucide-react';
+import { Plus, Users, Calendar, Loader2, FolderOpen } from 'lucide-react';
 
 const PROJECT_TYPES = ['COAUTORIA', 'MENTORIA', 'CURSO', 'PROJETO_COLETIVO'];
 const PROJECT_STATUSES = ['ativo', 'pausado', 'finalizado'];
 
+const STATUS_COLORS = {
+  ativo: 'bg-green-100 text-green-800',
+  pausado: 'bg-yellow-100 text-yellow-800',
+  finalizado: 'bg-gray-100 text-gray-800',
+};
+
+const TYPE_COLORS = {
+  COAUTORIA: 'bg-blue-100 text-blue-800',
+  MENTORIA: 'bg-purple-100 text-purple-800',
+  CURSO: 'bg-orange-100 text-orange-800',
+  PROJETO_COLETIVO: 'bg-pink-100 text-pink-800',
+};
+
 const ProjectsPage = () => {
-  const { user, getTenantId, isAdmin } = useAuth();
+  const { user, isAdmin, isCoautor } = useAuth();
   const { toast } = useToast();
   const [projects, setProjects] = useState([]);
-  const [filteredProjects, setFilteredProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -41,152 +55,93 @@ const ProjectsPage = () => {
     type: 'COAUTORIA',
     status: 'ativo',
     start_date: '',
-    end_date: ''
+    end_date: '',
   });
 
-  useEffect(() => {
-    loadProjects();
-  }, []);
-
-  useEffect(() => {
-    filterProjects();
-  }, [projects, typeFilter, statusFilter]);
-
-  const loadProjects = () => {
+  const loadProjects = useCallback(async () => {
+    setLoading(true);
     try {
-      const data = JSON.parse(localStorage.getItem('nab_data'));
-      let userProjects = data.projects.filter(p => p.tenant_id === getTenantId());
+      let query = supabase.from('projects').select('id, name, type, status, start_date, end_date, created_at');
 
-      // Non-admin users only see projects they're part of
-      if (!isAdmin()) {
-        userProjects = userProjects.filter(p => p.participants.includes(user.id));
+      // Coautores veem apenas projetos nos quais participam; gestores e admins veem todos
+      if (isCoautor()) {
+        const { data: participations } = await supabase
+          .from('project_participants')
+          .select('project_id')
+          .eq('user_id', user.id);
+        const ids = (participations || []).map(p => p.project_id);
+        if (ids.length === 0) { setProjects([]); setLoading(false); return; }
+        query = query.in('id', ids);
       }
 
-      setProjects(userProjects);
+      const { data, error } = await query.order('created_at', { ascending: false });
+      if (error) throw error;
+      setProjects(data || []);
     } catch (err) {
-      console.error('Error loading projects:', err);
-      toast({
-        title: 'Erro',
-        description: 'Falha ao carregar projetos',
-        variant: 'destructive'
-      });
+      console.error(err);
+      toast({ title: 'Erro', description: 'Falha ao carregar projetos', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, isAdmin, isCoautor]);
 
-  const filterProjects = () => {
-    let filtered = [...projects];
+  useEffect(() => { loadProjects(); }, [loadProjects]);
 
-    if (typeFilter !== 'ALL') {
-      filtered = filtered.filter(p => p.type === typeFilter);
-    }
-
-    if (statusFilter !== 'ALL') {
-      filtered = filtered.filter(p => p.status === statusFilter);
-    }
-
-    setFilteredProjects(filtered);
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setSaving(true);
     try {
-      const data = JSON.parse(localStorage.getItem('nab_data'));
-      
-      const newProject = {
-        id: `project-${Date.now()}`,
-        ...formData,
-        tenant_id: getTenantId(),
-        participants: [user.id],
-        created_at: new Date().toISOString()
-      };
-
-      data.projects.push(newProject);
-      localStorage.setItem('nab_data', JSON.stringify(data));
+      const { error } = await supabase.from('projects').insert({
+        name: formData.name,
+        type: formData.type,
+        status: formData.status,
+        start_date: formData.start_date || null,
+        end_date: formData.end_date || null,
+      });
+      if (error) throw error;
+      toast({ title: 'Projeto criado!' });
+      setIsModalOpen(false);
+      setFormData({ name: '', type: 'COAUTORIA', status: 'ativo', start_date: '', end_date: '' });
       loadProjects();
-      closeModal();
-
-      toast({
-        title: 'Sucesso',
-        description: 'Projeto criado com sucesso'
-      });
     } catch (err) {
-      console.error('Error creating project:', err);
-      toast({
-        title: 'Erro',
-        description: 'Falha ao criar projeto',
-        variant: 'destructive'
-      });
+      toast({ title: 'Erro', description: err.message, variant: 'destructive' });
+    } finally {
+      setSaving(false);
     }
   };
 
-  const openModal = () => {
-    setFormData({
-      name: '',
-      type: 'COAUTORIA',
-      status: 'ativo',
-      start_date: '',
-      end_date: ''
-    });
-    setIsModalOpen(true);
-  };
+  const filtered = projects.filter(p => {
+    const matchType = typeFilter === 'ALL' || p.type === typeFilter;
+    const matchStatus = statusFilter === 'ALL' || p.status === statusFilter;
+    return matchType && matchStatus;
+  });
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const getStatusColor = (status) => {
-    const colors = {
-      ativo: 'bg-green-100 text-green-800',
-      pausado: 'bg-yellow-100 text-yellow-800',
-      finalizado: 'bg-gray-100 text-gray-800'
-    };
-    return colors[status] || 'bg-gray-100 text-gray-800';
-  };
-
-  const getTypeColor = (type) => {
-    const colors = {
-      COAUTORIA: 'bg-blue-100 text-blue-800',
-      MENTORIA: 'bg-purple-100 text-purple-800',
-      CURSO: 'bg-orange-100 text-orange-800',
-      PROJETO_COLETIVO: 'bg-pink-100 text-pink-800'
-    };
-    return colors[type] || 'bg-gray-100 text-gray-800';
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center h-96">
+      <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+    </div>
+  );
 
   return (
     <>
       <Helmet>
         <title>Projetos - NAB Platform</title>
-        <meta name="description" content="Gerencie seus projetos de coautoria e mentoria" />
       </Helmet>
 
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Projetos</h1>
-            <p className="text-muted-foreground mt-1">
-              Gerencie projetos de coautoria, mentoria e cursos
-            </p>
+            <p className="text-muted-foreground mt-1">Gerencie projetos de coautoria, mentoria e cursos</p>
           </div>
-          <Button onClick={openModal} className="bg-primary hover:bg-primary/90">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Projeto
-          </Button>
+          {isAdmin() && (
+            <Button onClick={() => setIsModalOpen(true)} className="bg-primary hover:bg-primary/90">
+              <Plus className="h-4 w-4 mr-2" /> Novo Projeto
+            </Button>
+          )}
         </div>
 
-        {/* Filters */}
+        {/* Filtros */}
         <div className="flex flex-col md:flex-row gap-4 bg-card p-4 rounded-lg shadow">
           <Select value={typeFilter} onValueChange={setTypeFilter}>
             <SelectTrigger className="w-full md:w-48 bg-background text-foreground">
@@ -212,49 +167,44 @@ const ProjectsPage = () => {
           </Select>
         </div>
 
-        {/* Projects Grid */}
+        {/* Grid de projetos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.length === 0 ? (
-            <div className="col-span-full text-center py-12 text-muted-foreground">
-              Nenhum projeto encontrado
+          {filtered.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-16 text-slate-400">
+              <FolderOpen className="h-12 w-12 mb-3 opacity-30" />
+              <p>Nenhum projeto encontrado</p>
             </div>
-          ) : (
-            filteredProjects.map((project) => (
-              <Card
-                key={project.id}
-                className="hover-lift shadow-lg cursor-pointer"
-                onClick={() => toast({ title: 'Detalhes', description: '🚧 Funcionalidade em desenvolvimento' })}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg">{project.name}</CardTitle>
-                    <Badge className={getStatusColor(project.status)}>
-                      {project.status}
-                    </Badge>
-                  </div>
-                  <Badge className={`${getTypeColor(project.type)} mt-2 w-fit`}>
-                    {project.type}
+          ) : filtered.map(project => (
+            <Card key={project.id} className="shadow-md hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="text-lg leading-tight">{project.name}</CardTitle>
+                  <Badge className={STATUS_COLORS[project.status] || 'bg-gray-100 text-gray-800'}>
+                    {project.status}
                   </Badge>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
+                </div>
+                <Badge className={`${TYPE_COLORS[project.type] || 'bg-gray-100 text-gray-800'} mt-2 w-fit`}>
+                  {project.type}
+                </Badge>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm text-muted-foreground">
+                {(project.start_date || project.end_date) && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 shrink-0" />
                     <span>
-                      {new Date(project.start_date).toLocaleDateString('pt-BR')} - {new Date(project.end_date).toLocaleDateString('pt-BR')}
+                      {project.start_date ? new Date(project.start_date).toLocaleDateString('pt-BR') : '—'}
+                      {' → '}
+                      {project.end_date ? new Date(project.end_date).toLocaleDateString('pt-BR') : '—'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="h-4 w-4" />
-                    <span>{project.participants.length} participantes</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
+                )}
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
 
-      {/* Create Modal */}
+      {/* Modal criar projeto */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -266,14 +216,14 @@ const ProjectsPage = () => {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
                 required
                 className="bg-background text-foreground"
               />
             </div>
             <div>
-              <Label htmlFor="type">Tipo</Label>
-              <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+              <Label>Tipo</Label>
+              <Select value={formData.type} onValueChange={v => setFormData(f => ({ ...f, type: v }))}>
                 <SelectTrigger className="bg-background text-foreground">
                   <SelectValue />
                 </SelectTrigger>
@@ -285,8 +235,8 @@ const ProjectsPage = () => {
               </Select>
             </div>
             <div>
-              <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+              <Label>Status</Label>
+              <Select value={formData.status} onValueChange={v => setFormData(f => ({ ...f, status: v }))}>
                 <SelectTrigger className="bg-background text-foreground">
                   <SelectValue />
                 </SelectTrigger>
@@ -297,33 +247,32 @@ const ProjectsPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="start_date">Data de Início</Label>
-              <Input
-                id="start_date"
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                required
-                className="bg-background text-foreground"
-              />
-            </div>
-            <div>
-              <Label htmlFor="end_date">Data de Término</Label>
-              <Input
-                id="end_date"
-                type="date"
-                value={formData.end_date}
-                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                required
-                className="bg-background text-foreground"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Data de Início</Label>
+                <Input
+                  type="date"
+                  value={formData.start_date}
+                  onChange={e => setFormData(f => ({ ...f, start_date: e.target.value }))}
+                  className="bg-background text-foreground"
+                />
+              </div>
+              <div>
+                <Label>Data de Término</Label>
+                <Input
+                  type="date"
+                  value={formData.end_date}
+                  onChange={e => setFormData(f => ({ ...f, end_date: e.target.value }))}
+                  className="bg-background text-foreground"
+                />
+              </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={closeModal}>
-                Cancelar
+              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
+              <Button type="submit" disabled={saving}>
+                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Criar Projeto
               </Button>
-              <Button type="submit">Criar Projeto</Button>
             </DialogFooter>
           </form>
         </DialogContent>
