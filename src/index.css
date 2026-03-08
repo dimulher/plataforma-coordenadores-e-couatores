@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Core UI Colors */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+    /* #3B82F6 */
+
+    /* Semantic Colors */
+    --primary: 221 83% 53%;
+    /* #3B82F6 */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84% 60%;
+    /* #EF4444 */
+    --destructive-foreground: 210 40% 98%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    /* Status Colors */
+    --success: 152 69% 39%;
+    /* #10B981 */
+    --warning: 38 92% 50%;
+    /* #F59E0B */
+    --error: 16 100% 60%;
+    /* #FF6B35 */
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 221 83% 53%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217 24% 27%;
+    --secondary-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --muted: 217 24% 27%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217 24% 27%;
+    --accent-foreground: 210 40% 98%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /* Editor specific styles */
+  .editor-content {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  .editor-content:focus {
+    outline: none;
+  }
+
+  .editor-content h1 {
+    @apply text-4xl font-bold mb-4 mt-6;
+  }
+
+  .editor-content h2 {
+    @apply text-3xl font-bold mb-3 mt-5;
+  }
+
+  .editor-content h3 {
+    @apply text-2xl font-bold mb-2 mt-4;
+  }
+
+  .editor-content p {
+    @apply mb-4 leading-relaxed;
+  }
+
+  .editor-content ul {
+    @apply list-disc list-inside mb-4 pl-4;
+  }
+
+  .editor-content ol {
+    @apply list-decimal list-inside mb-4 pl-4;
+  }
+
+  .editor-content blockquote {
+    border-left: 4px solid #3B82F6;
+    padding: 10px 16px;
+    font-style: italic;
+    background-color: #EFF6FF;
+    color: #1e3a5f;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+  }
+
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 rounded-full;
+  }
+
+  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    @apply bg-slate-400;
+  }
+}
+
+/* ── Glow Button ─────────────────────────────────────────── */
+.glow-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 3.5rem;
+  padding: 0 2rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+  overflow: hidden;
+  transition: opacity 0.2s, transform 0.1s;
+  outline: none;
+}
+
+.glow-btn::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1d4ed8, #60a5fa, #3b82f6);
+  filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.35s;
+  z-index: -1;
+}
+
+.glow-btn:hover::before {
+  opacity: 0.75;
+}
+
+.glow-btn:hover {
+  opacity: 0.93;
+}
+
+.glow-btn:active,
+.glow-btn[data-state='clicked'] {
+  transform: scale(0.98);
+}
+
+.glow-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.glow-btn__content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.glow-btn__icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  animation: sparkle-spin 3s linear infinite;
+}
+
+@keyframes sparkle-spin {
+  0%   { transform: rotate(0deg) scale(1); opacity: 1; }
+  50%  { transform: rotate(180deg) scale(1.2); opacity: 0.7; }
+  100% { transform: rotate(360deg) scale(1); opacity: 1; }
+}
