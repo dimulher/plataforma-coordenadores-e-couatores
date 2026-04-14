@@ -1,17 +1,35 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Camera, Save, Lock, User, Phone, MapPin, Hash, Loader2, Globe, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { Camera, Save, Lock, User, Phone, MapPin, Hash, Loader2 } from 'lucide-react';
 
-const Field = ({ label, id, type = 'text', value, onChange, placeholder, disabled }) => (
-  <div className="space-y-1.5">
-    <label htmlFor={id} className="text-sm font-medium text-slate-700">{label}</label>
+/* ─────────────────────────────────────────────────────────────
+   Brand palette — Novos Autores do Brasil
+   60 % → Cream #F5F5D9 + white   (backgrounds)
+   30 % → Navy  #001B36           (structure, text, borders)
+   10 % → Red   #AC1B00           (logo, CTAs, accents)
+   +      Blue  #3F7DB0           (secondary actions, focus)
+───────────────────────────────────────────────────────────── */
+const NAV   = '#001B36';
+const BLUE  = '#3F7DB0';
+const RED   = '#AC1B00';
+const CREAM = '#F5F5D9';
+
+/* ── Field ──────────────────────────────────────────────────── */
+const Field = ({ label, id, type = 'text', value, onChange, placeholder, disabled, icon: Icon }) => (
+  <div className="flex flex-col gap-1.5">
+    <label
+      htmlFor={id}
+      className="text-[11px] font-semibold tracking-widest uppercase flex items-center gap-1.5"
+      style={{ color: NAV, fontFamily: 'Poppins, sans-serif', opacity: 0.55 }}
+    >
+      {Icon && <Icon className="h-3 w-3" />}
+      {label}
+    </label>
     <input
       id={id}
       type={type}
@@ -19,129 +37,165 @@ const Field = ({ label, id, type = 'text', value, onChange, placeholder, disable
       onChange={onChange}
       placeholder={placeholder}
       disabled={disabled}
-      className="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+      className="w-full px-4 py-3 rounded-xl text-sm transition-all duration-200
+                 disabled:opacity-40 disabled:cursor-not-allowed"
+      style={{
+        border: `1.5px solid ${NAV}1A`,
+        background: disabled ? CREAM : '#ffffff',
+        color: NAV,
+        fontFamily: "'Be Vietnam Pro', sans-serif",
+        outline: 'none',
+      }}
+      onFocus={e => {
+        e.target.style.borderColor = BLUE;
+        e.target.style.boxShadow = `0 0 0 3px ${BLUE}25`;
+      }}
+      onBlur={e => {
+        e.target.style.borderColor = `${NAV}1A`;
+        e.target.style.boxShadow = 'none';
+      }}
     />
   </div>
 );
 
+/* ── Section card ───────────────────────────────────────────── */
+const Section = ({ icon: Icon, iconBg, iconColor, title, children, accentColor }) => (
+  <div
+    className="rounded-2xl overflow-hidden"
+    style={{
+      background: '#ffffff',
+      border: `1px solid ${NAV}0F`,
+      boxShadow: `0 1px 3px ${NAV}0A, 0 4px 20px ${NAV}06`,
+    }}
+  >
+    {/* header bar */}
+    <div
+      className="flex items-center gap-3 px-6 py-4"
+      style={{
+        borderBottom: `1px solid ${NAV}0C`,
+        background: `linear-gradient(90deg, ${accentColor || NAV}08 0%, transparent 60%)`,
+      }}
+    >
+      <span
+        className="flex items-center justify-center w-8 h-8 rounded-lg shrink-0"
+        style={{ background: iconBg || `${NAV}10` }}
+      >
+        <Icon className="h-4 w-4" style={{ color: iconColor || NAV }} />
+      </span>
+      <h2
+        className="text-[15px] font-semibold"
+        style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}
+      >
+        {title}
+      </h2>
+      {/* accent dot */}
+      <span
+        className="ml-auto w-1.5 h-1.5 rounded-full"
+        style={{ background: accentColor || BLUE }}
+      />
+    </div>
+
+    {/* body */}
+    <div className="px-6 py-6">{children}</div>
+  </div>
+);
+
+/* ── Primary button (red — 10 % accent) ────────────────────── */
+const PrimaryBtn = ({ onClick, disabled, loading, loadingLabel, label, icon: Icon }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled || loading}
+    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold
+               text-white transition-all duration-150 active:scale-[0.97]
+               disabled:opacity-50 disabled:cursor-not-allowed"
+    style={{
+      background: RED,
+      fontFamily: 'Poppins, sans-serif',
+      boxShadow: `0 4px 14px ${RED}45`,
+    }}
+    onMouseEnter={e => { if (!disabled) e.currentTarget.style.background = '#8a1500'; }}
+    onMouseLeave={e => { if (!disabled) e.currentTarget.style.background = RED; }}
+  >
+    {loading
+      ? <Loader2 className="h-4 w-4 animate-spin" />
+      : <Icon className="h-4 w-4" />}
+    {loading ? loadingLabel : label}
+  </button>
+);
+
+/* ── Outline button (navy) ──────────────────────────────────── */
+const OutlineBtn = ({ onClick, disabled, loading, loadingLabel, label, icon: Icon }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled || loading}
+    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold
+               transition-all duration-150 active:scale-[0.97]
+               disabled:opacity-50 disabled:cursor-not-allowed"
+    style={{
+      border: `1.5px solid ${NAV}`,
+      color: NAV,
+      background: 'transparent',
+      fontFamily: 'Poppins, sans-serif',
+    }}
+    onMouseEnter={e => { if (!disabled) e.currentTarget.style.background = `${NAV}08`; }}
+    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+  >
+    {loading
+      ? <Loader2 className="h-4 w-4 animate-spin" />
+      : <Icon className="h-4 w-4" />}
+    {loading ? loadingLabel : label}
+  </button>
+);
+
+/* ═══════════════════════════════════════════════════════════════
+   Page
+═══════════════════════════════════════════════════════════════ */
 const CoauthorSettingsPage = () => {
   const { user, refreshProfile } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef(null);
 
-  const [name, setName] = useState(user?.name || '');
-  const [socialName, setSocialName] = useState(user?.social_name || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [cep, setCep] = useState(user?.cep || '');
-  const [address, setAddress] = useState(user?.address || '');
+  const [name, setName]                   = useState(user?.name || '');
+  const [socialName, setSocialName]       = useState(user?.social_name || '');
+  const [phone, setPhone]                 = useState(user?.phone || '');
+  const [cep, setCep]                     = useState(user?.cep || '');
+  const [address, setAddress]             = useState(user?.address || '');
   const [addressNumber, setAddressNumber] = useState(user?.address_number || '');
-  const [cpf, setCpf] = useState(user?.cpf || '');
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
+  const [cpf, setCpf]                     = useState(user?.cpf || '');
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || '');
 
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
+  const [newPassword, setNewPassword]         = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingProfile, setSavingProfile]   = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-  // Site request state
-  const [siteRequest, setSiteRequest] = useState(null);
-  const [requestingsite, setRequestingSite] = useState(false);
-
-  useEffect(() => {
-    if (!user?.id) return;
-    supabase
-      .from('site_requests')
-      .select('*')
-      .eq('coauthor_id', user.id)
-      .maybeSingle()
-      .then(({ data }) => setSiteRequest(data || null));
-  }, [user?.id]);
-
-  const handleRequestSite = async () => {
-    setRequestingSite(true);
-    try {
-      const { data: existing } = await supabase
-        .from('site_requests')
-        .select('id')
-        .eq('coauthor_id', user.id)
-        .maybeSingle();
-
-      let reqData, reqError;
-
-      if (existing?.id) {
-        ({ data: reqData, error: reqError } = await supabase
-          .from('site_requests')
-          .update({ status: 'PENDENTE' })
-          .eq('id', existing.id)
-          .select()
-          .single());
-      } else {
-        ({ data: reqData, error: reqError } = await supabase
-          .from('site_requests')
-          .insert({ coauthor_id: user.id, status: 'PENDENTE' })
-          .select()
-          .single());
-      }
-
-      if (reqError) throw reqError;
-      setSiteRequest(reqData);
-      toast({ title: 'Solicitação enviada!', description: 'Entraremos em contato em breve.' });
-    } catch (err) {
-      toast({ title: 'Erro ao solicitar', description: err.message, variant: 'destructive' });
-    } finally {
-      setRequestingSite(false);
-    }
-  };
-
-  const getInitials = (n) => {
-    if (!n) return 'U';
-    return n.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
-  };
+  const getInitials = (n) =>
+    n ? n.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase() : 'U';
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Preview imediato
     const reader = new FileReader();
-    reader.onload = (ev) => setAvatarPreview(ev.target.result);
+    reader.onload = ev => setAvatarPreview(ev.target.result);
     reader.readAsDataURL(file);
-
     setUploadingAvatar(true);
     try {
       const ext = file.name.split('.').pop();
       const filePath = `avatars/${user.id}.${ext}`;
-
       const { error: uploadError } = await supabase.storage
-        .from('profiles')
-        .upload(filePath, file, { upsert: true });
-
+        .from('profiles').upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage
-        .from('profiles')
-        .getPublicUrl(filePath);
-
+      const { data: urlData } = supabase.storage.from('profiles').getPublicUrl(filePath);
       const publicUrl = urlData.publicUrl;
-      setAvatarUrl(publicUrl);
       setAvatarPreview(publicUrl);
-
-      // Atualiza imediatamente no banco
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', user.id);
-
+      const { error: updateError } = await supabase.from('profiles')
+        .update({ avatar_url: publicUrl }).eq('id', user.id);
       if (updateError) throw updateError;
-
       await refreshProfile();
-      toast({ title: 'Foto atualizada!', description: 'Sua foto de perfil foi alterada.' });
+      toast({ title: 'Foto atualizada!' });
     } catch (err) {
-      console.error('Avatar upload error:', err);
       toast({ title: 'Erro ao enviar foto', description: err.message, variant: 'destructive' });
       setAvatarPreview(user?.avatar_url || '');
     } finally {
@@ -151,30 +205,24 @@ const CoauthorSettingsPage = () => {
 
   const handleSaveProfile = async () => {
     if (!name.trim()) {
-      toast({ title: 'Nome obrigatório', description: 'Por favor, informe seu nome.', variant: 'destructive' });
+      toast({ title: 'Nome obrigatório', variant: 'destructive' });
       return;
     }
     setSavingProfile(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          name: name.trim(),
-          social_name: socialName.trim() || null,
-          phone: phone.trim() || null,
-          cep: cep.trim() || null,
-          address: address.trim() || null,
-          address_number: addressNumber.trim() || null,
-          cpf: cpf.trim() || null,
-        })
-        .eq('id', user.id);
-
+      const { error } = await supabase.from('profiles').update({
+        name: name.trim(),
+        social_name: socialName.trim() || null,
+        phone: phone.trim() || null,
+        cep: cep.trim() || null,
+        address: address.trim() || null,
+        address_number: addressNumber.trim() || null,
+        cpf: cpf.trim() || null,
+      }).eq('id', user.id);
       if (error) throw error;
-
       await refreshProfile();
       toast({ title: 'Perfil atualizado!', description: 'Suas informações foram salvas.' });
     } catch (err) {
-      console.error('Save profile error:', err);
       toast({ title: 'Erro ao salvar', description: err.message, variant: 'destructive' });
     } finally {
       setSavingProfile(false);
@@ -187,25 +235,21 @@ const CoauthorSettingsPage = () => {
       return;
     }
     if (newPassword.length < 6) {
-      toast({ title: 'Senha muito curta', description: 'A senha deve ter no mínimo 6 caracteres.', variant: 'destructive' });
+      toast({ title: 'Senha muito curta', description: 'Mínimo 6 caracteres.', variant: 'destructive' });
       return;
     }
     if (newPassword !== confirmPassword) {
       toast({ title: 'As senhas não coincidem', variant: 'destructive' });
       return;
     }
-
     setSavingPassword(true);
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-
-      setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      toast({ title: 'Senha alterada!', description: 'Sua senha foi atualizada com sucesso.' });
+      toast({ title: 'Senha alterada!', description: 'Atualizada com sucesso.' });
     } catch (err) {
-      console.error('Change password error:', err);
       toast({ title: 'Erro ao alterar senha', description: err.message, variant: 'destructive' });
     } finally {
       setSavingPassword(false);
@@ -214,290 +258,313 @@ const CoauthorSettingsPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Meu Perfil - NAB Platform</title>
-      </Helmet>
+      <Helmet><title>Meu Perfil — Novos Autores do Brasil</title></Helmet>
 
-      <div className="space-y-8 pb-12 max-w-2xl mx-auto">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">Meu Perfil</h1>
-          <p className="text-slate-500 mt-1">Gerencie suas informações pessoais e de acesso</p>
+      <div className="max-w-2xl mx-auto pb-16 space-y-5">
+
+        {/* ══════════════════════════════════════════════════════
+            HERO HEADER — Navy bg, logo + brand name + title
+        ═════════════════════════════════════════════════════ */}
+        <div
+          className="rounded-2xl relative overflow-hidden"
+          style={{ background: NAV }}
+        >
+          {/* Cream texture strip along bottom */}
+          <div
+            className="absolute bottom-0 left-0 right-0 h-1"
+            style={{ background: `linear-gradient(90deg, ${RED} 0%, ${BLUE} 50%, ${RED} 100%)` }}
+          />
+
+          {/* Decorative background shapes */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-48 opacity-[0.04]"
+            style={{
+              background: `radial-gradient(ellipse at right center, ${CREAM} 0%, transparent 70%)`,
+            }}
+          />
+          <div
+            className="absolute -bottom-8 -left-8 w-40 h-40 rounded-full opacity-[0.06]"
+            style={{ background: BLUE }}
+          />
+
+          {/* Content */}
+          <div className="relative px-8 py-7 flex items-center gap-6">
+            {/* Logo mark */}
+            <div
+              className="shrink-0 flex items-center justify-center w-16 h-16 rounded-2xl"
+              style={{
+                background: `${RED}20`,
+                border: `1.5px solid ${RED}40`,
+              }}
+            >
+              <img
+                src="/logo-nab.png"
+                alt="Novos Autores do Brasil"
+                className="w-10 h-10 object-contain"
+                style={{ filter: 'brightness(1.1)' }}
+              />
+            </div>
+
+            {/* Text block */}
+            <div className="flex-1 min-w-0">
+              <p
+                className="text-[10px] font-semibold tracking-[0.2em] uppercase mb-1"
+                style={{ color: BLUE, fontFamily: 'Poppins, sans-serif' }}
+              >
+                Novos Autores do Brasil
+              </p>
+              <h1
+                className="text-2xl font-bold leading-tight"
+                style={{ color: '#ffffff', fontFamily: 'Poppins, sans-serif' }}
+              >
+                Meu Perfil
+              </h1>
+              <p
+                className="text-[13px] mt-1"
+                style={{ color: `${CREAM}99`, fontFamily: "'Be Vietnam Pro', sans-serif" }}
+              >
+                Gerencie suas informações pessoais e de acesso
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Foto de Perfil */}
-        <Card className="border-slate-200 shadow-sm">
-          <CardHeader className="pb-4 border-b border-slate-100">
-            <CardTitle className="text-slate-800 flex items-center gap-2">
-              <User className="h-5 w-5 text-blue-500" /> Foto de Perfil
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-6">
-              <div className="relative">
-                <Avatar className="h-20 w-20 border-2 border-blue-200">
-                  {avatarPreview && <AvatarImage src={avatarPreview} alt={name} />}
-                  <AvatarFallback className="bg-blue-100 text-blue-700 text-xl font-bold">
-                    {getInitials(name)}
-                  </AvatarFallback>
-                </Avatar>
-                {uploadingAvatar && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-full">
-                    <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-                  </div>
-                )}
-              </div>
-              <div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  className="hidden"
-                  onChange={handleAvatarChange}
-                />
-                <Button
-                  variant="outline"
-                  className="gap-2 border-blue-200 text-blue-700 hover:bg-blue-50"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingAvatar}
+        {/* ══════════════════════════════════════════════════════
+            FOTO DE PERFIL
+        ═════════════════════════════════════════════════════ */}
+        <Section
+          icon={User}
+          iconBg={`${BLUE}18`}
+          iconColor={BLUE}
+          accentColor={BLUE}
+          title="Foto de Perfil"
+        >
+          <div className="flex items-center gap-5">
+            {/* Avatar */}
+            <div className="relative shrink-0">
+              <Avatar
+                className="h-20 w-20"
+                style={{
+                  border: `2.5px solid ${BLUE}`,
+                  boxShadow: `0 0 0 4px ${BLUE}15`,
+                }}
+              >
+                {avatarPreview && <AvatarImage src={avatarPreview} alt={name} />}
+                <AvatarFallback
+                  className="text-xl font-bold"
+                  style={{
+                    background: NAV,
+                    color: CREAM,
+                    fontFamily: 'Poppins, sans-serif',
+                  }}
                 >
-                  <Camera className="h-4 w-4" />
-                  {uploadingAvatar ? 'Enviando...' : 'Alterar Foto'}
-                </Button>
-                <p className="text-xs text-slate-400 mt-2">PNG, JPG ou WEBP. Máx. 5MB.</p>
-              </div>
+                  {getInitials(name)}
+                </AvatarFallback>
+              </Avatar>
+              {uploadingAvatar && (
+                <div
+                  className="absolute inset-0 flex items-center justify-center rounded-full"
+                  style={{ background: 'rgba(255,255,255,0.85)' }}
+                >
+                  <Loader2 className="h-5 w-5 animate-spin" style={{ color: BLUE }} />
+                </div>
+              )}
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Dados pessoais */}
-        <Card className="border-slate-200 shadow-sm">
-          <CardHeader className="pb-4 border-b border-slate-100">
-            <CardTitle className="text-slate-800 flex items-center gap-2">
-              <User className="h-5 w-5 text-blue-500" /> Dados Pessoais
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-4">
-            <Field
-              label="Nome completo"
-              id="name"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Seu nome completo"
-            />
-            <Field
-              label="Nome Social (Opcional)"
-              id="social_name"
-              value={socialName}
-              onChange={e => setSocialName(e.target.value)}
-              placeholder="Como prefere ser chamado?"
-            />
-            <Field
-              label="E-mail"
-              id="email"
-              type="email"
-              value={user?.email || ''}
-              disabled
-              placeholder="seu@email.com"
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field
-                label="CPF"
-                id="cpf"
-                value={cpf}
-                onChange={e => setCpf(e.target.value)}
-                placeholder="000.000.000-00"
+            {/* Upload controls */}
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={handleAvatarChange}
               />
-              <div className="space-y-1.5">
-                <label htmlFor="phone" className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
-                  <Phone className="h-3.5 w-3.5 text-slate-400" /> Telefone / WhatsApp
-                </label>
-                <input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
-                  placeholder="(11) 99999-9999"
-                  className="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm
+                           font-semibold transition-all duration-150 active:scale-[0.97]"
+                style={{
+                  border: `1.5px solid ${BLUE}`,
+                  color: BLUE,
+                  background: `${BLUE}0D`,
+                  fontFamily: 'Poppins, sans-serif',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = `${BLUE}20`; }}
+                onMouseLeave={e => { e.currentTarget.style.background = `${BLUE}0D`; }}
+              >
+                <Camera className="h-4 w-4" />
+                {uploadingAvatar ? 'Enviando...' : 'Alterar Foto'}
+              </button>
+              <p
+                className="text-xs mt-2"
+                style={{ color: NAV, opacity: 0.4, fontFamily: "'Be Vietnam Pro', sans-serif" }}
+              >
+                PNG, JPG ou WEBP. Máx. 5 MB.
+              </p>
             </div>
-            <div className="space-y-1.5">
-              <label htmlFor="cep" className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
-                <Hash className="h-3.5 w-3.5 text-slate-400" /> CEP
+          </div>
+        </Section>
+
+        {/* ══════════════════════════════════════════════════════
+            DADOS PESSOAIS
+        ═════════════════════════════════════════════════════ */}
+        <Section
+          icon={User}
+          iconBg={`${RED}15`}
+          iconColor={RED}
+          accentColor={RED}
+          title="Dados Pessoais"
+        >
+          <div className="space-y-4">
+            <Field label="Nome completo" id="name"
+              value={name} onChange={e => setName(e.target.value)}
+              placeholder="Seu nome completo" />
+
+            <Field label="Nome Social (Opcional)" id="social_name"
+              value={socialName} onChange={e => setSocialName(e.target.value)}
+              placeholder="Como prefere ser chamado?" />
+
+            <Field label="E-mail" id="email" type="email"
+              value={user?.email || ''} disabled placeholder="seu@email.com" />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="CPF" id="cpf"
+                value={cpf} onChange={e => setCpf(e.target.value)}
+                placeholder="000.000.000-00" />
+              <Field label="Telefone / WhatsApp" id="phone" type="tel"
+                icon={Phone} value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="(11) 99999-9999" />
+            </div>
+
+            {/* CEP com auto-fill */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="cep"
+                className="text-[11px] font-semibold tracking-widest uppercase flex items-center gap-1.5"
+                style={{ color: NAV, fontFamily: 'Poppins, sans-serif', opacity: 0.55 }}
+              >
+                <Hash className="h-3 w-3" /> CEP
               </label>
               <input
                 id="cep"
                 type="text"
                 value={cep}
+                maxLength={9}
+                placeholder="00000-000"
+                className="w-full px-4 py-3 rounded-xl text-sm transition-all duration-200"
+                style={{
+                  border: `1.5px solid ${NAV}1A`,
+                  background: '#ffffff',
+                  color: NAV,
+                  fontFamily: "'Be Vietnam Pro', sans-serif",
+                  outline: 'none',
+                }}
+                onFocus={e => {
+                  e.target.style.borderColor = BLUE;
+                  e.target.style.boxShadow = `0 0 0 3px ${BLUE}25`;
+                }}
+                onBlur={e => {
+                  e.target.style.borderColor = `${NAV}1A`;
+                  e.target.style.boxShadow = 'none';
+                }}
                 onChange={async (e) => {
                   const val = e.target.value.replace(/\D/g, '').slice(0, 8);
-                  const formatted = val.length > 5 ? `${val.slice(0, 5)}-${val.slice(5)}` : val;
-                  setCep(formatted);
+                  const fmt = val.length > 5 ? `${val.slice(0, 5)}-${val.slice(5)}` : val;
+                  setCep(fmt);
                   if (val.length === 8) {
                     try {
-                      const res = await fetch(`https://viacep.com.br/ws/${val}/json/`);
+                      const res  = await fetch(`https://viacep.com.br/ws/${val}/json/`);
                       const data = await res.json();
-                      if (!data.erro) {
+                      if (!data.erro)
                         setAddress(`${data.logradouro}, ${data.bairro}, ${data.localidade}, ${data.uf}`);
-                      }
                     } catch { }
                   }
                 }}
-                placeholder="00000-000"
-                maxLength={9}
-                className="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <p className="text-xs text-slate-400">Digite o CEP para preencher o endereço automaticamente.</p>
-            </div>
-            <div className="space-y-1.5">
-              <label htmlFor="address" className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5 text-slate-400" /> Endereço
-              </label>
-              <input
-                id="address"
-                type="text"
-                value={address}
-                onChange={e => setAddress(e.target.value)}
-                placeholder="Rua, bairro, cidade - UF"
-                className="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label htmlFor="address_number" className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
-                <Hash className="h-3.5 w-3.5 text-slate-400" /> Número
-              </label>
-              <input
-                id="address_number"
-                type="text"
-                value={addressNumber}
-                onChange={e => setAddressNumber(e.target.value)}
-                placeholder="Número ou S/N"
-                className="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <p className="text-[11px] opacity-35" style={{ color: NAV }}>
+                Digite o CEP para preencher o endereço automaticamente.
+              </p>
             </div>
 
-            <div className="pt-2">
-              <Button
-                onClick={handleSaveProfile}
-                disabled={savingProfile}
-                className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
-              >
-                {savingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                {savingProfile ? 'Salvando...' : 'Salvar Dados'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            <Field label="Endereço" id="address" icon={MapPin}
+              value={address} onChange={e => setAddress(e.target.value)}
+              placeholder="Rua, bairro, cidade - UF" />
 
-        {/* Alterar Senha */}
-        <Card className="border-slate-200 shadow-sm">
-          <CardHeader className="pb-4 border-b border-slate-100">
-            <CardTitle className="text-slate-800 flex items-center gap-2">
-              <Lock className="h-5 w-5 text-blue-500" /> Alterar Senha
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-4">
-            <Field
-              label="Nova senha"
-              id="newPassword"
-              type="password"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              placeholder="Mínimo 6 caracteres"
+            <Field label="Número" id="address_number" icon={Hash}
+              value={addressNumber} onChange={e => setAddressNumber(e.target.value)}
+              placeholder="Número ou S/N" />
+
+            {/* Divider */}
+            <div className="pt-1 flex items-center gap-3">
+              <div className="h-px flex-1" style={{ background: `${NAV}0C` }} />
+            </div>
+
+            <PrimaryBtn
+              onClick={handleSaveProfile}
+              disabled={savingProfile}
+              loading={savingProfile}
+              loadingLabel="Salvando..."
+              label="Salvar Dados"
+              icon={Save}
             />
-            <Field
-              label="Confirmar nova senha"
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              placeholder="Repita a nova senha"
-            />
+          </div>
+        </Section>
 
-            <div className="pt-2">
-              <Button
+        {/* ══════════════════════════════════════════════════════
+            ALTERAR SENHA
+        ═════════════════════════════════════════════════════ */}
+        <Section
+          icon={Lock}
+          iconBg={`${NAV}12`}
+          iconColor={NAV}
+          accentColor={NAV}
+          title="Alterar Senha"
+        >
+          <div className="space-y-4">
+            <Field label="Nova senha" id="newPassword" type="password"
+              value={newPassword} onChange={e => setNewPassword(e.target.value)}
+              placeholder="Mínimo 6 caracteres" />
+
+            <Field label="Confirmar nova senha" id="confirmPassword" type="password"
+              value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
+              placeholder="Repita a nova senha" />
+
+            <div className="pt-1">
+              <OutlineBtn
                 onClick={handleChangePassword}
                 disabled={savingPassword}
-                variant="outline"
-                className="border-blue-200 text-blue-700 hover:bg-blue-50 gap-2"
-              >
-                {savingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
-                {savingPassword ? 'Alterando...' : 'Alterar Senha'}
-              </Button>
+                loading={savingPassword}
+                loadingLabel="Alterando..."
+                label="Alterar Senha"
+                icon={Lock}
+              />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </Section>
 
-        {/* Site de Divulgação */}
-        <Card className="border-slate-200 shadow-sm">
-          <CardHeader className="pb-4 border-b border-slate-100">
-            <CardTitle className="text-slate-800 flex items-center gap-2">
-              <Globe className="h-5 w-5 text-blue-500" /> Site de Divulgação
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            {!siteRequest || siteRequest.status === 'CANCELADO' ? (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <p className="text-slate-700 font-medium text-sm">Solicitar site pessoal de divulgação</p>
-                  <p className="text-slate-500 text-xs mt-1">
-                    Tenha um site profissional para divulgar sua participação no livro.
-                  </p>
-                </div>
-                <Button
-                  onClick={handleRequestSite}
-                  disabled={requestingsite}
-                  className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shrink-0"
-                >
-                  {requestingsite ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4" />}
-                  {requestingsite ? 'Enviando...' : 'Solicitar Agora'}
-                </Button>
-              </div>
-            ) : siteRequest.status === 'PENDENTE' ? (
-              <div className="flex items-center gap-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <Clock className="h-8 w-8 text-yellow-500 shrink-0" />
-                <div>
-                  <p className="font-semibold text-yellow-800">Solicitação em análise</p>
-                  <p className="text-yellow-700 text-sm mt-0.5">
-                    Sua solicitação foi recebida. Nossa equipe entrará em contato em breve.
-                  </p>
-                  <p className="text-yellow-600 text-xs mt-1">
-                    Solicitado em {siteRequest.requested_at ? new Date(siteRequest.requested_at).toLocaleDateString('pt-BR') : '—'}
-                  </p>
-                </div>
-              </div>
-            ) : siteRequest.status === 'EM_ANDAMENTO' ? (
-              <div className="flex items-center gap-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <Loader2 className="h-8 w-8 text-blue-500 shrink-0 animate-spin" />
-                <div>
-                  <p className="font-semibold text-blue-800">Site em desenvolvimento</p>
-                  <p className="text-blue-700 text-sm mt-0.5">
-                    Nossa equipe está trabalhando no seu site. Em breve estará disponível!
-                  </p>
-                </div>
-              </div>
-            ) : siteRequest.status === 'CONCLUIDO' ? (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <CheckCircle2 className="h-8 w-8 text-green-500 shrink-0" />
-                <div className="flex-1">
-                  <p className="font-semibold text-green-800">Site concluído!</p>
-                  <p className="text-green-700 text-sm mt-0.5">Seu site de divulgação está no ar.</p>
-                  {siteRequest.website_url && (
-                    <a
-                      href={siteRequest.website_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 mt-2 text-sm font-semibold text-green-700 underline hover:text-green-900"
-                    >
-                      <Globe className="h-4 w-4" />
-                      {siteRequest.website_url}
-                    </a>
-                  )}
-                </div>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
+        {/* ══════════════════════════════════════════════════════
+            BRAND FOOTER STRIP
+        ═════════════════════════════════════════════════════ */}
+        <div
+          className="rounded-xl px-6 py-4 flex items-center gap-3"
+          style={{ background: `${NAV}06`, border: `1px solid ${NAV}0A` }}
+        >
+          <img
+            src="/logo-nab.png"
+            alt="NAB"
+            className="w-6 h-6 object-contain opacity-40"
+          />
+          <p
+            className="text-[11px] opacity-40"
+            style={{ color: NAV, fontFamily: "'Be Vietnam Pro', sans-serif" }}
+          >
+            Novos Autores do Brasil · Plataforma de Coautores
+          </p>
+        </div>
+
       </div>
     </>
   );

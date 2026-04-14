@@ -9,25 +9,14 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine, Cell,
 } from 'recharts';
+import { NAV, BLUE, RED, CREAM, WelcomeBanner, BrandCard } from '@/lib/brand';
 
-// New StatusCard Component for Produção Editorial
-const STATUS_CARD_STYLES = {
-  rascunho:  { bg: 'bg-[#E6F0FF]', border: 'border-[#B3D9FF]', icon: '✏️' },
-  revisao:   { bg: 'bg-[#FFF7D6]', border: 'border-[#FFE5A3]', icon: '🔍' },
-  revisado:  { bg: 'bg-[#EDE9FE]', border: 'border-[#C4B5FD]', icon: '✔️' },
-  entregue:  { bg: 'bg-[#D1FAE5]', border: 'border-[#6EE7B7]', icon: '📦' },
-};
-
-const StatusCard = ({ title, value, type }) => {
-  const style = STATUS_CARD_STYLES[type] || { bg: 'bg-gray-100', border: 'border-gray-200', icon: '⚪' };
-  return (
-    <div className={`p-6 rounded-lg border shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center text-center ${style.bg} ${style.border}`}>
-      <div className="text-[32px] mb-2">{style.icon}</div>
-      <div className="text-[36px] font-bold text-[#1F2937] leading-none mb-1">{value}</div>
-      <div className="text-[13px] text-[#6B7280] font-medium">{title}</div>
-    </div>
-  );
-};
+const EDITORIAL_CARDS = [
+  { key: 'rascunho', title: 'Em Rascunho',        color: BLUE,      icon: '✏️' },
+  { key: 'enviados', title: 'Enviados p/ Revisão', color: '#F59E0B', icon: '🔍' },
+  { key: 'revisados', title: 'Revisados',          color: '#10B981', icon: '✔️' },
+  { key: 'entregues', title: 'Entregues',          color: '#8B5CF6', icon: '📦' },
+];
 
 const AdminDashboard = () => {
   const { metrics, loading } = useAdminMetrics();
@@ -38,14 +27,12 @@ const AdminDashboard = () => {
     chaptersDelivered: 0,
   });
   const [editorialMetrics, setEditorialMetrics] = useState({
-    rascunho: 0,
-    enviados: 0,
-    revisados: 0,
-    entregues: 0,
+    rascunho: 0, enviados: 0, revisados: 0, entregues: 0,
   });
+  const [coordChartData, setCoordChartData] = useState([]);
 
   useEffect(() => {
-    const fetchMetrics = async () => {
+    (async () => {
       const [
         { count: leadsCount },
         { count: coauthorsCount },
@@ -77,142 +64,132 @@ const AdminDashboard = () => {
         revisados: revisadosCount || 0,
         entregues: entreguesCount || 0,
       });
-    };
-    fetchMetrics();
+    })();
   }, []);
 
-  const [coordChartData, setCoordChartData] = useState([]);
-
   useEffect(() => {
-    const fetchCoordData = async () => {
+    (async () => {
       const { data: coords } = await supabase.rpc('get_all_coordinators_admin');
       if (!coords?.length) return;
-
       const ids = coords.map(c => c.id);
       const [{ data: leads }, { data: coauthors }] = await Promise.all([
         supabase.from('leads').select('coordinator_id').in('coordinator_id', ids),
         supabase.from('profiles').select('coordinator_id').eq('role', 'COAUTOR').in('coordinator_id', ids),
       ]);
-
       const leadsMap = {};
       (leads || []).forEach(l => { leadsMap[l.coordinator_id] = (leadsMap[l.coordinator_id] || 0) + 1; });
       const coauthorsMap = {};
       (coauthors || []).forEach(a => { coauthorsMap[a.coordinator_id] = (coauthorsMap[a.coordinator_id] || 0) + 1; });
-
-      const data = coords.map(c => ({
-        name: (c.name || '').split(' ').slice(0, 2).join(' '),
-        leads: leadsMap[c.id] || 0,
-        coautores: coauthorsMap[c.id] || 0,
-      })).sort((a, b) => b.leads - a.leads);
-
-      setCoordChartData(data);
-    };
-    fetchCoordData();
+      setCoordChartData(
+        coords.map(c => ({
+          name: (c.name || '').split(' ').slice(0, 2).join(' '),
+          leads: leadsMap[c.id] || 0,
+          coautores: coauthorsMap[c.id] || 0,
+        })).sort((a, b) => b.leads - a.leads)
+      );
+    })();
   }, []);
 
+  if (loading) return (
+    <div className="flex h-64 items-center justify-center">
+      <div className="h-8 w-8 rounded-full border-b-2 animate-spin" style={{ borderColor: `transparent transparent ${BLUE} transparent` }} />
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-[linear-gradient(135deg,#1B0F3B,#4A148C)] p-4 md:p-8 -m-4 md:-m-8">
-      <Helmet>
-        <title>Dashboard Admin | NAB Platform</title>
-      </Helmet>
+    <div className="space-y-8 pb-12">
+      <Helmet><title>Dashboard Admin — Novos Autores do Brasil</title></Helmet>
 
-      <div className="max-w-7xl mx-auto space-y-12">
-        {/* Welcome Banner */}
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 text-white shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
-          <h1 className="text-3xl font-bold">Bem-vindo, Administrador</h1>
-          <p className="text-purple-100 mt-1">Aqui está o que está acontecendo na plataforma hoje.</p>
+      <WelcomeBanner name="Bem-vindo, Administrador" subtitle="Aqui está o resumo da plataforma hoje." />
+
+      {/* Resumo Geral */}
+      <section className="space-y-4">
+        <h2 className="text-base font-bold uppercase tracking-wider" style={{ color: `${NAV}50`, fontFamily: 'Poppins, sans-serif' }}>
+          Resumo Geral da Plataforma
+        </h2>
+        <PlatformSummaryCards
+          leadsEmAtendimento={summaryMetrics.leadsEmAtendimento}
+          totalCoauthors={summaryMetrics.totalCoauthors}
+          chaptersInReview={summaryMetrics.chaptersInReview}
+          chaptersDelivered={summaryMetrics.chaptersDelivered}
+        />
+      </section>
+
+      {/* Produção Editorial */}
+      <section>
+        <h2 className="text-base font-bold uppercase tracking-wider mb-4" style={{ color: `${NAV}50`, fontFamily: 'Poppins, sans-serif' }}>
+          Produção Editorial
+        </h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {EDITORIAL_CARDS.map(({ key, title, color, icon }) => (
+            <div
+              key={key}
+              className="rounded-2xl p-6 flex flex-col items-center justify-center text-center bg-white"
+              style={{ border: `1px solid ${color}25`, boxShadow: `0 1px 4px ${NAV}08` }}
+            >
+              <div className="text-3xl mb-3">{icon}</div>
+              <div className="text-4xl font-bold mb-1" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
+                {editorialMetrics[key]}
+              </div>
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: `${NAV}50` }}>{title}</div>
+            </div>
+          ))}
         </div>
+      </section>
 
-        {/* Platform Summary Section */}
-        <section>
-          <h2 className="text-[20px] font-bold text-white mb-[24px] flex items-center gap-2">
-            📊 Resumo Geral da Plataforma
-          </h2>
-          <PlatformSummaryCards
-            leadsEmAtendimento={summaryMetrics.leadsEmAtendimento}
-            totalCoauthors={summaryMetrics.totalCoauthors}
-            chaptersInReview={summaryMetrics.chaptersInReview}
-            chaptersDelivered={summaryMetrics.chaptersDelivered}
-          />
-        </section>
-
-        {/* Produção Editorial Section */}
-        <section className="bg-[rgba(255,255,255,0.95)] rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
-          <h2 className="text-[20px] font-bold text-[#1F2937] mb-[24px] flex items-center gap-2 border-b pb-4">
-            📚 Produção Editorial
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatusCard
-              title="Em Rascunho"
-              value={editorialMetrics.rascunho}
-              type="rascunho"
-            />
-            <StatusCard
-              title="Enviados p/ Revisão"
-              value={editorialMetrics.enviados}
-              type="revisao"
-            />
-            <StatusCard
-              title="Revisados"
-              value={editorialMetrics.revisados}
-              type="revisado"
-            />
-            <StatusCard
-              title="Entregues"
-              value={editorialMetrics.entregues}
-              type="entregue"
-            />
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <BrandCard>
+          <div className="px-6 pt-5 pb-2">
+            <h3 className="font-bold text-sm" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
+              Coordenadores por Leads
+            </h3>
+            <p className="text-xs mt-0.5" style={{ color: `${NAV}50` }}>Mais quentes → Mais frios</p>
           </div>
-        </section>
+          <div style={{ height: 320, padding: '0 16px 16px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={coordChartData} layout="vertical" margin={{ left: 16, right: 24, top: 4, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={`${NAV}08`} />
+                <XAxis type="number" axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 11, fill: `${NAV}50` }} />
+                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} width={80} tick={{ fontSize: 11, fill: `${NAV}70` }} />
+                <Tooltip contentStyle={{ borderRadius: '10px', border: `1px solid ${NAV}10`, boxShadow: `0 4px 16px ${NAV}10`, fontFamily: "'Be Vietnam Pro', sans-serif" }} />
+                <Bar dataKey="leads" name="Leads" radius={[0, 4, 4, 0]}>
+                  {coordChartData.map((_, index) => {
+                    const ratio = coordChartData.length > 1 ? index / (coordChartData.length - 1) : 0;
+                    const r = Math.round(172 - (172 - 63) * ratio);
+                    const g = Math.round(27  + (125 - 27)  * ratio);
+                    const b = Math.round(0   + (176 - 0)   * ratio);
+                    return <Cell key={index} fill={`rgb(${r},${g},${b})`} />;
+                  })}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </BrandCard>
 
-        {/* Coordinator Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="bg-[rgba(255,255,255,0.95)] shadow-[0_4px_12px_rgba(0,0,0,0.15)] border-none">
-            <CardHeader>
-              <CardTitle className="text-[#1F2937]">🔥 Coordenadores por Leads (Mais Quentes → Mais Frios)</CardTitle>
-            </CardHeader>
-            <CardContent className="h-[320px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={coordChartData} layout="vertical" margin={{ left: 16, right: 24, top: 4, bottom: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
-                  <XAxis type="number" axisLine={false} tickLine={false} allowDecimals={false} />
-                  <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} width={80} tick={{ fontSize: 11 }} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Bar dataKey="leads" name="Leads" radius={[0, 4, 4, 0]}>
-                    {coordChartData.map((_, index) => {
-                      const ratio = coordChartData.length > 1 ? index / (coordChartData.length - 1) : 0;
-                      const r = Math.round(239 - (239 - 59) * ratio);
-                      const g = Math.round(68 + (130 - 68) * ratio);
-                      const b = Math.round(68 + (246 - 68) * ratio);
-                      return <Cell key={index} fill={`rgb(${r},${g},${b})`} />;
-                    })}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-[rgba(255,255,255,0.95)] shadow-[0_4px_12px_rgba(0,0,0,0.15)] border-none">
-            <CardHeader>
-              <CardTitle className="text-[#1F2937]">🎯 Metas de Coautores por Coordenador</CardTitle>
-            </CardHeader>
-            <CardContent className="h-[320px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={coordChartData} margin={{ left: 0, right: 24, top: 4, bottom: 40 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10 }} angle={-30} textAnchor="end" interval={0} />
-                  <YAxis axisLine={false} tickLine={false} allowDecimals={false} domain={[0, 'auto']} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <ReferenceLine y={3} stroke="#F59E0B" strokeDasharray="4 4" label={{ value: 'Meta 3', position: 'right', fontSize: 10, fill: '#F59E0B' }} />
-                  <ReferenceLine y={6} stroke="#10B981" strokeDasharray="4 4" label={{ value: 'Meta 6', position: 'right', fontSize: 10, fill: '#10B981' }} />
-                  <ReferenceLine y={9} stroke="#3B82F6" strokeDasharray="4 4" label={{ value: 'Meta 9', position: 'right', fontSize: 10, fill: '#3B82F6' }} />
-                  <ReferenceLine y={12} stroke="#8B5CF6" strokeDasharray="4 4" label={{ value: 'Meta 12', position: 'right', fontSize: 10, fill: '#8B5CF6' }} />
-                  <Bar dataKey="coautores" name="Coautores" fill="#6366F1" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
+        <BrandCard>
+          <div className="px-6 pt-5 pb-2">
+            <h3 className="font-bold text-sm" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
+              Metas de Coautores por Coordenador
+            </h3>
+            <p className="text-xs mt-0.5" style={{ color: `${NAV}50` }}>Progresso em relação às metas</p>
+          </div>
+          <div style={{ height: 320, padding: '0 16px 16px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={coordChartData} margin={{ left: 0, right: 24, top: 4, bottom: 40 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={`${NAV}08`} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: `${NAV}60` }} angle={-30} textAnchor="end" interval={0} />
+                <YAxis axisLine={false} tickLine={false} allowDecimals={false} domain={[0, 'auto']} tick={{ fontSize: 11, fill: `${NAV}50` }} />
+                <Tooltip contentStyle={{ borderRadius: '10px', border: `1px solid ${NAV}10`, boxShadow: `0 4px 16px ${NAV}10` }} />
+                <ReferenceLine y={3}  stroke="#F59E0B" strokeDasharray="4 4" label={{ value: 'Meta 3',  position: 'right', fontSize: 10, fill: '#F59E0B' }} />
+                <ReferenceLine y={6}  stroke="#10B981" strokeDasharray="4 4" label={{ value: 'Meta 6',  position: 'right', fontSize: 10, fill: '#10B981' }} />
+                <ReferenceLine y={9}  stroke={BLUE}    strokeDasharray="4 4" label={{ value: 'Meta 9',  position: 'right', fontSize: 10, fill: BLUE }} />
+                <ReferenceLine y={12} stroke={RED}     strokeDasharray="4 4" label={{ value: 'Meta 12', position: 'right', fontSize: 10, fill: RED }} />
+                <Bar dataKey="coautores" name="Coautores" fill={BLUE} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </BrandCard>
       </div>
     </div>
   );

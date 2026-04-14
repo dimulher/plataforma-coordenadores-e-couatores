@@ -6,13 +6,39 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useCoordinatorData } from '@/hooks/useCoordinatorData';
 import { supabase } from '@/lib/supabase';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Users, CheckCircle, ArrowRight, BookOpen, Globe, ExternalLink, Loader2, Clock } from 'lucide-react';
+import { NAV, BLUE, RED, WelcomeBanner, BrandCard, BrandCardHeader, BtnOutline } from '@/lib/brand';
 
 const toSlug = (name) =>
   name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+
+const STATUS_MAP = {
+  RASCUNHO:              { label: 'Em escrita',   text: BLUE,      bg: `${BLUE}12` },
+  EM_EDICAO:             { label: 'Em escrita',   text: BLUE,      bg: `${BLUE}12` },
+  AJUSTES_SOLICITADOS:   { label: 'Ajustes',      text: '#FF6B35', bg: 'rgba(255,107,53,0.10)' },
+  ENVIADO_PARA_REVISAO:  { label: 'Em revisão',   text: '#F59E0B', bg: 'rgba(245,158,11,0.10)' },
+  EM_REVISAO:            { label: 'Em revisão',   text: '#F59E0B', bg: 'rgba(245,158,11,0.10)' },
+  APROVADO:              { label: 'Revisado',     text: '#10B981', bg: 'rgba(16,185,129,0.10)' },
+  PRODUCAO:              { label: 'Produção',     text: '#8B5CF6', bg: 'rgba(139,92,246,0.10)' },
+  FINALIZADO:            { label: 'Concluído',    text: `${NAV}80`, bg: `${NAV}08` },
+  CONCLUIDO:             { label: 'Concluído',    text: `${NAV}80`, bg: `${NAV}08` },
+};
+
+const getStatus = (s) => STATUS_MAP[s] || { label: s || 'Sem status', text: `${NAV}60`, bg: `${NAV}08` };
+
+const MetricTile = ({ icon: Icon, iconColor, label, value }) => (
+  <div
+    className="rounded-2xl p-5 flex flex-col items-center justify-center text-center bg-white"
+    style={{ border: `1px solid ${NAV}0F`, boxShadow: `0 1px 4px ${NAV}08` }}
+  >
+    <span className="flex items-center justify-center w-10 h-10 rounded-xl mb-3" style={{ background: `${iconColor}15` }}>
+      <Icon className="w-5 h-5" style={{ color: iconColor }} />
+    </span>
+    <span className="text-2xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{value}</span>
+    <span className="text-[11px] font-medium uppercase tracking-wider mt-1" style={{ color: `${NAV}50` }}>{label}</span>
+  </div>
+);
 
 const CoordinatorDashboard = () => {
   const { getDashboardMetrics, getCoauthorsList, loading } = useCoordinatorData();
@@ -27,10 +53,7 @@ const CoordinatorDashboard = () => {
 
   useEffect(() => {
     const load = async () => {
-      const [m, c] = await Promise.all([
-        getDashboardMetrics(),
-        getCoauthorsList(),
-      ]);
+      const [m, c] = await Promise.all([getDashboardMetrics(), getCoauthorsList()]);
       if (m) setMetrics(m);
       if (c) {
         const sorted = [...c]
@@ -45,27 +68,14 @@ const CoordinatorDashboard = () => {
 
   useEffect(() => {
     if (!user?.id) return;
-    supabase
-      .from('site_requests')
-      .select('*')
-      .eq('coordinator_id', user.id)
-      .maybeSingle()
+    supabase.from('site_requests').select('*').eq('coordinator_id', user.id).maybeSingle()
       .then(({ data }) => setSiteRequest(data || null));
 
-    // Detecta o projeto do coordenador para usar a rota correta
     async function detectRoute() {
-      const { data: rows } = await supabase
-        .from('project_participants')
-        .select('project_id')
-        .eq('user_id', user.id)
-        .limit(1);
+      const { data: rows } = await supabase.from('project_participants').select('project_id').eq('user_id', user.id).limit(1);
       const projectId = rows?.[0]?.project_id;
       if (!projectId) return;
-      const { data: proj } = await supabase
-        .from('projects')
-        .select('name')
-        .eq('id', projectId)
-        .limit(1);
+      const { data: proj } = await supabase.from('projects').select('name').eq('id', projectId).limit(1);
       const name = proj?.[0]?.name?.toLowerCase() || '';
       if (name.includes('paulo')) setRegisterRoute('register/autor-sp');
     }
@@ -76,219 +86,196 @@ const CoordinatorDashboard = () => {
     setRequesting(true);
     try {
       const now = new Date().toISOString();
-
       const slug = toSlug(user.name);
-    const websiteUrl = `${window.location.origin}/${registerRoute}/${slug}`;
+      const websiteUrl = `${window.location.origin}/${registerRoute}/${slug}`;
+      await supabase.from('profiles').update({ referral_code: slug }).eq('id', user.id);
 
-    // Salva o slug no referral_code do perfil para lookup posterior
-    await supabase.from('profiles').update({ referral_code: slug }).eq('id', user.id);
-
-      // Busca o gestor
       let gestorName = null;
       if (user.manager_id) {
-        const { data: gestor } = await supabase
-          .from('profiles')
-          .select('name')
-          .eq('id', user.manager_id)
-          .single();
+        const { data: gestor } = await supabase.from('profiles').select('name').eq('id', user.manager_id).single();
         gestorName = gestor?.name || null;
       }
 
-      // Verifica se já existe uma solicitação
-      const { data: existing } = await supabase
-        .from('site_requests')
-        .select('id')
-        .eq('coordinator_id', user.id)
-        .maybeSingle();
-
+      const { data: existing } = await supabase.from('site_requests').select('id').eq('coordinator_id', user.id).maybeSingle();
       let reqData, reqError;
 
       if (existing?.id) {
-        ({ data: reqData, error: reqError } = await supabase
-          .from('site_requests')
-          .update({
-            status: 'CONCLUIDO',
-            requested_at: now,
-            coordinator_name: user.name,
-            gestor_name: gestorName,
-            website_url: websiteUrl,
-          })
-          .eq('id', existing.id)
-          .select()
-          .single());
+        ({ data: reqData, error: reqError } = await supabase.from('site_requests')
+          .update({ status: 'CONCLUIDO', requested_at: now, coordinator_name: user.name, gestor_name: gestorName, website_url: websiteUrl })
+          .eq('id', existing.id).select().single());
       } else {
-        ({ data: reqData, error: reqError } = await supabase
-          .from('site_requests')
-          .insert({
-            coordinator_id: user.id,
-            coordinator_name: user.name,
-            gestor_name: gestorName,
-            status: 'CONCLUIDO',
-            requested_at: now,
-            website_url: websiteUrl,
-          })
-          .select()
-          .single());
+        ({ data: reqData, error: reqError } = await supabase.from('site_requests')
+          .insert({ coordinator_id: user.id, coordinator_name: user.name, gestor_name: gestorName, status: 'CONCLUIDO', requested_at: now, website_url: websiteUrl })
+          .select().single());
       }
 
       if (reqError) throw reqError;
       setSiteRequest(reqData);
 
-      // Notifica o webhook (best-effort)
       fetch('https://n8n.prosperamentor.com.br/webhook/linksolit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          cpf: user.cpf,
-          website_url: websiteUrl,
-          requested_at: now,
-        }),
+        body: JSON.stringify({ id: user.id, name: user.name, email: user.email, phone: user.phone, cpf: user.cpf, website_url: websiteUrl, requested_at: now }),
       }).catch(() => {});
 
       toast({ title: 'Site gerado!', description: 'Seu link de captação já está disponível.' });
     } catch (error) {
-      console.error('Error requesting website:', error);
       toast({ title: 'Erro na solicitação', description: error.message, variant: 'destructive' });
     } finally {
       setRequesting(false);
     }
   };
 
-  if (loading || !metrics) return <div className="flex h-64 items-center justify-center"><div className="animate-spin h-8 w-8 border-b-2 border-blue-500 rounded-full"></div></div>;
+  if (loading || !metrics) return (
+    <div className="flex h-64 items-center justify-center">
+      <div className="h-8 w-8 rounded-full border-b-2 animate-spin" style={{ borderColor: `transparent transparent ${BLUE} transparent` }} />
+    </div>
+  );
 
-  const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
-
-  const getStatusDisplay = (status) => {
-    switch (status) {
-      case 'RASCUNHO':
-      case 'EM_EDICAO':
-      case 'AJUSTES_SOLICITADOS':
-        return { label: 'Em escrita', color: 'bg-blue-50 text-blue-700 border-blue-100' };
-      case 'ENVIADO_PARA_REVISAO':
-      case 'EM_REVISAO':
-        return { label: 'Em revisão', color: 'bg-yellow-50 text-yellow-700 border-yellow-100' };
-      case 'APROVADO':
-        return { label: 'Revisado', color: 'bg-emerald-50 text-emerald-700 border-emerald-100' };
-      case 'PRODUCAO':
-        return { label: 'Produção', color: 'bg-purple-50 text-purple-700 border-purple-100' };
-      case 'FINALIZADO':
-      case 'CONCLUIDO':
-        return { label: 'Concluído', color: 'bg-slate-50 text-slate-700 border-slate-200' };
-      default:
-        return { label: status || 'Sem status', color: 'bg-slate-50 text-slate-600 border-slate-100' };
+  const getSiteButton = () => {
+    if (siteRequest?.status === 'CONCLUIDO' || siteRequest?.website_url || user?.website_url) {
+      return (
+        <BtnOutline
+          onClick={() => {
+            const url = siteRequest?.website_url || user?.website_url || `${window.location.origin}/${registerRoute}/${toSlug(user.name)}`;
+            window.open(url, '_blank');
+          }}
+          icon={ExternalLink} label="Ver Site" color={BLUE}
+        />
+      );
     }
+    if (siteRequest?.status === 'PENDENTE') {
+      return (
+        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold" style={{ background: 'rgba(245,158,11,0.1)', color: '#F59E0B', border: '1.5px solid rgba(245,158,11,0.25)' }}>
+          <Clock className="w-4 h-4" /> Em análise
+        </span>
+      );
+    }
+    if (siteRequest?.status === 'EM_ANDAMENTO') {
+      return (
+        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold" style={{ background: `${BLUE}10`, color: BLUE, border: `1.5px solid ${BLUE}25` }}>
+          <Loader2 className="w-4 h-4 animate-spin" /> Em desenvolvimento
+        </span>
+      );
+    }
+    return (
+      <BtnOutline
+        onClick={handleRequestWebsite} disabled={requesting} loading={requesting}
+        icon={Globe} label="Solicitar site" loadingLabel="Solicitando..." color={BLUE}
+      />
+    );
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      <Helmet><title>Painel do Coordenador - NAB Platform</title></Helmet>
+    <div className="space-y-6 pb-12">
+      <Helmet><title>Painel do Coordenador — Novos Autores do Brasil</title></Helmet>
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">Painel do Coordenador</h1>
-          <p className="text-slate-500 mt-1">Visão geral da sua captação e produção da equipe.</p>
-        </div>
-        <div>
-          {siteRequest?.status === 'CONCLUIDO' || siteRequest?.website_url || user?.website_url ? (
-            <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
-              onClick={() => {
-                const url = siteRequest?.website_url || user?.website_url || `${window.location.origin}/${registerRoute}/${toSlug(user.name)}`;
-                window.open(url, '_blank');
-              }}
-            >
-              <Globe className="w-4 h-4" />
-              Ver Site
-              <ExternalLink className="w-3.5 h-3.5 opacity-70" />
-            </Button>
-          ) : siteRequest?.status === 'PENDENTE' ? (
-            <Button variant="outline" className="border-yellow-300 text-yellow-700 bg-yellow-50 gap-2 cursor-default" disabled>
-              <Clock className="w-4 h-4" />
-              Solicitação em análise
-            </Button>
-          ) : siteRequest?.status === 'EM_ANDAMENTO' ? (
-            <Button variant="outline" className="border-blue-200 text-blue-700 bg-blue-50 gap-2 cursor-default" disabled>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Site em desenvolvimento
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 gap-2"
-              onClick={handleRequestWebsite}
-              disabled={requesting}
-            >
-              {requesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4 text-blue-500" />}
-              {requesting ? 'Solicitando...' : 'Solicitar site de divulgação'}
-            </Button>
-          )}
-        </div>
+      <WelcomeBanner
+        name={`Bem-vindo, ${user?.name?.split(' ')[0] || 'Coordenador'}!`}
+        subtitle="Gerencie sua equipe e acompanhe a produção."
+      />
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricTile icon={Users}        iconColor={BLUE}      label="Leads Indicados"     value={metrics.leadsIndicados} />
+        <MetricTile icon={Users}        iconColor="#8B5CF6"   label="Coautores Ativos"    value={metrics.coautoresAtivos} />
+        <MetricTile icon={BookOpen}     iconColor="#F59E0B"   label="Caps. em Andamento"  value={metrics.chaptersInProgress} />
+        <MetricTile icon={CheckCircle}  iconColor="#10B981"   label="Enviados p/ Revisão" value={metrics.chaptersInReview} />
       </div>
 
-      {/* Section 1: Captação KPIs */}
-      <section>
-        <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2"><Users className="w-5 h-5 text-blue-500" /> Captação e Equipe</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-white border-slate-200 shadow-sm"><CardContent className="p-5 flex flex-col justify-center items-center text-center"><Users className="w-8 h-8 text-blue-500 mb-2 bg-blue-50 p-1.5 rounded-lg" /><h3 className="text-2xl font-bold text-slate-800">{metrics.leadsIndicados}</h3><p className="text-xs text-slate-500 font-medium uppercase mt-1">Leads Indicados</p></CardContent></Card>
-          <Card className="bg-white border-slate-200 shadow-sm"><CardContent className="p-5 flex flex-col justify-center items-center text-center"><Users className="w-8 h-8 text-purple-500 mb-2 bg-purple-50 p-1.5 rounded-lg" /><h3 className="text-2xl font-bold text-slate-800">{metrics.coautoresAtivos}</h3><p className="text-xs text-slate-500 font-medium uppercase mt-1">Coautores Ativos</p></CardContent></Card>
-          <Card className="bg-white border-slate-200 shadow-sm"><CardContent className="p-5 flex flex-col justify-center items-center text-center"><BookOpen className="w-8 h-8 text-orange-500 mb-2 bg-orange-50 p-1.5 rounded-lg" /><h3 className="text-2xl font-bold text-slate-800">{metrics.chaptersInProgress}</h3><p className="text-xs text-slate-500 font-medium uppercase mt-1">Caps. em Andamento</p></CardContent></Card>
-          <Card className="bg-white border-slate-200 shadow-sm"><CardContent className="p-5 flex flex-col justify-center items-center text-center"><CheckCircle className="w-8 h-8 text-emerald-500 mb-2 bg-emerald-50 p-1.5 rounded-lg" /><h3 className="text-2xl font-bold text-slate-800">{metrics.chaptersInReview}</h3><p className="text-xs text-slate-500 font-medium uppercase mt-1">Enviados p/ Revisão</p></CardContent></Card>
-        </div>
-      </section>
-
-
-      {/* Section 3: Resumo de Produção */}
-      <section>
-        <div className="flex justify-between items-end mb-4">
-          <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2"><CheckCircle className="w-5 h-5 text-emerald-500" /> Resumo de Produção (Próximas Entregas)</h2>
-          <Button variant="ghost" className="text-blue-600 hover:bg-blue-50" onClick={() => navigate('/coordinator/coauthors')}>Ver Todos <ArrowRight className="w-4 h-4 ml-1" /></Button>
-        </div>
-
-        <Card className="bg-white border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
+      {/* Próximas Entregas */}
+      <BrandCard>
+        <BrandCardHeader icon={CheckCircle} iconColor="#10B981" accentColor="#10B981" title="Próximas Entregas"
+          extra={
+            <button
+              onClick={() => navigate('/coordinator/coauthors')}
+              className="flex items-center gap-1 text-xs font-semibold transition-colors"
+              style={{ color: BLUE }}
+              onMouseEnter={e => { e.currentTarget.style.color = NAV; }}
+              onMouseLeave={e => { e.currentTarget.style.color = BLUE; }}
+            >
+              Ver todos <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          }
+        />
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}0C` }}>
+                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Nome</th>
+                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Status</th>
+                <th className="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Prazo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topCoauthors.map((author) => {
+                const chap = author.currentChapter;
+                const daysRem = Math.ceil((new Date(chap.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                const st = getStatus(chap?.status);
+                return (
+                  <tr
+                    key={author.id}
+                    className="cursor-pointer transition-colors"
+                    style={{ borderBottom: `1px solid ${NAV}08` }}
+                    onClick={() => navigate(`/coordinator/coauthors/${author.id}`)}
+                    onMouseEnter={e => { e.currentTarget.style.background = `${NAV}04`; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <td className="px-6 py-4 font-semibold" style={{ color: NAV }}>{author.name}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: `${NAV}40` }}>{author.projectNames}</span>
+                        <span className="text-xs font-bold px-2.5 py-0.5 rounded-full w-fit" style={{ color: st.text, background: st.bg }}>{st.label}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <span
+                        className="text-xs font-bold px-2.5 py-1 rounded-lg"
+                        style={
+                          daysRem < 0
+                            ? { background: `${RED}12`, color: RED }
+                            : daysRem <= 7
+                            ? { background: 'rgba(245,158,11,0.1)', color: '#F59E0B' }
+                            : { background: `${NAV}08`, color: `${NAV}60` }
+                        }
+                      >
+                        {new Date(chap.deadline).toLocaleDateString('pt-BR')}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+              {topCoauthors.length === 0 && (
                 <tr>
-                  <th className="px-6 py-4">Nome</th>
-                  <th className="px-6 py-4">Status do Capítulo</th>
-                  <th className="px-6 py-4 text-right">Prazo</th>
+                  <td colSpan="3" className="px-6 py-10 text-center text-sm" style={{ color: `${NAV}50` }}>
+                    Nenhum capítulo em andamento.
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {topCoauthors.map(author => {
-                  const chap = author.currentChapter;
-                  const daysRem = Math.ceil((new Date(chap.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                  const statusDisplay = getStatusDisplay(chap?.status);
+              )}
+            </tbody>
+          </table>
+        </div>
+      </BrandCard>
 
-                  return (
-                    <tr key={author.id} className="hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => navigate(`/coordinator/coauthors/${author.id}`)}>
-                      <td className="px-6 py-4 font-semibold text-slate-800">{author.name}</td>
-                      <td className="px-6 py-4 mt-1">
-                        <div className="flex flex-col gap-1">
-                          <p className="text-[10px] text-slate-500 font-medium uppercase truncate">{author.projectNames}</p>
-                          <div className={`text-xs font-bold px-3 py-1 rounded-full border w-fit ${statusDisplay.color}`}>
-                            {statusDisplay.label}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${daysRem < 0 ? 'bg-red-50 text-red-600 border border-red-100' : daysRem <= 7 ? 'bg-yellow-50 text-yellow-700 border border-yellow-100' : 'bg-slate-50 text-slate-600 border border-slate-200'}`}>
-                          {new Date(chap.deadline).toLocaleDateString('pt-BR')}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-                {topCoauthors.length === 0 && <tr><td colSpan="3" className="p-6 text-center text-slate-500">Nenhum capítulo em andamento.</td></tr>}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      </section>
+      {/* Site de divulgação */}
+      <BrandCard>
+        <BrandCardHeader icon={Globe} iconColor={BLUE} accentColor={BLUE} title="Site de Divulgação" extra={getSiteButton()} />
+        <div className="px-6 py-5">
+          {siteRequest?.status === 'CONCLUIDO' && siteRequest?.website_url ? (
+            <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
+              <Globe className="h-4 w-4 shrink-0" style={{ color: '#10B981' }} />
+              <a href={siteRequest.website_url} target="_blank" rel="noopener noreferrer"
+                className="text-sm font-medium hover:underline" style={{ color: '#10B981' }}>
+                {siteRequest.website_url}
+              </a>
+            </div>
+          ) : (
+            <p className="text-sm" style={{ color: `${NAV}60` }}>
+              Gere e compartilhe seu link de captação personalizado para registrar novos coautores.
+            </p>
+          )}
+        </div>
+      </BrandCard>
     </div>
   );
 };

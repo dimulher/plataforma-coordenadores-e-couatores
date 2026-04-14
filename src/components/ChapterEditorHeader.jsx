@@ -1,6 +1,6 @@
 
-import React, { useRef } from 'react';
-import { RotateCcw, Download, Save, Upload } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { RotateCcw, Download, Save, Upload, Pencil, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
@@ -13,10 +13,14 @@ export const ChapterEditorHeader = ({
   onReopenEdit,
   onSave,
   onImportDocx,
+  onTitleChange,
   saveState,
 }) => {
   const { title, status } = chapter || {};
   const fileInputRef = useRef(null);
+  const titleInputRef = useRef(null);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState('');
 
   const getStatusStyles = (s) => {
     switch (s) {
@@ -73,11 +77,72 @@ export const ChapterEditorHeader = ({
     <div className="sticky top-0 z-50 bg-white border-b border-[#E5E7EB] shadow-[0_1px_3px_rgba(0,0,0,0.1)] h-[80px] px-6 flex items-center justify-between gap-4">
       {/* Left: Title & Status */}
       <div className="flex items-center gap-4 flex-1 min-w-0">
-        <h1 className="text-[18px] font-bold text-[#1F2937] truncate" title={title || 'Capítulo sem título'}>
-          {title || 'Capítulo sem título'}
-        </h1>
+        {isEditingTitle ? (
+          <div className="flex items-center gap-1 flex-1 min-w-0">
+            <input
+              ref={titleInputRef}
+              value={titleDraft}
+              onChange={(e) => setTitleDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  if (titleDraft.trim()) onTitleChange?.(titleDraft.trim());
+                  setIsEditingTitle(false);
+                } else if (e.key === 'Escape') {
+                  setIsEditingTitle(false);
+                }
+              }}
+              onBlur={() => {
+                if (titleDraft.trim()) onTitleChange?.(titleDraft.trim());
+                setIsEditingTitle(false);
+              }}
+              autoFocus
+              className="text-[18px] font-bold text-[#1F2937] bg-transparent border-b-2 border-[#3B82F6] outline-none flex-1 min-w-0 pr-2"
+            />
+            <button
+              onMouseDown={(e) => {
+                e.preventDefault();
+                if (titleDraft.trim()) onTitleChange?.(titleDraft.trim());
+                setIsEditingTitle(false);
+              }}
+              className="text-green-600 hover:text-green-700 p-0.5 shrink-0"
+            >
+              <Check className="h-4 w-4" />
+            </button>
+            <button
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setIsEditingTitle(false);
+              }}
+              className="text-gray-400 hover:text-gray-600 p-0.5 shrink-0"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 min-w-0 group">
+            <h1
+              className="text-[18px] font-bold text-[#1F2937] truncate"
+              title={title || 'Capítulo sem título'}
+            >
+              {title || 'Capítulo sem título'}
+            </h1>
+            {!isReadOnly && onTitleChange && (
+              <button
+                onClick={() => {
+                  setTitleDraft(title || '');
+                  setIsEditingTitle(true);
+                }}
+                className="text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                title="Editar título"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        )}
         <span
-          className="text-[12px] font-semibold px-3 py-1 rounded-full whitespace-nowrap hidden sm:inline-flex"
+          className="text-[12px] font-semibold px-3 py-1 rounded-full whitespace-nowrap hidden sm:inline-flex shrink-0"
           style={{ color: statusStyle.color, backgroundColor: statusStyle.bg }}
         >
           {formatStatus(status)}

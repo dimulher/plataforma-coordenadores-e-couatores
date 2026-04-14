@@ -6,7 +6,9 @@
       "WebSearch",
       "WebFetch(domain:www.youtube.com)",
       "Bash(\"supabase/migrations/20260305_fix_rls_recursion.sql\":*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

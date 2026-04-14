@@ -1,94 +1,61 @@
-
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useCoordinatorData } from '@/hooks/useCoordinatorData';
-import { useAuth } from '@/contexts/AuthContext';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { DollarSign, Wallet } from 'lucide-react';
+import { NAV, RED, BrandCard } from '@/lib/brand';
 
 const CoordinatorCommissions = () => {
   const { getCoordinatorPayments } = useCoordinatorData();
-  const { isAdmin } = useAuth();
   const [payments, setPayments] = useState([]);
   const [statusFilter, setStatusFilter] = useState('ALL');
 
   useEffect(() => {
-    const load = async () => {
-      const data = await getCoordinatorPayments();
-      setPayments(data || []);
-    };
-    load();
+    getCoordinatorPayments().then(data => setPayments(data || []));
   }, []);
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
-  };
+  const formatCurrency = (value) =>
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
 
-  const filteredPayments = payments.filter(p =>
-    statusFilter === 'ALL' ? true : p.commission_status === statusFilter
-  );
+  const filtered = payments.filter(p => statusFilter === 'ALL' ? true : p.commission_status === statusFilter);
 
-  const totalContratado = filteredPayments.reduce((acc, p) => acc + (p.contract_amount || 0), 0);
-  const totalComissao = filteredPayments.reduce((acc, p) => acc + (p.commission_amount || 0), 0);
-  const totalPendente = filteredPayments
-    .filter(p => p.commission_status === 'pendente')
-    .reduce((acc, p) => acc + (p.commission_amount || 0), 0);
+  const totalContratado = filtered.reduce((acc, p) => acc + (p.contract_amount || 0), 0);
+  const totalComissao   = filtered.reduce((acc, p) => acc + (p.commission_amount || 0), 0);
+  const totalPendente   = filtered.filter(p => p.commission_status === 'pendente').reduce((acc, p) => acc + (p.commission_amount || 0), 0);
 
   return (
     <>
-      <Helmet>
-        <title>Minhas Comissões - NAB Platform</title>
-      </Helmet>
+      <Helmet><title>Minhas Comissões — Novos Autores do Brasil</title></Helmet>
 
-      <div className="space-y-6">
+      <div className="space-y-6 pb-12">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Minhas Comissões</h1>
-          <p className="text-muted-foreground mt-1">Histórico de vendas e repasses de comissão</p>
+          <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Minhas Comissões</h1>
+          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Histórico de vendas e repasses de comissão</p>
         </div>
 
-        {/* Resumo Financeiro */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-card p-6 rounded-xl border border-border/30 flex items-center gap-4">
-            <div className="p-3 bg-accent/10 rounded-lg">
-              <DollarSign className="h-6 w-6 text-accent" />
+        {/* KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { label: 'Total Contratado', value: formatCurrency(totalContratado), icon: DollarSign, color: NAV,      bg: `${NAV}06` },
+            { label: 'Total Comissão',   value: formatCurrency(totalComissao),   icon: Wallet,     color: '#10B981', bg: 'rgba(16,185,129,0.08)' },
+            { label: 'A Receber',        value: formatCurrency(totalPendente),   icon: DollarSign, color: RED,       bg: `${RED}08` },
+          ].map(({ label, value, icon: Icon, color, bg }) => (
+            <div key={label} className="rounded-2xl p-5 flex items-center gap-4" style={{ background: bg, border: `1px solid ${color}20` }}>
+              <div className="p-3 rounded-xl" style={{ background: `${color}15` }}>
+                <Icon className="h-5 w-5" style={{ color }} />
+              </div>
+              <div>
+                <p className="text-sm font-medium" style={{ color: `${NAV}60` }}>{label}</p>
+                <h4 className="text-xl font-bold" style={{ color }}>{value}</h4>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Contratado</p>
-              <h4 className="text-2xl font-bold text-foreground">{formatCurrency(totalContratado)}</h4>
-            </div>
-          </div>
-          <div className="bg-card p-6 rounded-xl border border-border/30 flex items-center gap-4">
-            <div className="p-3 bg-success/10 rounded-lg">
-              <Wallet className="h-6 w-6 text-success" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Comissão</p>
-              <h4 className="text-2xl font-bold text-success">{formatCurrency(totalComissao)}</h4>
-            </div>
-          </div>
-          <div className="bg-card p-6 rounded-xl border border-border/30 flex items-center gap-4">
-            <div className="p-3 bg-destructive/10 rounded-lg">
-              <DollarSign className="h-6 w-6 text-destructive" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">A Receber</p>
-              <h4 className="text-2xl font-bold text-destructive">{formatCurrency(totalPendente)}</h4>
-            </div>
-          </div>
+          ))}
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 bg-card p-4 rounded-lg shadow-sm border border-border/30">
+        {/* Filter */}
+        <div className="flex items-center gap-3">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full md:w-48 bg-background text-foreground border-border/50">
+            <SelectTrigger className="w-48 bg-white text-sm" style={{ borderColor: `${NAV}20`, color: NAV }}>
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -99,52 +66,55 @@ const CoordinatorCommissions = () => {
           </Select>
         </div>
 
-        <div className="bg-card rounded-lg shadow-sm border border-border/30 overflow-hidden">
-          <Table>
-            <TableHeader className="bg-background/50">
-              <TableRow className="border-border/30 hover:bg-transparent">
-                <TableHead className="text-foreground">Lead (Cliente)</TableHead>
-                <TableHead className="text-foreground">Projeto</TableHead>
-                <TableHead className="text-foreground">Valor Contrato</TableHead>
-                <TableHead className="text-foreground">% Com.</TableHead>
-                <TableHead className="text-foreground">Valor Com.</TableHead>
-                <TableHead className="text-foreground">Status</TableHead>
-                <TableHead className="text-foreground">Data</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredPayments.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
-                    Nenhuma comissão encontrada.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredPayments.map((payment) => (
-                  <TableRow key={payment.id} className="border-border/30 border-b last:border-0 hover:bg-muted/20 transition-colors">
-                    <TableCell className="font-medium text-foreground">{payment.lead_name}</TableCell>
-                    <TableCell className="text-foreground">{payment.project_name}</TableCell>
-                    <TableCell className="text-foreground">{formatCurrency(payment.contract_amount)}</TableCell>
-                    <TableCell className="text-foreground">{payment.commission_value}%</TableCell>
-                    <TableCell className="font-semibold text-foreground">{formatCurrency(payment.commission_amount)}</TableCell>
-                    <TableCell>
-                      <Badge className={
+        {/* Table */}
+        <BrandCard>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}08` }}>
+                <tr>
+                  {['Lead (Cliente)', 'Projeto', 'Valor Contrato', '% Com.', 'Valor Com.', 'Status', 'Data'].map(h => (
+                    <th key={h} className="px-5 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-16 text-center" style={{ color: `${NAV}40` }}>
+                      Nenhuma comissão encontrada.
+                    </td>
+                  </tr>
+                ) : filtered.map(payment => (
+                  <tr
+                    key={payment.id}
+                    className="transition-colors"
+                    style={{ borderTop: `1px solid ${NAV}08` }}
+                    onMouseEnter={e => { e.currentTarget.style.background = `${NAV}03`; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <td className="px-5 py-4 font-medium" style={{ color: NAV }}>{payment.lead_name}</td>
+                    <td className="px-5 py-4" style={{ color: `${NAV}70` }}>{payment.project_name}</td>
+                    <td className="px-5 py-4" style={{ color: NAV }}>{formatCurrency(payment.contract_amount)}</td>
+                    <td className="px-5 py-4" style={{ color: NAV }}>{payment.commission_value}%</td>
+                    <td className="px-5 py-4 font-semibold" style={{ color: NAV }}>{formatCurrency(payment.commission_amount)}</td>
+                    <td className="px-5 py-4">
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={
                         payment.commission_status === 'pago'
-                          ? 'bg-success/20 text-success hover:bg-success/30'
-                          : 'bg-destructive/20 text-destructive hover:bg-destructive/30'
+                          ? { background: 'rgba(16,185,129,0.12)', color: '#10B981' }
+                          : { background: `${RED}12`, color: RED }
                       }>
                         {payment.commission_status.toUpperCase()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-foreground text-sm">
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 text-sm" style={{ color: `${NAV}60` }}>
                       {new Date(payment.created_at).toLocaleDateString('pt-BR')}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </BrandCard>
       </div>
     </>
   );

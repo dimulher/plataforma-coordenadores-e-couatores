@@ -3,10 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
 import { GraduationCap, PlayCircle, CheckCircle, ChevronRight } from 'lucide-react';
+import { NAV, BLUE } from '@/lib/brand';
 
-const PRIMARY = '#001B36';
+const PRIMARY = NAV;
 const PRIMARY_LIGHT = '#002a52';
-const ACCENT = '#1a6fc4';
+const ACCENT = BLUE;
 
 const extractYouTubeId = (url) => {
   if (!url) return null;
@@ -61,8 +62,8 @@ const CoursePage = () => {
       <div className="space-y-5 pb-12">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Aulas do Curso</h1>
-          <p className="text-muted-foreground mt-1">Assista às aulas e materiais de aprendizado</p>
+          <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Aulas do Curso</h1>
+          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Assista às aulas e materiais de aprendizado</p>
         </div>
 
         {loading ? (

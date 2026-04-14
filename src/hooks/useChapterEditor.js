@@ -128,6 +128,23 @@ export function useChapterEditor(chapterId) {
     return () => clearTimeout(handler);
   }, [content, chapter]);
 
+  // Update chapter title
+  const updateTitle = async (newTitle) => {
+    if (!chapter || !newTitle.trim()) return;
+    const trimmed = newTitle.trim();
+    try {
+      const { error } = await supabase
+        .from('chapters')
+        .update({ title: trimmed, updated_at: new Date().toISOString() })
+        .eq('id', chapterId);
+      if (error) throw error;
+      setChapter(prev => ({ ...prev, title: trimmed }));
+    } catch (err) {
+      console.error('updateTitle error:', err);
+      throw err;
+    }
+  };
+
   // Update chapter status
   const updateStatus = async (newStatus) => {
     try {
@@ -193,6 +210,7 @@ export function useChapterEditor(chapterId) {
     functions: {
       saveChapter: (explicitContent) => saveChapter('Manual Save', explicitContent !== undefined ? explicitContent : contentRef.current),
       updateStatus,
+      updateTitle,
       restoreVersion,
       refresh: loadChapter
     }

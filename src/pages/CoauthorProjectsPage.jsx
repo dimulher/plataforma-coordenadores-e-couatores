@@ -4,20 +4,17 @@ import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
 import { BookOpen, Calendar, Users, ExternalLink, FileText, Edit3, CheckCircle, Clock, AlertCircle } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { NAV, BLUE, RED, BrandCard, BtnPrimary, BtnOutline } from '@/lib/brand';
 
 const CHAPTER_STATUS = {
-  RASCUNHO: { label: 'Rascunho', color: '#3B82F6', bg: 'rgba(59,130,246,0.1)', icon: Edit3 },
-  EM_EDICAO: { label: 'Em edição', color: '#3B82F6', bg: 'rgba(59,130,246,0.1)', icon: Edit3 },
-  ENVIADO_PARA_REVISAO: { label: 'Em Revisão', color: '#F59E0B', bg: 'rgba(245,158,11,0.1)', icon: Clock },
-  EM_REVISAO: { label: 'Em Revisão', color: '#F59E0B', bg: 'rgba(245,158,11,0.1)', icon: Clock },
-  AJUSTES_SOLICITADOS: { label: 'Ajustes Solicitados', color: '#FF6B35', bg: 'rgba(255,107,53,0.1)', icon: AlertCircle },
-  APROVADO: { label: 'Aprovado', color: '#10B981', bg: 'rgba(16,185,129,0.1)', icon: CheckCircle },
-  FINALIZADO: { label: 'Concluído', color: '#6366F1', bg: 'rgba(99,102,241,0.1)', icon: CheckCircle },
+  RASCUNHO:             { label: 'Rascunho',          color: BLUE,      bg: `${BLUE}12`,                   icon: Edit3 },
+  EM_EDICAO:            { label: 'Em edição',          color: BLUE,      bg: `${BLUE}12`,                   icon: Edit3 },
+  ENVIADO_PARA_REVISAO: { label: 'Em Revisão',         color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',        icon: Clock },
+  EM_REVISAO:           { label: 'Em Revisão',         color: '#F59E0B', bg: 'rgba(245,158,11,0.10)',        icon: Clock },
+  AJUSTES_SOLICITADOS:  { label: 'Ajustes Solicitados',color: '#FF6B35', bg: 'rgba(255,107,53,0.10)',        icon: AlertCircle },
+  APROVADO:             { label: 'Aprovado',           color: '#10B981', bg: 'rgba(16,185,129,0.10)',        icon: CheckCircle },
+  FINALIZADO:           { label: 'Concluído',          color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',        icon: CheckCircle },
 };
 
 const CoauthorProjectsPage = () => {
@@ -31,64 +28,34 @@ const CoauthorProjectsPage = () => {
 
   useEffect(() => {
     if (!user?.id) return;
-    const fetchData = async () => {
+    (async () => {
       try {
-        // Fetch current user's profile to get coordinator_id
-        const { data: myProfile } = await supabase
-          .from('profiles')
-          .select('coordinator_id')
-          .eq('id', user.id)
-          .single();
-
-        // Fetch coordinator's name
+        const { data: myProfile } = await supabase.from('profiles').select('coordinator_id').eq('id', user.id).single();
         if (myProfile?.coordinator_id) {
-          const { data: coord } = await supabase
-            .from('profiles')
-            .select('name')
-            .eq('id', myProfile.coordinator_id)
-            .single();
+          const { data: coord } = await supabase.from('profiles').select('name').eq('id', myProfile.coordinator_id).single();
           if (coord?.name) setCoordinatorName(coord.name);
         }
-
-        // Projects
-        const { data: participations, error } = await supabase
-          .from('project_participants')
-          .select('project_id, projects(*)')
-          .eq('user_id', user.id);
-
+        const { data: participations, error } = await supabase.from('project_participants').select('project_id, projects(*)').eq('user_id', user.id);
         if (error) throw error;
         const projs = participations?.map(p => p.projects).filter(Boolean) || [];
         setProjects(projs);
-
-        // My chapters (one per project typically)
-        const { data: myChapters } = await supabase
-          .from('chapters')
-          .select('*')
-          .eq('author_id', user.id);
-
-        // Map chapters by project_id for easy lookup
+        const { data: myChapters } = await supabase.from('chapters').select('*').eq('author_id', user.id);
         const chapMap = {};
-        (myChapters || []).forEach(ch => {
-          if (ch.project_id) chapMap[ch.project_id] = ch;
-        });
+        (myChapters || []).forEach(ch => { if (ch.project_id) chapMap[ch.project_id] = ch; });
         setChaptersByProject(chapMap);
-
-        // If there's one chapter without a project, use for display
         const unlinked = (myChapters || []).find(ch => !ch.project_id);
         if (unlinked) setMyChapter(unlinked);
-
       } catch (err) {
         console.error('CoauthorProjectsPage fetch error:', err);
       } finally {
         setLoading(false);
       }
-    };
-    fetchData();
+    })();
   }, [user?.id]);
 
   if (loading) return (
     <div className="flex h-64 items-center justify-center">
-      <div className="animate-spin h-8 w-8 border-b-2 border-blue-500 rounded-full" />
+      <div className="h-8 w-8 rounded-full border-b-2 animate-spin" style={{ borderColor: `transparent transparent ${BLUE} transparent` }} />
     </div>
   );
 
@@ -102,71 +69,54 @@ const CoauthorProjectsPage = () => {
     const isEditable = ['RASCUNHO', 'EM_EDICAO', 'AJUSTES_SOLICITADOS'].includes(chapter.status);
 
     return (
-      <div
-        className="mt-4 rounded-xl p-4 border"
-        style={{ backgroundColor: cfg.bg, borderColor: `${cfg.color}30` }}
-      >
+      <div className="mt-4 rounded-xl p-4" style={{ background: cfg.bg, border: `1px solid ${cfg.color}25` }}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4" style={{ color: cfg.color }} />
-            <span className="text-sm font-semibold text-slate-700">Meu Capítulo</span>
+            <span className="text-sm font-semibold" style={{ color: NAV }}>Meu Capítulo</span>
           </div>
-          <span
-            className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full"
-            style={{ color: cfg.color, backgroundColor: `${cfg.color}20` }}
-          >
+          <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full" style={{ color: cfg.color, background: `${cfg.color}20` }}>
             <Icon className="w-3 h-3" />
             {cfg.label}
           </span>
         </div>
-
-        <p className="text-sm text-slate-700 font-medium mb-2 truncate">{chapter.title || 'Sem título'}</p>
-
-        <div className="mb-3">
-          <div className="flex justify-between text-xs text-slate-500 mb-1">
+        <p className="text-sm font-medium mb-3 truncate" style={{ color: NAV }}>{chapter.title || 'Sem título'}</p>
+        <div className="mb-4">
+          <div className="flex justify-between text-xs mb-1" style={{ color: `${NAV}60` }}>
             <span>Progresso da escrita</span>
-            <span className="font-semibold">{wordCount.toLocaleString()} / {wordGoal.toLocaleString()} palavras ({progress}%)</span>
+            <span className="font-semibold">{wordCount.toLocaleString()} / {wordGoal.toLocaleString()} ({progress}%)</span>
           </div>
-          <div className="w-full bg-white/60 rounded-full h-1.5">
-            <div
-              className="h-1.5 rounded-full transition-all"
-              style={{ width: `${progress}%`, backgroundColor: cfg.color }}
-            />
+          <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.6)' }}>
+            <div className="h-1.5 rounded-full transition-all" style={{ width: `${progress}%`, background: cfg.color }} />
           </div>
         </div>
-
-        <Button
-          size="sm"
-          onClick={() => navigate(`/coauthor/chapters/${chapter.id}/edit`)}
-          className="w-full text-white text-xs font-semibold"
-          style={{ backgroundColor: cfg.color }}
-        >
-          {isEditable ? <><Edit3 className="w-3.5 h-3.5 mr-1.5" /> Continuar escrevendo</> : <><ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Ver meu capítulo</>}
-        </Button>
+        {isEditable
+          ? <BtnPrimary onClick={() => navigate(`/coauthor/chapters/${chapter.id}/edit`)} icon={Edit3} label="Continuar escrevendo" className="w-full justify-center" />
+          : <BtnOutline onClick={() => navigate(`/coauthor/chapters/${chapter.id}/edit`)} icon={ExternalLink} label="Ver meu capítulo" color={cfg.color} className="w-full justify-center" />
+        }
       </div>
     );
   };
 
   return (
     <div className="space-y-6 pb-12">
-      <Helmet><title>Meu Projeto - NAB Platform</title></Helmet>
+      <Helmet><title>Meu Projeto — Novos Autores do Brasil</title></Helmet>
 
       <div>
-        <h1 className="text-3xl font-bold text-slate-800 mb-2">Meu Projeto</h1>
-        <p className="text-slate-500">Acompanhe o projeto literário do qual você faz parte.</p>
+        <h1 className="text-3xl font-bold mb-1" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Meu Projeto</h1>
+        <p className="text-sm" style={{ color: `${NAV}60` }}>Acompanhe o projeto literário do qual você faz parte.</p>
       </div>
 
-      {/* Se não tem projetos vinculados mas tem capítulo, mostrar o capítulo solto */}
       {projects.length === 0 && myChapter && (
         <div className="max-w-xl">
-          <Card className="border-slate-200 shadow-sm bg-white overflow-hidden">
-            <div className="h-2 w-full bg-gradient-to-r from-blue-400 to-indigo-500" />
-            <CardContent className="p-6">
-              <h3 className="text-lg font-bold text-slate-800 mb-1">Novos Autores do Brasil</h3>
-              <p className="text-sm text-slate-500 mb-2">Projeto de coautoria</p>
+          <BrandCard>
+            <div className="h-1.5 w-full rounded-t-2xl" style={{ background: `linear-gradient(90deg, ${BLUE}, ${RED})` }} />
+            <div className="p-6">
+              <h3 className="text-lg font-bold mb-1" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Novos Autores do Brasil</h3>
+              <p className="text-sm" style={{ color: `${NAV}60` }}>Projeto de coautoria</p>
               {renderChapterStatus(myChapter)}
-            </CardContent>
-          </Card>
+            </div>
+          </BrandCard>
         </div>
       )}
 
@@ -174,54 +124,61 @@ const CoauthorProjectsPage = () => {
         {projects.map(project => {
           const chapter = chaptersByProject[project.id];
           return (
-            <Card key={project.id} className="border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 group overflow-hidden flex flex-col">
-              <div className="h-2 w-full bg-gradient-to-r from-blue-400 to-indigo-500" />
-              <CardContent className="p-6 flex-1 flex flex-col">
+            <BrandCard key={project.id} className="flex flex-col hover:shadow-md transition-shadow">
+              <div className="h-1.5 w-full" style={{ background: `linear-gradient(90deg, ${BLUE}, ${RED})` }} />
+              <div className="p-6 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-4">
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">{project.type || 'Projeto'}</Badge>
-                  <Badge className={project.status === 'ativo' ? 'bg-green-100 text-green-800 hover:bg-green-200 border-none' : 'bg-slate-100 text-slate-800 hover:bg-slate-200 border-none'}>
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={{ background: `${BLUE}12`, color: BLUE }}>
+                    {project.type || 'Projeto'}
+                  </span>
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style={project.status === 'ativo'
+                      ? { background: 'rgba(16,185,129,0.10)', color: '#10B981' }
+                      : { background: `${NAV}08`, color: `${NAV}60` }
+                    }>
                     {project.status === 'ativo' ? 'Ativo' : 'Inativo'}
-                  </Badge>
+                  </span>
                 </div>
 
-                <h3 className="text-xl font-bold text-slate-800 mb-4 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-xl font-bold mb-4 line-clamp-2" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
                   {project.name || 'Projeto sem nome'}
                 </h3>
 
                 <div className="space-y-3 mb-4 flex-1">
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <Calendar className="w-4 h-4 text-slate-400" />
+                  <div className="flex items-center gap-2 text-sm" style={{ color: `${NAV}70` }}>
+                    <Calendar className="w-4 h-4 shrink-0" style={{ color: `${NAV}40` }} />
                     <span><strong>Início:</strong> {project.start_date ? new Date(project.start_date).toLocaleDateString('pt-BR') : 'N/A'}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <Calendar className="w-4 h-4 text-slate-400" />
+                  <div className="flex items-center gap-2 text-sm" style={{ color: `${NAV}70` }}>
+                    <Calendar className="w-4 h-4 shrink-0" style={{ color: `${NAV}40` }} />
                     <span><strong>Término:</strong> {project.end_date ? new Date(project.end_date).toLocaleDateString('pt-BR') : 'N/A'}</span>
                   </div>
-                  <div className="flex items-start gap-2 text-sm text-slate-600">
-                    <Users className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2 text-sm" style={{ color: `${NAV}70` }}>
+                    <Users className="w-4 h-4 shrink-0 mt-0.5" style={{ color: `${NAV}40` }} />
                     <p><strong>Coordenador</strong> — {coordinatorName}</p>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 mt-auto">
+                <div className="pt-4 mt-auto" style={{ borderTop: `1px solid ${NAV}0A` }}>
                   <div className="flex justify-between text-xs font-semibold mb-2">
-                    <span className="text-slate-600">Progresso do Projeto</span>
-                    <span className="text-blue-600">{project.progress || 0}%</span>
+                    <span style={{ color: `${NAV}60` }}>Progresso do Projeto</span>
+                    <span style={{ color: BLUE }}>{project.progress || 0}%</span>
                   </div>
-                  <Progress value={project.progress || 0} className="h-1.5 bg-slate-100 mb-4" indicatorColor="bg-blue-500" />
-
-                  {/* Chapter status block */}
+                  <div className="h-1.5 rounded-full overflow-hidden mb-4" style={{ background: `${NAV}10` }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${project.progress || 0}%`, background: BLUE }} />
+                  </div>
                   {renderChapterStatus(chapter)}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </BrandCard>
           );
         })}
 
         {projects.length === 0 && !myChapter && (
-          <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-xl border border-dashed border-slate-300">
-            <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <p className="font-medium">Você ainda não está participando de nenhum projeto.</p>
+          <div className="col-span-full py-12 text-center rounded-2xl border-2 border-dashed"
+            style={{ borderColor: `${NAV}12`, background: 'white' }}>
+            <BookOpen className="w-12 h-12 mx-auto mb-4" style={{ color: `${NAV}25` }} />
+            <p className="font-medium" style={{ color: `${NAV}60` }}>Você ainda não está participando de nenhum projeto.</p>
           </div>
         )}
       </div>

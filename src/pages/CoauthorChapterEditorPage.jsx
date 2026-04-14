@@ -15,43 +15,44 @@ const htmlToText = (html) => {
   return html.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
 };
 
-// Export to .docx using html-docx-js
+// Export to .docx using docx package
 const exportToDocx = async (htmlContent, filename = 'capitulo') => {
-  try {
-    // Dynamically import to avoid SSR issues
-    const htmlDocx = await import('html-docx-js/dist/html-docx');
-    const convert = htmlDocx.default?.asBlob || htmlDocx.asBlob;
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import('docx');
 
-    const fullHtml = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.8; }
-            p { margin-bottom: 12pt; }
-            h1 { font-size: 18pt; font-weight: bold; }
-            h2 { font-size: 16pt; font-weight: bold; }
-            h3 { font-size: 14pt; font-weight: bold; }
-          </style>
-        </head>
-        <body>${htmlContent || '<p>Capítulo vazio.</p>'}</body>
-      </html>
-    `;
+  // Strip HTML tags and convert to paragraphs
+  const tmp = document.createElement('div');
+  tmp.innerHTML = htmlContent || '';
 
-    const blob = convert(fullHtml, { orientation: 'portrait' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${filename}.docx`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error('Export docx error:', err);
-    throw err;
+  const paragraphs = [];
+  tmp.querySelectorAll('p, h1, h2, h3, br, div').forEach((el) => {
+    const tag = el.tagName.toLowerCase();
+    const text = el.textContent || '';
+    if (tag === 'h1') {
+      paragraphs.push(new Paragraph({ text, heading: HeadingLevel.HEADING_1 }));
+    } else if (tag === 'h2') {
+      paragraphs.push(new Paragraph({ text, heading: HeadingLevel.HEADING_2 }));
+    } else if (tag === 'h3') {
+      paragraphs.push(new Paragraph({ text, heading: HeadingLevel.HEADING_3 }));
+    } else if (text.trim()) {
+      paragraphs.push(new Paragraph({ children: [new TextRun({ text, size: 28, font: 'Arial' })] }));
+    }
+  });
+
+  if (paragraphs.length === 0) {
+    paragraphs.push(new Paragraph({ children: [new TextRun({ text: tmp.textContent || 'Capítulo vazio.', size: 28, font: 'Arial' })] }));
   }
+
+  const doc = new Document({ sections: [{ properties: {}, children: paragraphs }] });
+  const blob = await Packer.toBlob(doc);
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${filename}.docx`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 };
 
 const CoauthorChapterEditorPage = () => {
@@ -59,6 +60,14 @@ const CoauthorChapterEditorPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { chapter, content, setContent, saveState, lastUpdated, wordCount, functions } = useChapterEditor(chapterId);
+
+  const handleTitleChange = async (newTitle) => {
+    try {
+      await functions.updateTitle(newTitle);
+    } catch {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível salvar o título.' });
+    }
+  };
   const editorRef = useRef(null);
 
   const [isGuideOpen, setIsGuideOpen] = useState(false);
@@ -229,6 +238,7 @@ const CoauthorChapterEditorPage = () => {
         onReopenEdit={handleReopenEdit}
         onSave={handleSave}
         onImportDocx={handleImportDocx}
+        onTitleChange={handleTitleChange}
         saveState={saveState}
       />
 

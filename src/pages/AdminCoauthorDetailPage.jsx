@@ -1,15 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { ChapterStatusBadge } from '@/components/ChapterStatusBadge';
 import { ChapterDeadlineIndicator } from '@/components/ChapterDeadlineIndicator';
 import { ArrowLeft, BookOpen, Clock, FileEdit, Mail, ChevronRight } from 'lucide-react';
+import { NAV, BLUE, RED, BrandCard, BtnOutline } from '@/lib/brand';
 
 const AdminCoauthorDetailPage = () => {
   const { coauthorId } = useParams();
@@ -20,7 +16,7 @@ const AdminCoauthorDetailPage = () => {
   useEffect(() => {
     const rawData = JSON.parse(localStorage.getItem('nab_data') || '{}');
     const tenantId = getTenantId();
-    
+
     const author = (rawData.users || []).find(u => u.id === coauthorId && u.tenant_id === tenantId);
     if (!author) return;
 
@@ -28,23 +24,14 @@ const AdminCoauthorDetailPage = () => {
     const authorProjects = (rawData.projects || []).filter(p => p.tenant_id === tenantId && p.participants.includes(author.id));
     const authorChapters = (rawData.chapters || []).filter(c => c.tenant_id === tenantId && c.author_id === author.id);
 
-    // Get latest activity (mocking from versions or updated_at)
     let activities = [];
     authorChapters.forEach(c => {
       if (c.versions) {
         c.versions.forEach(v => {
-          activities.push({
-            date: v.date,
-            action: `Salvou versão: ${v.type}`,
-            chapter: c.title
-          });
+          activities.push({ date: v.date, action: `Salvou versão: ${v.type}`, chapter: c.title });
         });
       } else {
-        activities.push({
-          date: c.updated_at,
-          action: `Atualizou capítulo`,
-          chapter: c.title
-        });
+        activities.push({ date: c.updated_at, action: 'Atualizou capítulo', chapter: c.title });
       }
     });
     activities = activities.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
@@ -52,129 +39,162 @@ const AdminCoauthorDetailPage = () => {
     setData({ author, coord, projects: authorProjects, chapters: authorChapters, activities });
   }, [coauthorId, getTenantId]);
 
-  if (!data) return <div className="p-8 text-center">Carregando...</div>;
+  if (!data) return (
+    <div className="flex h-64 items-center justify-center">
+      <div className="h-8 w-8 rounded-full border-b-2 animate-spin" style={{ borderColor: `transparent transparent ${BLUE} transparent` }} />
+    </div>
+  );
 
   const { author, coord, projects, chapters, activities } = data;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <Helmet><title>{author.name} - NAB Admin</title></Helmet>
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      <Helmet><title>{author.name} — Novos Autores do Brasil</title></Helmet>
 
       {/* Breadcrumb */}
-      <div className="flex items-center text-sm text-slate-500 gap-2 mb-2">
-        <Link to="/app/admin/coauthors" className="hover:text-blue-600 transition-colors">Coautores</Link>
+      <div className="flex items-center text-sm gap-2" style={{ color: `${NAV}50` }}>
+        <Link to="/app/admin/coauthors" className="transition-colors" style={{ color: `${NAV}50` }}
+          onMouseEnter={e => { e.currentTarget.style.color = BLUE; }}
+          onMouseLeave={e => { e.currentTarget.style.color = `${NAV}50`; }}
+        >Coautores</Link>
         <ChevronRight className="w-4 h-4" />
-        <span className="text-slate-800 font-medium">{author.name}</span>
+        <span className="font-medium" style={{ color: NAV }}>{author.name}</span>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4" style={{ borderBottom: `1px solid ${NAV}0A` }}>
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/app/admin/coauthors')}><ArrowLeft className="w-5 h-5"/></Button>
+          <button
+            onClick={() => navigate('/app/admin/coauthors')}
+            className="p-2 rounded-xl transition-colors"
+            style={{ color: `${NAV}50` }}
+            onMouseEnter={e => { e.currentTarget.style.background = `${NAV}08`; e.currentTarget.style.color = NAV; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = `${NAV}50`; }}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           <div>
-            <h1 className="text-3xl font-bold text-slate-800">{author.name}</h1>
-            <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
+            <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{author.name}</h1>
+            <div className="flex items-center gap-3 mt-1 text-sm" style={{ color: `${NAV}55` }}>
               <span>Coordenador: {coord?.name || 'Nenhum'}</span>
               <span>•</span>
               <span>Cadastrado em: {new Date(author.created_at).toLocaleDateString('pt-BR')}</span>
             </div>
           </div>
         </div>
-        <Button className="bg-[#0E1A32] hover:bg-slate-800 text-white"><Mail className="w-4 h-4 mr-2"/> Enviar Mensagem</Button>
+        <BtnOutline icon={Mail} label="Enviar Mensagem" color={NAV} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Info & Activity */}
+        {/* Left: Projetos + Atividade */}
         <div className="space-y-6 lg:col-span-1">
-          <Card className="bg-white border-slate-200 shadow-sm">
-            <CardHeader className="pb-3 border-b border-slate-100">
-              <CardTitle className="text-lg text-slate-800 flex items-center gap-2"><BookOpen className="w-5 h-5 text-blue-500"/> Projetos Alocados</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 space-y-4">
+          {/* Projetos */}
+          <BrandCard>
+            <div className="px-6 py-4 flex items-center gap-2" style={{ borderBottom: `1px solid ${NAV}08` }}>
+              <BookOpen className="w-4 h-4" style={{ color: BLUE }} />
+              <h3 className="font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Projetos Alocados</h3>
+            </div>
+            <div className="px-6 py-4 space-y-3">
               {projects.map(p => (
-                <div key={p.id} className="border border-slate-100 rounded-lg p-3 bg-slate-50">
-                  <h4 className="font-semibold text-slate-800 text-sm">{p.name}</h4>
-                  <div className="flex justify-between items-center mt-2 text-xs text-slate-500">
-                    <span>Prazo Final: {new Date(p.end_date).toLocaleDateString('pt-BR')}</span>
-                    <Badge variant="outline" className="bg-white">{p.type}</Badge>
+                <div key={p.id} className="rounded-xl p-3" style={{ background: `${NAV}04`, border: `1px solid ${NAV}08` }}>
+                  <h4 className="font-semibold text-sm" style={{ color: NAV }}>{p.name}</h4>
+                  <div className="flex justify-between items-center mt-2 text-xs" style={{ color: `${NAV}55` }}>
+                    <span>Prazo: {new Date(p.end_date).toLocaleDateString('pt-BR')}</span>
+                    <span className="px-2 py-0.5 rounded-full font-semibold" style={{ background: `${BLUE}12`, color: BLUE }}>{p.type}</span>
                   </div>
                   <div className="mt-3">
-                    <div className="flex justify-between text-xs font-medium mb-1"><span className="text-slate-600">Progresso Geral</span><span className="text-blue-600">{p.progress}%</span></div>
-                    <Progress value={p.progress} className="h-1.5" indicatorColor="bg-blue-500" />
+                    <div className="flex justify-between text-xs font-medium mb-1" style={{ color: `${NAV}60` }}>
+                      <span>Progresso</span>
+                      <span style={{ color: BLUE }}>{p.progress}%</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full" style={{ background: `${NAV}10` }}>
+                      <div className="h-1.5 rounded-full transition-all" style={{ width: `${p.progress}%`, background: BLUE }} />
+                    </div>
                   </div>
                 </div>
               ))}
-              {projects.length === 0 && <p className="text-sm text-slate-500 text-center py-2">Nenhum projeto alocado.</p>}
-            </CardContent>
-          </Card>
+              {projects.length === 0 && <p className="text-sm text-center py-2" style={{ color: `${NAV}45` }}>Nenhum projeto alocado.</p>}
+            </div>
+          </BrandCard>
 
-          <Card className="bg-white border-slate-200 shadow-sm">
-            <CardHeader className="pb-3 border-b border-slate-100">
-              <CardTitle className="text-lg text-slate-800 flex items-center gap-2"><Clock className="w-5 h-5 text-purple-500"/> Atividade Recente</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="space-y-4 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
+          {/* Atividade */}
+          <BrandCard>
+            <div className="px-6 py-4 flex items-center gap-2" style={{ borderBottom: `1px solid ${NAV}08` }}>
+              <Clock className="w-4 h-4" style={{ color: '#8B5CF6' }} />
+              <h3 className="font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Atividade Recente</h3>
+            </div>
+            <div className="px-6 py-4">
+              <div className="space-y-3">
                 {activities.map((act, i) => (
-                  <div key={i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                    <div className="flex items-center justify-center w-4 h-4 rounded-full border border-white bg-slate-300 group-[.is-active]:bg-purple-500 text-slate-50 group-[.is-active]:text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2"></div>
-                    <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] p-3 rounded border border-slate-100 bg-white shadow-sm">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="font-bold text-slate-800 text-xs">{act.chapter}</div>
-                        <time className="font-mono text-[10px] text-slate-500">{new Date(act.date).toLocaleDateString('pt-BR')}</time>
-                      </div>
-                      <div className="text-xs text-slate-600">{act.action}</div>
+                  <div key={i} className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="w-3 h-3 rounded-full shrink-0 mt-1" style={{ background: '#8B5CF6' }} />
+                      {i < activities.length - 1 && <div className="w-0.5 flex-1 mt-1" style={{ background: `${NAV}10` }} />}
+                    </div>
+                    <div className="pb-3 flex-1">
+                      <p className="text-xs font-bold" style={{ color: NAV }}>{act.chapter}</p>
+                      <p className="text-xs" style={{ color: `${NAV}60` }}>{act.action}</p>
+                      <p className="text-[10px] mt-0.5 font-mono" style={{ color: `${NAV}40` }}>{new Date(act.date).toLocaleDateString('pt-BR')}</p>
                     </div>
                   </div>
                 ))}
-                {activities.length === 0 && <p className="text-sm text-slate-500 text-center py-2 relative z-10 bg-white">Nenhuma atividade registrada.</p>}
+                {activities.length === 0 && <p className="text-sm text-center py-2" style={{ color: `${NAV}45` }}>Nenhuma atividade registrada.</p>}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </BrandCard>
         </div>
 
-        {/* Right Column - Chapters */}
+        {/* Right: Capítulos */}
         <div className="lg:col-span-2">
-          <Card className="bg-white border-slate-200 shadow-sm h-full">
-            <CardHeader className="pb-3 border-b border-slate-100 flex flex-row items-center justify-between">
-              <CardTitle className="text-lg text-slate-800">Capítulos Sob Responsabilidade</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="divide-y divide-slate-100">
-                {chapters.map(chap => {
-                  const progress = chap.word_goal > 0 ? Math.min(100, Math.round((chap.word_count / chap.word_goal) * 100)) : 0;
-                  return (
-                    <div key={chap.id} className="p-5 hover:bg-slate-50 transition-colors">
-                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-3">
-                        <div>
-                          <h4 className="font-semibold text-slate-800 text-lg">{chap.title}</h4>
-                          <p className="text-xs text-slate-500 mt-0.5">Projeto: {projects.find(p => p.id === chap.project_id)?.name}</p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <ChapterStatusBadge status={chap.status} />
-                          <Button size="sm" variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-50" onClick={() => navigate(`/app/admin/chapters/${chap.id}/review`)}>
-                            <FileEdit className="w-4 h-4 mr-1"/> Revisar / Ver
-                          </Button>
-                        </div>
+          <BrandCard className="h-full">
+            <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: `1px solid ${NAV}08` }}>
+              <h3 className="font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Capítulos Sob Responsabilidade</h3>
+            </div>
+            <div className="divide-y" style={{ '--tw-divide-opacity': 1 }}>
+              {chapters.map(chap => {
+                const progress = chap.word_goal > 0 ? Math.min(100, Math.round((chap.word_count / chap.word_goal) * 100)) : 0;
+                return (
+                  <div key={chap.id} className="p-5 transition-colors"
+                    onMouseEnter={e => { e.currentTarget.style.background = `${NAV}03`; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-3">
+                      <div>
+                        <h4 className="font-semibold text-lg" style={{ color: NAV }}>{chap.title}</h4>
+                        <p className="text-xs mt-0.5" style={{ color: `${NAV}50` }}>
+                          Projeto: {projects.find(p => p.id === chap.project_id)?.name}
+                        </p>
                       </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center mt-4">
-                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                          <div className="flex justify-between text-xs font-medium mb-1.5 text-slate-700">
-                            <span>Progresso da Escrita</span>
-                            <span>{chap.word_count} / {chap.word_goal} pal. ({progress}%)</span>
-                          </div>
-                          <Progress value={progress} className="h-2" indicatorColor="bg-emerald-500" />
-                        </div>
-                        <div className="flex justify-end">
-                          <ChapterDeadlineIndicator deadline={chap.deadline} />
-                        </div>
+                      <div className="flex items-center gap-3">
+                        <ChapterStatusBadge status={chap.status} />
+                        <BtnOutline
+                          onClick={() => navigate(`/app/admin/chapters/${chap.id}/review`)}
+                          icon={FileEdit} label="Revisar / Ver" color={BLUE}
+                        />
                       </div>
                     </div>
-                  );
-                })}
-                {chapters.length === 0 && <p className="p-8 text-center text-slate-500">Nenhum capítulo atribuído.</p>}
-              </div>
-            </CardContent>
-          </Card>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center mt-4">
+                      <div className="p-3 rounded-xl" style={{ background: `${NAV}04`, border: `1px solid ${NAV}08` }}>
+                        <div className="flex justify-between text-xs font-medium mb-1.5" style={{ color: `${NAV}70` }}>
+                          <span>Progresso da Escrita</span>
+                          <span style={{ color: BLUE }}>{chap.word_count} / {chap.word_goal} pal. ({progress}%)</span>
+                        </div>
+                        <div className="w-full h-2 rounded-full" style={{ background: `${NAV}10` }}>
+                          <div className="h-2 rounded-full transition-all" style={{ width: `${progress}%`, background: '#10B981' }} />
+                        </div>
+                      </div>
+                      <div className="flex justify-end">
+                        <ChapterDeadlineIndicator deadline={chap.deadline} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {chapters.length === 0 && (
+                <p className="p-8 text-center" style={{ color: `${NAV}45` }}>Nenhum capítulo atribuído.</p>
+              )}
+            </div>
+          </BrandCard>
         </div>
       </div>
     </div>
