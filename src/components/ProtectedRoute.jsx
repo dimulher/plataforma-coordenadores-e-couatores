@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   }
 
   if (!user) {
-    return <Navigate to="/login/coautor" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (!canAccess(requiredRoles)) {

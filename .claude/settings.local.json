@@ -8,7 +8,9 @@
       "Bash(\"supabase/migrations/20260305_fix_rls_recursion.sql\":*)",
       "Bash(grep:*)",
       "Bash(npm install:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(find \"c:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores/\" -maxdepth 1 -name \"*.png\" -exec cp {} \"c:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores/src/assets/logo-simbolo.png\" \\\\;)",
+      "Bash(find \"c:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores/\" -maxdepth 1 -name \"*.png\" -exec cp \"{}\" \"c:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores/src/assets/logo-simbolo.png\" \\\\;)"
     ]
   }
 }

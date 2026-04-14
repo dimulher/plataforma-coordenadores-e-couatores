@@ -160,7 +160,7 @@ const CoordinatorInvitePage = () => {
                             Seu cadastro foi realizado. Enviaremos o acesso assim que o contrato for assinado.
                         </p>
                         <button
-                            onClick={() => navigate('/login/coordenador')}
+                            onClick={() => navigate('/login')}
                             className="w-full h-14 rounded-xl text-lg font-bold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90"
                             style={{ background: theme.bar[0] }}
                         >

@@ -7,11 +7,8 @@ import ScrollToTop from '@/components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AppLayout from '@/components/AppLayout';
 
-// Login Pages (por role)
-import CoauthorLoginPage from '@/pages/CoauthorLoginPage';
-import CoordinatorLoginPage from '@/pages/CoordinatorLoginPage';
-import AdminLoginPage from '@/pages/AdminLoginPage';
-import LoginPage from '@/pages/LoginPage'; // fallback /login
+// Unified login page
+import LoginPage from '@/pages/LoginPage';
 
 // Common & Admin Pages
 import DashboardPage from '@/pages/DashboardPage';
@@ -68,7 +65,7 @@ const RootRedirect = () => {
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
     </div>
   );
-  if (!user) return <Navigate to="/login/coautor" replace />;
+  if (!user) return <Navigate to="/login" replace />;
   if (user.role === 'COAUTOR') return <Navigate to="/coauthor/dashboard" replace />;
   if (user.role === 'GESTOR') return <Navigate to="/manager/dashboard" replace />;
   if (user.role === 'COORDENADOR') return <Navigate to="/coordinator/dashboard" replace />;
@@ -78,11 +75,11 @@ const RootRedirect = () => {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Role-specific login pages */}
-      <Route path="/login/coautor" element={<CoauthorLoginPage />} />
-      <Route path="/login/coordenador" element={<CoordinatorLoginPage />} />
-      <Route path="/login/admin" element={<AdminLoginPage />} />
-      <Route path="/login" element={<Navigate to="/login/coautor" replace />} />
+      {/* Login — unified page for all roles */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/login/coautor" element={<LoginPage />} />
+      <Route path="/login/coordenador" element={<LoginPage />} />
+      <Route path="/login/admin" element={<LoginPage />} />
       <Route path="/register/coordinator/:managerId" element={<CoordinatorInvitePage />} />
       <Route path="/register/coordinator/:managerId/:projectId" element={<CoordinatorInvitePage />} />
       <Route path="/register/coautor/:coordinatorId" element={<CoauthorRegisterPage />} />
