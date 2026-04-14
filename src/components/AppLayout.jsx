@@ -77,7 +77,7 @@ const AppLayout = () => {
   const visibleGeneralItems = generalItems.filter(item => {
     const roleMatch = item.roles.length === 0 || item.roles.includes(user?.role);
     if (!roleMatch) return false;
-    if ((isCoordinator() || isAdmin()) && item.label === 'Dashboard Geral') return false;
+    if ((isCoordinator() || isAdmin() || isGestor()) && item.label === 'Dashboard Geral') return false;
     return true;
   }).map(item => {
     if (isCoordinator()) {

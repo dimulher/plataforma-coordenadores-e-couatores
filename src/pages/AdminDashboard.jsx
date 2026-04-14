@@ -9,6 +9,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine, Cell,
 } from 'recharts';
+import { useAuth } from '@/contexts/AuthContext';
 import { NAV, BLUE, RED, CREAM, WelcomeBanner, BrandCard } from '@/lib/brand';
 
 const EDITORIAL_CARDS = [
@@ -19,6 +20,7 @@ const EDITORIAL_CARDS = [
 ];
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
   const { metrics, loading } = useAdminMetrics();
   const [summaryMetrics, setSummaryMetrics] = useState({
     leadsEmAtendimento: 0,
@@ -100,7 +102,7 @@ const AdminDashboard = () => {
     <div className="space-y-8 pb-12">
       <Helmet><title>Dashboard Admin — Novos Autores do Brasil</title></Helmet>
 
-      <WelcomeBanner name="Bem-vindo, Administrador" subtitle="Aqui está o resumo da plataforma hoje." />
+      <WelcomeBanner name={`Bem-vindo, ${user?.name || 'Administrador'}`} subtitle="Aqui está o resumo da plataforma hoje." />
 
       {/* Resumo Geral */}
       <section className="space-y-4">
