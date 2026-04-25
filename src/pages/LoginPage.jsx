@@ -15,7 +15,10 @@ const RED  = '#AC1B00';
 const ROLE_DESTINATIONS = {
   COAUTOR:     '/coauthor/dashboard',
   COORDENADOR: '/coordinator/dashboard',
+  LIDER:       '/leader/dashboard',
   GESTOR:      '/manager/dashboard',
+  CS:          '/cs/dashboard',
+  VENDEDOR:    '/vendedor/dashboard',
   ADMIN:       '/app/dashboard',
 };
 
