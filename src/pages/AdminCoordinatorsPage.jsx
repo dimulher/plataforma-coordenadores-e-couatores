@@ -101,10 +101,10 @@ const AdminCoordinatorsPage = () => {
         </div>
         <Select value={gestorFilter} onValueChange={setGestorFilter}>
           <SelectTrigger className="w-full md:w-56 text-sm bg-white" style={{ borderColor: `${NAV}20`, color: NAV }}>
-            <SelectValue placeholder="Filtrar por Gestor" />
+            <SelectValue placeholder="Filtrar por Líder" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">Todos os Gestores</SelectItem>
+            <SelectItem value="ALL">Todos os Líderes</SelectItem>
             {gestors.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
           </SelectContent>
         </Select>
@@ -122,7 +122,7 @@ const AdminCoordinatorsPage = () => {
             <table className="w-full text-sm whitespace-nowrap">
               <thead>
                 <tr style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}0C` }}>
-                  {['Coordenador', 'Gestor', 'Projeto', 'Coautores', 'Em Andamento', 'Entregues'].map((h, i) => (
+                  {['Coordenador', 'Líder', 'Projeto', 'Coautores', 'Em Andamento', 'Entregues'].map((h, i) => (
                     <th key={h} className={`px-6 py-3 text-xs font-bold uppercase tracking-wider ${i >= 3 ? 'text-center' : 'text-left'}`}
                       style={{ color: `${NAV}50` }}>{h}</th>
                   ))}

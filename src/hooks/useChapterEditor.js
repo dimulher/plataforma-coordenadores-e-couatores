@@ -119,7 +119,7 @@ export function useChapterEditor(chapterId) {
 
   // Debounced auto-save (10 seconds)
   useEffect(() => {
-    if (!chapter || ['ENVIADO_PARA_REVISAO', 'EM_REVISAO', 'APROVADO', 'FINALIZADO'].includes(chapter.status)) return;
+    if (!chapter || ['ENVIADO_PARA_REVISAO', 'EM_REVISAO', 'AGUARDANDO_APROVACAO_COAUTOR', 'APROVADO', 'FINALIZADO'].includes(chapter.status)) return;
     const handler = setTimeout(() => {
       if (content !== chapter.content_text) {
         saveChapter('Auto-save', content);

@@ -46,6 +46,14 @@ import GestorDashboard from '@/pages/GestorDashboard';
 import GestorCoordinatorsPage from '@/pages/GestorCoordinatorsPage';
 import GestorSettingsPage from '@/pages/GestorSettingsPage';
 import GestorFunnelPage from '@/pages/GestorFunnelPage';
+import GestorVendedoresPage from '@/pages/GestorVendedoresPage';
+import CSDashboard from '@/pages/CSDashboard';
+import CSCoauthorsPage from '@/pages/CSCoauthorsPage';
+import CSSettingsPage from '@/pages/CSSettingsPage';
+import VendedorDashboard from '@/pages/VendedorDashboard';
+import VendedorLeadsPage from '@/pages/VendedorLeadsPage';
+import VendedorLinksPage from '@/pages/VendedorLinksPage';
+import VendedorSettingsPage from '@/pages/VendedorSettingsPage';
 import CoordinatorInvitePage from '@/pages/CoordinatorInvitePage';
 import CoauthorRegisterPage from '@/pages/CoauthorRegisterPage';
 import CoauthorRegisterSPPage from '@/pages/CoauthorRegisterSPPage';
@@ -66,8 +74,11 @@ const RootRedirect = () => {
     </div>
   );
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role === 'COAUTOR') return <Navigate to="/coauthor/dashboard" replace />;
-  if (user.role === 'GESTOR') return <Navigate to="/manager/dashboard" replace />;
+  if (user.role === 'COAUTOR')    return <Navigate to="/coauthor/dashboard"    replace />;
+  if (user.role === 'LIDER')      return <Navigate to="/leader/dashboard"      replace />;
+  if (user.role === 'GESTOR')     return <Navigate to="/manager/dashboard"     replace />;
+  if (user.role === 'CS')         return <Navigate to="/cs/dashboard"          replace />;
+  if (user.role === 'VENDEDOR')   return <Navigate to="/vendedor/dashboard"    replace />;
   if (user.role === 'COORDENADOR') return <Navigate to="/coordinator/dashboard" replace />;
   return <Navigate to="/app/dashboard" replace />;
 };
@@ -122,17 +133,40 @@ function AppRoutes() {
         <Route path="settings" element={<CoordinatorSettingsPage />} />
       </Route>
 
-      {/* Gestor Routes */}
-      <Route path="/manager" element={<ProtectedRoute requiredRoles={['GESTOR', 'ADMIN']}><AppLayout /></ProtectedRoute>}>
+      {/* LIDER (Líder de Coordenação) Routes */}
+      <Route path="/leader" element={<ProtectedRoute requiredRoles={['LIDER', 'ADMIN']}><AppLayout /></ProtectedRoute>}>
         <Route path="dashboard" element={<GestorDashboard />} />
         <Route path="coordinators" element={<GestorCoordinatorsPage />} />
         <Route path="coordinators/:coordinatorId" element={<GestorFunnelPage />} />
-        <Route path="relatorio" element={<GestorFunnelPage />} />
-        <Route path="settings" element={<GestorSettingsPage />} />
+        <Route path="relatorio"  element={<GestorFunnelPage />} />
+        <Route path="settings"   element={<GestorSettingsPage />} />
+      </Route>
+
+      {/* GESTOR (nível topo) Routes */}
+      <Route path="/manager" element={<ProtectedRoute requiredRoles={['GESTOR', 'ADMIN']}><AppLayout /></ProtectedRoute>}>
+        <Route path="dashboard"  element={<GestorDashboard />} />
+        <Route path="lideres"    element={<GestorCoordinatorsPage />} />
+        <Route path="vendedores" element={<GestorVendedoresPage />} />
+        <Route path="settings"   element={<GestorSettingsPage />} />
+      </Route>
+
+      {/* CS Routes */}
+      <Route path="/cs" element={<ProtectedRoute requiredRoles={['CS', 'ADMIN']}><AppLayout /></ProtectedRoute>}>
+        <Route path="dashboard"  element={<CSDashboard />} />
+        <Route path="coauthors"  element={<CSCoauthorsPage />} />
+        <Route path="settings"   element={<CSSettingsPage />} />
+      </Route>
+
+      {/* Vendedor Routes */}
+      <Route path="/vendedor" element={<ProtectedRoute requiredRoles={['VENDEDOR', 'ADMIN']}><AppLayout /></ProtectedRoute>}>
+        <Route path="dashboard"  element={<VendedorDashboard />} />
+        <Route path="leads"      element={<VendedorLeadsPage />} />
+        <Route path="links"      element={<VendedorLinksPage />} />
+        <Route path="settings"   element={<VendedorSettingsPage />} />
       </Route>
 
       {/* Coauthor Routes */}
-      <Route path="/coauthor" element={<ProtectedRoute requiredRoles={['COAUTOR', 'COORDENADOR', 'GESTOR', 'ADMIN']}><AppLayout /></ProtectedRoute>}>
+      <Route path="/coauthor" element={<ProtectedRoute requiredRoles={['COAUTOR', 'COORDENADOR', 'LIDER', 'GESTOR', 'ADMIN']}><AppLayout /></ProtectedRoute>}>
         <Route path="dashboard" element={<CoauthorDashboard />} />
         <Route path="projects" element={<CoauthorProjectsPage />} />
         <Route path="chapters" element={<CoauthorChaptersPage />} />

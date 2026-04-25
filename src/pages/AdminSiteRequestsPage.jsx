@@ -168,7 +168,7 @@ const AdminSiteRequestsPage = () => {
               <table className="w-full text-sm text-left">
                 <thead style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}08` }}>
                   <tr>
-                    {['Coordenador', 'Gestor', 'Solicitado em', 'Status', 'Site', 'Ações'].map(h => (
+                    {['Coordenador', 'Líder', 'Solicitado em', 'Status', 'Site', 'Ações'].map(h => (
                       <th key={h} className="px-5 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>{h}</th>
                     ))}
                   </tr>
@@ -261,7 +261,7 @@ const AdminSiteRequestsPage = () => {
                 <p className="text-sm" style={{ color: `${NAV}55` }}>{selected.coordinator?.email}</p>
                 {selected.coordinator?.phone && <p className="text-sm" style={{ color: `${NAV}55` }}>{selected.coordinator.phone}</p>}
                 {(selected.coordinator?.manager?.name || selected.gestor_name) && (
-                  <p className="text-xs mt-1" style={{ color: `${NAV}40` }}>Gestor: {selected.coordinator?.manager?.name || selected.gestor_name}</p>
+                  <p className="text-xs mt-1" style={{ color: `${NAV}40` }}>Líder: {selected.coordinator?.manager?.name || selected.gestor_name}</p>
                 )}
               </div>
 

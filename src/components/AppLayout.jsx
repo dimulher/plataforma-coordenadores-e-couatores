@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, UserSquare2, FolderKanban, FileText,
   GraduationCap, Megaphone, HeartHandshake as Handshake, Trophy,
   DollarSign, Settings, Menu, X, User, ChevronLeft, ChevronRight,
-  Target, Workflow, Lock, Globe, Users2, LogOut,
+  Target, Workflow, Lock, Globe, Users2, LogOut, ShoppingCart, Link2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,7 +26,7 @@ const AppLayout = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const location  = useLocation();
   const navigate  = useNavigate();
-  const { user, logout, isCoordinator, isAdmin, isCoautor, isGestor } = useAuth();
+  const { user, logout, isCoordinator, isAdmin, isCoautor, isGestor, isLider, isCS, isVendedor } = useAuth();
 
   /* ── Nav item lists ──────────────────────────────────────── */
   const adminItems = [
@@ -57,11 +57,33 @@ const AppLayout = () => {
     { path: '/coordinator/settings',  icon: Settings,  label: 'Dados de Cadastro' },
   ];
 
+  // GESTOR (nível topo) — /manager/*
   const managerItems = [
-    { path: '/manager/dashboard',    icon: Target,      label: 'Meu Painel' },
-    { path: '/manager/coordinators', icon: UserSquare2, label: 'Meus Coordenadores' },
-    { path: '/manager/relatorio',    icon: Workflow,    label: 'Relatório de Time' },
-    { path: '/manager/settings',     icon: Settings,    label: 'Dados de Cadastro' },
+    { path: '/manager/dashboard',  icon: Target,       label: 'Meu Painel' },
+    { path: '/manager/lideres',    icon: UserSquare2,  label: 'Meus Líderes' },
+    { path: '/manager/vendedores', icon: ShoppingCart, label: 'Vendedores' },
+    { path: '/manager/settings',   icon: Settings,     label: 'Dados de Cadastro' },
+  ];
+
+  // LIDER (Líder de Coordenação) — /leader/*
+  const liderItems = [
+    { path: '/leader/dashboard',    icon: Target,      label: 'Meu Painel' },
+    { path: '/leader/coordinators', icon: UserSquare2, label: 'Meus Coordenadores' },
+    { path: '/leader/relatorio',    icon: Workflow,    label: 'Relatório de Time' },
+    { path: '/leader/settings',     icon: Settings,    label: 'Dados de Cadastro' },
+  ];
+
+  const csItems = [
+    { path: '/cs/dashboard',  icon: Target,      label: 'Meu Painel' },
+    { path: '/cs/coauthors',  icon: Users2,      label: 'Coautores' },
+    { path: '/cs/settings',   icon: Settings,    label: 'Dados de Cadastro' },
+  ];
+
+  const vendedorItems = [
+    { path: '/vendedor/dashboard', icon: Target,       label: 'Meu Painel' },
+    { path: '/vendedor/leads',     icon: ShoppingCart, label: 'Meus Leads' },
+    { path: '/vendedor/links',     icon: Link2,        label: 'Meus Links' },
+    { path: '/vendedor/settings',  icon: Settings,     label: 'Dados de Cadastro' },
   ];
 
   const coauthorItems = [
@@ -77,7 +99,7 @@ const AppLayout = () => {
   const visibleGeneralItems = generalItems.filter(item => {
     const roleMatch = item.roles.length === 0 || item.roles.includes(user?.role);
     if (!roleMatch) return false;
-    if ((isCoordinator() || isAdmin() || isGestor()) && item.label === 'Dashboard Geral') return false;
+    if ((isCoordinator() || isAdmin() || isGestor() || isLider() || isCS() || isVendedor()) && item.label === 'Dashboard Geral') return false;
     return true;
   }).map(item => {
     if (isCoordinator()) {
@@ -100,14 +122,20 @@ const AppLayout = () => {
     if (isCoautor())     return '/coauthor/settings';
     if (isCoordinator()) return '/coordinator/settings';
     if (isGestor())      return '/manager/settings';
+    if (isLider())       return '/leader/settings';
+    if (isCS())          return '/cs/settings';
+    if (isVendedor())    return '/vendedor/settings';
     return '/app/settings';
   };
 
   const getRoleBadge = () => {
-    if (isAdmin())       return { label: 'Admin',        color: RED };
-    if (isCoordinator()) return { label: 'Coordenador',  color: BLUE };
-    if (isCoautor())     return { label: 'Coautor',      color: '#10B981' };
-    if (isGestor())      return { label: 'Gestor',       color: '#F59E0B' };
+    if (isAdmin())       return { label: 'Admin',                  color: RED };
+    if (isCoordinator()) return { label: 'Coordenador',            color: BLUE };
+    if (isCoautor())     return { label: 'Coautor',                color: '#10B981' };
+    if (isGestor())      return { label: 'Gestor',                 color: '#0EA5E9' };
+    if (isLider())       return { label: 'Líder de Coordenação',   color: '#F59E0B' };
+    if (isCS())          return { label: 'Customer Success',       color: '#8B5CF6' };
+    if (isVendedor())    return { label: 'Vendedor',               color: '#F97316' };
     return { label: user?.role || '', color: BLUE };
   };
 
@@ -261,6 +289,9 @@ const AppLayout = () => {
         <nav className="flex-1 overflow-y-auto py-5 px-1 space-y-4 custom-scrollbar">
           {isAdmin()       && renderNavGroup(adminItems,       'Gestão Admin')}
           {isGestor()      && renderNavGroup(managerItems,     'Área do Gestor')}
+          {isLider()       && renderNavGroup(liderItems,       'Área do Líder')}
+          {isCS()          && renderNavGroup(csItems,          'Customer Success')}
+          {isVendedor()    && renderNavGroup(vendedorItems,    'Área do Vendedor')}
           {isCoordinator() && renderNavGroup(coordinatorItems, 'Área do Coordenador')}
           {isCoautor()
             ? renderNavGroup(coauthorItems,      'Área do Autor')

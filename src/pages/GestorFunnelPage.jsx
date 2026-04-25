@@ -5,7 +5,12 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
-import { Search, ArrowLeft, Users } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from '@/components/ui/dialog';
+import { Search, ArrowLeft, Users, Phone, Mail, FileText, UserCheck } from 'lucide-react';
 import { NAV, BLUE, RED } from '@/lib/brand';
 
 const COLUMNS = [
@@ -18,7 +23,7 @@ const COLUMNS = [
 ];
 
 const GestorFunnelPage = () => {
-  const { user } = useAuth();
+  const { user, isLider } = useAuth();
   const { toast } = useToast();
   const { coordinatorId } = useParams();
   const navigate = useNavigate();
@@ -27,6 +32,11 @@ const GestorFunnelPage = () => {
   const [selectedCoord, setSelectedCoord] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // Modal de relatório de atendimento
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [reportText, setReportText] = useState('');
+  const [savingReport, setSavingReport] = useState(false);
 
   const load = useCallback(async () => {
     if (!user?.id) return;
@@ -63,6 +73,8 @@ const GestorFunnelPage = () => {
     const coordId = selectedCoord?.id;
     const lead = (leadsByCoord[coordId] || []).find(l => l.id === leadId);
     if (!lead || lead.status === statusId) return;
+    // Bloquear se lead tem vendedor atribuído — só o vendedor pode mover
+    if (lead.vendedor_id) return;
 
     const { error } = await supabase.rpc('update_lead_status', { lead_id: leadId, new_status: statusId });
     if (!error) {
@@ -71,6 +83,43 @@ const GestorFunnelPage = () => {
         [coordId]: prev[coordId].map(l => l.id === leadId ? { ...l, status: statusId } : l),
       }));
       toast({ title: 'Status atualizado' });
+    }
+  };
+
+  const openLeadReport = (lead) => {
+    setSelectedLead(lead);
+    setReportText(lead.notes || '');
+  };
+
+  const closeLeadReport = () => {
+    setSelectedLead(null);
+    setReportText('');
+  };
+
+  const handleSaveReport = async () => {
+    if (!selectedLead) return;
+    setSavingReport(true);
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({ notes: reportText, updated_at: new Date().toISOString() })
+        .eq('id', selectedLead.id);
+      if (error) throw error;
+
+      // Update local state
+      const coordId = selectedCoord?.id;
+      setLeadsByCoord(prev => ({
+        ...prev,
+        [coordId]: (prev[coordId] || []).map(l =>
+          l.id === selectedLead.id ? { ...l, notes: reportText } : l
+        ),
+      }));
+      toast({ title: 'Relatório salvo!' });
+      closeLeadReport();
+    } catch {
+      toast({ variant: 'destructive', title: 'Erro ao salvar relatório.' });
+    } finally {
+      setSavingReport(false);
     }
   };
 
@@ -109,7 +158,7 @@ const GestorFunnelPage = () => {
                 </div>
                 <div>
                   <h1 className="text-xl font-bold leading-tight" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{selectedCoord.name}</h1>
-                  <p className="text-xs" style={{ color: `${NAV}45` }}>Funil de leads — arraste para mover</p>
+                  <p className="text-xs" style={{ color: `${NAV}45` }}>Clique em um lead para adicionar relatório · Arraste para mover</p>
                 </div>
               </div>
             </div>
@@ -147,13 +196,32 @@ const GestorFunnelPage = () => {
                       {colLeads.map(lead => (
                         <div
                           key={lead.id}
-                          draggable
-                          onDragStart={e => e.dataTransfer.setData('leadId', lead.id)}
-                          className="bg-white p-2.5 rounded-xl cursor-grab transition-shadow hover:shadow-md"
-                          style={{ border: `1px solid ${NAV}0C`, boxShadow: `0 1px 3px ${NAV}06` }}
+                          draggable={!lead.vendedor_id}
+                          onDragStart={!lead.vendedor_id ? e => e.dataTransfer.setData('leadId', lead.id) : undefined}
+                          onClick={() => openLeadReport(lead)}
+                          className="bg-white p-2.5 rounded-xl transition-shadow hover:shadow-md"
+                          style={{
+                            border: `1px solid ${lead.vendedor_id ? BLUE + '35' : NAV + '0C'}`,
+                            boxShadow: `0 1px 3px ${NAV}06`,
+                            cursor: lead.vendedor_id ? 'pointer' : 'grab',
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = lead.vendedor_id ? `${BLUE}55` : `${BLUE}30`; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = lead.vendedor_id ? `${BLUE}35` : `${NAV}0C`; }}
                         >
                           <p className="text-sm font-semibold truncate" style={{ color: NAV }}>{lead.name}</p>
                           {lead.phone && <p className="text-xs mt-0.5" style={{ color: `${NAV}55` }}>{lead.phone}</p>}
+                          {lead.vendedor_id && (
+                            <div className="mt-1.5 flex items-center gap-1">
+                              <UserCheck className="w-3 h-3 shrink-0" style={{ color: BLUE }} />
+                              <p className="text-[11px] truncate font-medium" style={{ color: BLUE }}>{lead.vendedor_name}</p>
+                            </div>
+                          )}
+                          {lead.notes && (
+                            <div className="mt-1 flex items-center gap-1">
+                              <FileText className="w-3 h-3 shrink-0" style={{ color: `${NAV}40` }} />
+                              <p className="text-[11px] truncate" style={{ color: `${NAV}50` }}>{lead.notes}</p>
+                            </div>
+                          )}
                         </div>
                       ))}
                       {colLeads.length === 0 && (
@@ -168,6 +236,93 @@ const GestorFunnelPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Modal relatório de atendimento */}
+        <Dialog open={!!selectedLead} onOpenChange={(open) => { if (!open) closeLeadReport(); }}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
+                Relatório de Atendimento
+              </DialogTitle>
+            </DialogHeader>
+
+            {selectedLead && (
+              <div className="space-y-4 my-2">
+                {/* Dados do lead */}
+                <div className="rounded-xl p-4 space-y-2" style={{ background: `${NAV}04`, border: `1px solid ${NAV}0C` }}>
+                  <p className="font-semibold text-sm" style={{ color: NAV }}>{selectedLead.name}</p>
+                  {selectedLead.phone && (
+                    <div className="flex items-center gap-2 text-sm font-medium" style={{ color: NAV }}>
+                      <Phone className="w-4 h-4 shrink-0" style={{ color: BLUE }} /> {selectedLead.phone}
+                    </div>
+                  )}
+                  {selectedLead.email && (
+                    <div className="flex items-center gap-2 text-sm font-medium" style={{ color: NAV }}>
+                      <Mail className="w-4 h-4 shrink-0" style={{ color: BLUE }} /> {selectedLead.email}
+                    </div>
+                  )}
+                  {selectedLead.vendedor_id && (
+                    <div className="flex items-center gap-2 text-sm" style={{ color: BLUE }}>
+                      <UserCheck className="w-4 h-4 shrink-0" />
+                      <span className="font-semibold">Vendedor: {selectedLead.vendedor_name}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                      style={{
+                        background: `${COLUMNS.find(c => c.id === selectedLead.status)?.color || NAV}15`,
+                        color: COLUMNS.find(c => c.id === selectedLead.status)?.color || NAV,
+                      }}>
+                      {COLUMNS.find(c => c.id === selectedLead.status)?.title || selectedLead.status}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Campo relatório */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: `${NAV}80` }}>
+                    Relatório de atendimento
+                  </label>
+                  <Textarea
+                    placeholder={isLider() ? 'Nenhum relatório registrado.' : 'Descreva o atendimento realizado, observações, próximos passos...'}
+                    value={reportText}
+                    onChange={isLider() ? undefined : e => setReportText(e.target.value)}
+                    readOnly={isLider()}
+                    className="resize-none h-32"
+                    style={{
+                      borderColor: `${NAV}20`,
+                      color: NAV,
+                      background: isLider() ? `${NAV}04` : 'white',
+                      cursor: isLider() ? 'default' : 'text',
+                    }}
+                    onFocus={isLider() ? undefined : e => { e.target.style.borderColor = BLUE; e.target.style.boxShadow = `0 0 0 3px ${BLUE}18`; }}
+                    onBlur={isLider() ? undefined : e => { e.target.style.borderColor = `${NAV}20`; e.target.style.boxShadow = 'none'; }}
+                  />
+                  {isLider() && (
+                    <p className="text-xs mt-1.5" style={{ color: `${NAV}40` }}>
+                      Somente o vendedor atribuído pode editar o relatório.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button variant="outline" onClick={closeLeadReport}>
+                {isLider() ? 'Fechar' : 'Cancelar'}
+              </Button>
+              {!isLider() && (
+                <Button
+                  onClick={handleSaveReport}
+                  disabled={savingReport}
+                  style={{ background: BLUE, color: 'white', border: 'none' }}
+                >
+                  {savingReport ? 'Salvando...' : 'Salvar Relatório'}
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </>
     );
   }

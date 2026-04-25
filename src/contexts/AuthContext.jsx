@@ -163,7 +163,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAdmin = () => user?.role === 'ADMIN';
-  const isGestor = () => user?.role === 'GESTOR';
+  const isGestor = () => user?.role === 'GESTOR';  // Gestor: nível topo (gerencia Líderes)
+  const isLider = () => user?.role === 'LIDER';    // Líder de Coordenação
+  const isCS = () => user?.role === 'CS';
+  const isVendedor = () => user?.role === 'VENDEDOR';
   const isCoordinator = () => user?.role === 'COORDENADOR';
   const isCoautor = () => user?.role === 'COAUTOR';
   const canAccess = (requiredRoles) => {
@@ -175,7 +178,7 @@ export const AuthProvider = ({ children }) => {
   const getTenantName = () => 'Novos Autores do Brasil (NAB)';
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, logout, refreshProfile, isAdmin, isGestor, isCoordinator, isCoautor, canAccess, getTenantId, getTenantName }}>
+    <AuthContext.Provider value={{ user, loading, error, login, logout, refreshProfile, isAdmin, isGestor, isLider, isCS, isVendedor, isCoordinator, isCoautor, canAccess, getTenantId, getTenantName }}>
       {children}
     </AuthContext.Provider>
   );

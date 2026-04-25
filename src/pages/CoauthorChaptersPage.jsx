@@ -1,21 +1,22 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Edit3, Eye, Clock, PenLine } from 'lucide-react';
+import { Edit3, Eye, Clock, PenLine, CheckCircle, ExternalLink, Timer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { NAV, BLUE, RED, BtnPrimary } from '@/lib/brand';
 
 const STATUS = {
-  RASCUNHO:              { text: BLUE,     bg: `${BLUE}15`,     label: 'Em edição' },
-  EM_EDICAO:             { text: BLUE,     bg: `${BLUE}15`,     label: 'Em edição' },
-  ENVIADO_PARA_REVISAO:  { text: '#F59E0B', bg: 'rgba(245,158,11,0.12)', label: 'Enviado p/ revisão' },
-  AJUSTES_SOLICITADOS:   { text: '#FF6B35', bg: 'rgba(255,107,53,0.12)', label: 'Ajustes solicitados' },
-  APROVADO:              { text: '#10B981', bg: 'rgba(16,185,129,0.12)', label: 'Aprovado' },
-  FINALIZADO:            { text: '#6366F1', bg: 'rgba(99,102,241,0.12)', label: 'Concluído' },
+  RASCUNHO:                     { text: BLUE,      bg: `${BLUE}15`,               label: 'Em edição' },
+  EM_EDICAO:                    { text: BLUE,      bg: `${BLUE}15`,               label: 'Em edição' },
+  ENVIADO_PARA_REVISAO:         { text: '#F59E0B', bg: 'rgba(245,158,11,0.12)',   label: 'Enviado p/ revisão' },
+  AJUSTES_SOLICITADOS:          { text: '#FF6B35', bg: 'rgba(255,107,53,0.12)',   label: 'Ajustes solicitados' },
+  AGUARDANDO_APROVACAO_COAUTOR: { text: '#7C3AED', bg: 'rgba(124,58,237,0.10)',   label: 'Aguardando sua aprovação' },
+  APROVADO:                     { text: '#10B981', bg: 'rgba(16,185,129,0.12)',   label: 'Aprovado' },
+  FINALIZADO:                   { text: '#6366F1', bg: 'rgba(99,102,241,0.12)',   label: 'Concluído' },
 };
 
 const getStatus = (s) => STATUS[s] || { text: `${NAV}70`, bg: `${NAV}08`, label: s || 'Desconhecido' };
@@ -26,36 +27,99 @@ const fmtDateTime = (d) => {
   return `${dt.toLocaleDateString('pt-BR')} ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
 };
 
+const getTimeRemaining = (deadline) => {
+  if (!deadline) return null;
+  const diff = new Date(deadline) - new Date();
+  if (diff <= 0) return null;
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  if (hours >= 24) {
+    const days = Math.floor(hours / 24);
+    return `${days}d ${hours % 24}h restantes`;
+  }
+  return `${hours}h ${minutes}min restantes`;
+};
+
 const CoauthorChaptersPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [chapters, setChapters]       = useState([]);
-  const [projects, setProjects]       = useState([]);
+  const [chapters, setChapters]         = useState([]);
+  const [projects, setProjects]         = useState([]);
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [sortConfig, setSortConfig]   = useState('deadline');
-  const [loading, setLoading]         = useState(true);
-  const [creating, setCreating]       = useState(false);
+  const [sortConfig, setSortConfig]     = useState('deadline');
+  const [loading, setLoading]           = useState(true);
+  const [creating, setCreating]         = useState(false);
+  const [approving, setApproving]       = useState(null);
 
-  useEffect(() => {
+  const fetchChapters = useCallback(async () => {
     if (!user?.id) return;
-    (async () => {
-      try {
-        const [{ data: myChapters }, { data: participations }] = await Promise.all([
-          supabase.from('chapters').select('*').eq('author_id', user.id),
-          supabase.from('project_participants').select('project_id, projects(*)').eq('user_id', user.id),
-        ]);
-        setChapters(myChapters || []);
-        setProjects(participations?.map(p => p.projects) || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+    try {
+      const [{ data: myChapters }, { data: participations }] = await Promise.all([
+        supabase.from('chapters').select('*').eq('author_id', user.id),
+        supabase.from('project_participants').select('project_id, projects(*)').eq('user_id', user.id),
+      ]);
+
+      const now = new Date();
+      const expired = (myChapters || []).filter(c =>
+        c.status === 'AGUARDANDO_APROVACAO_COAUTOR' &&
+        c.coauthor_approval_deadline &&
+        new Date(c.coauthor_approval_deadline) < now
+      );
+
+      // Auto-approve expired chapters
+      if (expired.length > 0) {
+        const nowIso = now.toISOString();
+        await Promise.all(expired.map(ch =>
+          supabase.from('chapters').update({
+            status: 'APROVADO',
+            approved_at: nowIso,
+            current_stage: 'Aprovação',
+            updated_at: nowIso,
+          }).eq('id', ch.id)
+        ));
       }
-    })();
+
+      const updatedChapters = (myChapters || []).map(c =>
+        expired.find(e => e.id === c.id)
+          ? { ...c, status: 'APROVADO', approved_at: now.toISOString() }
+          : c
+      );
+
+      setChapters(updatedChapters);
+      setProjects(participations?.map(p => p.projects) || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [user?.id]);
 
+  useEffect(() => { fetchChapters(); }, [fetchChapters]);
+
   const getProjectName = (pid) => projects.find(p => p?.id === pid)?.name || '—';
+
+  const handleCoauthorApprove = async (chapterId) => {
+    setApproving(chapterId);
+    try {
+      const now = new Date().toISOString();
+      const { error } = await supabase.from('chapters').update({
+        status: 'APROVADO',
+        approved_at: now,
+        current_stage: 'Aprovação',
+        updated_at: now,
+      }).eq('id', chapterId);
+      if (error) throw error;
+      setChapters(prev => prev.map(c =>
+        c.id === chapterId ? { ...c, status: 'APROVADO', approved_at: now } : c
+      ));
+      toast({ title: 'Capítulo aprovado!', description: 'Seu capítulo foi aprovado e segue para produção.' });
+    } catch {
+      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível aprovar o capítulo.' });
+    } finally {
+      setApproving(null);
+    }
+  };
 
   const handleCreateChapter = async () => {
     if (!user?.id) return;
@@ -105,7 +169,7 @@ const CoauthorChaptersPage = () => {
         </div>
         <div className="flex gap-2">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[160px] bg-white text-sm" style={{ borderColor: `${NAV}20`, color: NAV }}>
+            <SelectTrigger className="w-[180px] bg-white text-sm" style={{ borderColor: `${NAV}20`, color: NAV }}>
               <SelectValue placeholder="Filtrar Status" />
             </SelectTrigger>
             <SelectContent>
@@ -113,6 +177,7 @@ const CoauthorChaptersPage = () => {
               <SelectItem value="RASCUNHO">Em edição</SelectItem>
               <SelectItem value="ENVIADO_PARA_REVISAO">Enviado p/ revisão</SelectItem>
               <SelectItem value="AJUSTES_SOLICITADOS">Ajustes solicitados</SelectItem>
+              <SelectItem value="AGUARDANDO_APROVACAO_COAUTOR">Aguardando aprovação</SelectItem>
               <SelectItem value="APROVADO">Aprovado</SelectItem>
               <SelectItem value="FINALIZADO">Concluído</SelectItem>
             </SelectContent>
@@ -133,20 +198,43 @@ const CoauthorChaptersPage = () => {
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {filtered.map(chapter => {
-          const wc       = chapter.word_count || 0;
-          const wg       = chapter.word_goal  || 1;
-          const progress = Math.min(Math.round((wc / wg) * 100), 100);
+          const wc        = chapter.word_count || 0;
+          const wg        = chapter.word_goal  || 1;
+          const progress  = Math.min(Math.round((wc / wg) * 100), 100);
           const isEditable = ['RASCUNHO', 'EM_EDICAO', 'AJUSTES_SOLICITADOS'].includes(chapter.status);
-          const st = getStatus(chapter.status);
+          const isPendingApproval = chapter.status === 'AGUARDANDO_APROVACAO_COAUTOR';
+          const st        = getStatus(chapter.status);
           const remaining = Math.max(0, wg - wc);
-          const remColor = remaining === 0 ? '#10B981' : remaining <= wg * 0.3 ? '#F59E0B' : RED;
+          const remColor  = remaining === 0 ? '#10B981' : remaining <= wg * 0.3 ? '#F59E0B' : RED;
+          const timeLeft  = isPendingApproval ? getTimeRemaining(chapter.coauthor_approval_deadline) : null;
 
           return (
             <div
               key={chapter.id}
               className="rounded-2xl overflow-hidden flex flex-col bg-white transition-shadow hover:shadow-md"
-              style={{ border: `1px solid ${NAV}0F`, boxShadow: `0 1px 4px ${NAV}08` }}
+              style={{
+                border: `1px solid ${isPendingApproval ? '#7C3AED30' : `${NAV}0F`}`,
+                boxShadow: isPendingApproval ? '0 0 0 2px rgba(124,58,237,0.08)' : `0 1px 4px ${NAV}08`,
+              }}
             >
+              {/* Banner "Aguardando aprovação" */}
+              {isPendingApproval && (
+                <div
+                  className="px-5 py-2.5 flex items-center justify-between gap-3"
+                  style={{ background: 'rgba(124,58,237,0.08)', borderBottom: '1px solid rgba(124,58,237,0.12)' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Timer className="w-4 h-4 shrink-0" style={{ color: '#7C3AED' }} />
+                    <span className="text-xs font-semibold" style={{ color: '#7C3AED' }}>
+                      Capítulo revisado disponível para aprovação
+                    </span>
+                  </div>
+                  {timeLeft && (
+                    <span className="text-xs font-medium shrink-0" style={{ color: '#7C3AED99' }}>{timeLeft}</span>
+                  )}
+                </div>
+              )}
+
               <div className="p-6 flex-1 flex flex-col">
                 {/* Top */}
                 <div className="flex justify-between items-start mb-4 gap-3">
@@ -195,7 +283,42 @@ const CoauthorChaptersPage = () => {
                   <p className="text-[11px]" style={{ color: `${NAV}40` }}>
                     Última atualização: {fmtDateTime(chapter.updated_at)}
                   </p>
-                  {isEditable ? (
+
+                  {isPendingApproval ? (
+                    <div className="flex flex-col gap-2">
+                      {/* Botão ver arquivo corrigido */}
+                      {chapter.corrected_file_url && (
+                        <a
+                          href={chapter.corrected_file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                          style={{ background: 'rgba(124,58,237,0.08)', color: '#7C3AED', border: '1.5px solid rgba(124,58,237,0.2)' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.14)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.08)'; }}
+                        >
+                          <ExternalLink className="w-4 h-4" /> Ver capítulo revisado
+                        </a>
+                      )}
+                      {/* Botão aprovar */}
+                      <button
+                        onClick={() => handleCoauthorApprove(chapter.id)}
+                        disabled={approving === chapter.id}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                        style={{ background: '#10B981', color: 'white', border: 'none', opacity: approving === chapter.id ? 0.7 : 1 }}
+                        onMouseEnter={e => { if (approving !== chapter.id) e.currentTarget.style.background = '#059669'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = '#10B981'; }}
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        {approving === chapter.id ? 'Aprovando...' : 'Aprovar Capítulo Revisado'}
+                      </button>
+                      <p className="text-[11px] text-center" style={{ color: `${NAV}40` }}>
+                        {timeLeft
+                          ? `Se não aprovar em ${timeLeft}, será aprovado automaticamente.`
+                          : 'Prazo expirado — será aprovado automaticamente.'}
+                      </p>
+                    </div>
+                  ) : isEditable ? (
                     <BtnPrimary
                       onClick={() => navigate(`/coauthor/chapters/${chapter.id}/edit`)}
                       icon={Edit3} label="Continuar Escrevendo"
