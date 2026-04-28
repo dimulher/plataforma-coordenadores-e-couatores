@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCoordinatorData } from '@/hooks/useCoordinatorData';
 import { supabase } from '@/lib/supabase';
 import { Users, CheckCircle, ArrowRight, BookOpen, Globe, ExternalLink, Loader2, Clock } from 'lucide-react';
-import { NAV, BLUE, RED, WelcomeBanner, BrandCard, BrandCardHeader, BtnOutline } from '@/lib/brand';
+import { NAV, BLUE, RED, CREAM, WelcomeBanner, BrandCard, BrandCardHeader, BtnOutline, BtnPrimary } from '@/lib/brand';
 
 const toSlug = (name) =>
   name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -25,7 +25,7 @@ const STATUS_MAP = {
   CONCLUIDO:             { label: 'Concluído',    text: `${NAV}80`, bg: `${NAV}08` },
 };
 
-const getStatus = (s) => STATUS_MAP[s] || { label: s || 'Sem status', text: `${NAV}60`, bg: `${NAV}08` };
+const getStatus = (s) => STATUS_MAP[s] || { label: s || 'Sem status', text: `${NAV}85`, bg: `${NAV}08` };
 
 const MetricTile = ({ icon: Icon, iconColor, label, value }) => (
   <div
@@ -36,7 +36,7 @@ const MetricTile = ({ icon: Icon, iconColor, label, value }) => (
       <Icon className="w-5 h-5" style={{ color: iconColor }} />
     </span>
     <span className="text-2xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{value}</span>
-    <span className="text-[11px] font-medium uppercase tracking-wider mt-1" style={{ color: `${NAV}50` }}>{label}</span>
+    <span className="text-[11px] font-medium uppercase tracking-wider mt-1" style={{ color: `${NAV}75` }}>{label}</span>
   </div>
 );
 
@@ -175,6 +175,65 @@ const CoordinatorDashboard = () => {
         subtitle="Gerencie sua equipe e acompanhe a produção."
       />
 
+      {/* Site de divulgação */}
+      <BrandCard>
+        <BrandCardHeader icon={Globe} iconColor={BLUE} accentColor={BLUE} title="Site de Divulgação" extra={getSiteButton()} />
+        <div className="px-6 py-5">
+          {siteRequest?.status === 'CONCLUIDO' && siteRequest?.website_url ? (
+            <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
+              <Globe className="h-4 w-4 shrink-0" style={{ color: '#10B981' }} />
+              <a href={siteRequest.website_url} target="_blank" rel="noopener noreferrer"
+                className="text-sm font-medium hover:underline" style={{ color: '#10B981' }}>
+                {siteRequest.website_url}
+              </a>
+            </div>
+          ) : (
+            <p className="text-sm" style={{ color: `${NAV}85` }}>
+              Gere e compartilhe seu link de captação personalizado para registrar novos coautores.
+            </p>
+          )}
+        </div>
+      </BrandCard>
+
+      {/* Contrato */}
+      <BrandCard>
+        <BrandCardHeader icon={BookOpen} iconColor={BLUE} accentColor={BLUE} title="Meu Contrato"
+          extra={
+            <span className="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
+              style={user?.contract_status === 'ASSINADO'
+                ? { background: 'rgba(16,185,129,0.12)', color: '#10B981' }
+                : { background: `${RED}12`, color: RED }}>
+              {user?.contract_status === 'ASSINADO' ? 'Assinado' : 'Pendente'}
+            </span>
+          }
+        />
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between gap-4 p-4 rounded-xl"
+            style={{ background: CREAM, border: `1px solid ${NAV}0A` }}>
+            <div className="flex items-center gap-4">
+              <div className="h-11 w-11 rounded-xl flex items-center justify-center" style={{ background: `${BLUE}15` }}>
+                <BookOpen className="h-5 w-5" style={{ color: BLUE }} />
+              </div>
+              <div>
+                <p className="font-bold text-sm" style={{ color: NAV }}>Contrato de Coordenação</p>
+                <p className="text-xs mt-0.5" style={{ color: `${NAV}85` }}>
+                  {user?.contract_status === 'ASSINADO'
+                    ? `Assinado em ${user.contract_signed_at ? new Date(user.contract_signed_at).toLocaleDateString('pt-BR') : '—'}`
+                    : 'O contrato foi enviado para sua assinatura.'}
+                </p>
+              </div>
+            </div>
+            {user?.contract_status === 'ASSINADO' ? (
+              <BtnOutline onClick={() => user?.contract_url && window.open(user.contract_url, '_blank')}
+                icon={BookOpen} label="Visualizar" color={BLUE} />
+            ) : (
+              <BtnPrimary onClick={() => user?.contract_url && window.open(user.contract_url, '_blank')}
+                icon={BookOpen} label="Assinar Contrato" />
+            )}
+          </div>
+        </div>
+      </BrandCard>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricTile icon={Users}        iconColor={BLUE}      label="Leads Indicados"     value={metrics.leadsIndicados} />
@@ -202,9 +261,9 @@ const CoordinatorDashboard = () => {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}0C` }}>
-                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Nome</th>
-                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Status</th>
-                <th className="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Prazo</th>
+                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>Nome</th>
+                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>Status</th>
+                <th className="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>Prazo</th>
               </tr>
             </thead>
             <tbody>
@@ -224,7 +283,7 @@ const CoordinatorDashboard = () => {
                     <td className="px-6 py-4 font-semibold" style={{ color: NAV }}>{author.name}</td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: `${NAV}40` }}>{author.projectNames}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: `${NAV}70` }}>{author.projectNames}</span>
                         <span className="text-xs font-bold px-2.5 py-0.5 rounded-full w-fit" style={{ color: st.text, background: st.bg }}>{st.label}</span>
                       </div>
                     </td>
@@ -236,7 +295,7 @@ const CoordinatorDashboard = () => {
                             ? { background: `${RED}12`, color: RED }
                             : daysRem <= 7
                             ? { background: 'rgba(245,158,11,0.1)', color: '#F59E0B' }
-                            : { background: `${NAV}08`, color: `${NAV}60` }
+                            : { background: `${NAV}08`, color: `${NAV}85` }
                         }
                       >
                         {new Date(chap.deadline).toLocaleDateString('pt-BR')}
@@ -247,33 +306,13 @@ const CoordinatorDashboard = () => {
               })}
               {topCoauthors.length === 0 && (
                 <tr>
-                  <td colSpan="3" className="px-6 py-10 text-center text-sm" style={{ color: `${NAV}50` }}>
+                  <td colSpan="3" className="px-6 py-10 text-center text-sm" style={{ color: `${NAV}75` }}>
                     Nenhum capítulo em andamento.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
-        </div>
-      </BrandCard>
-
-      {/* Site de divulgação */}
-      <BrandCard>
-        <BrandCardHeader icon={Globe} iconColor={BLUE} accentColor={BLUE} title="Site de Divulgação" extra={getSiteButton()} />
-        <div className="px-6 py-5">
-          {siteRequest?.status === 'CONCLUIDO' && siteRequest?.website_url ? (
-            <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
-              <Globe className="h-4 w-4 shrink-0" style={{ color: '#10B981' }} />
-              <a href={siteRequest.website_url} target="_blank" rel="noopener noreferrer"
-                className="text-sm font-medium hover:underline" style={{ color: '#10B981' }}>
-                {siteRequest.website_url}
-              </a>
-            </div>
-          ) : (
-            <p className="text-sm" style={{ color: `${NAV}60` }}>
-              Gere e compartilhe seu link de captação personalizado para registrar novos coautores.
-            </p>
-          )}
         </div>
       </BrandCard>
     </div>

@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +29,7 @@ const STATUS_MAP = {
   CONCLUIDO:            { label: 'Concluído',   text: `${NAV}70`, bg: `${NAV}08` },
 };
 
-const getStatus = (s) => STATUS_MAP[s] || { label: s || 'Sem status', text: `${NAV}60`, bg: `${NAV}08` };
+const getStatus = (s) => STATUS_MAP[s] || { label: s || 'Sem status', text: `${NAV}85`, bg: `${NAV}08` };
 
 const CoordinatorCoauthorsPage = () => {
   const { getCoauthorsList, addObservation, loading } = useCoordinatorData();
@@ -112,7 +112,7 @@ const CoordinatorCoauthorsPage = () => {
 
       <div>
         <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Meus Coautores</h1>
-        <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Acompanhe a produção, prazos e gerencie a comunicação com a equipe.</p>
+        <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Acompanhe a produção, prazos e gerencie a comunicação com a equipe.</p>
       </div>
 
       {/* Filters */}
@@ -121,7 +121,7 @@ const CoordinatorCoauthorsPage = () => {
         style={{ border: `1px solid ${NAV}0F`, boxShadow: `0 1px 4px ${NAV}08` }}
       >
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
           <Input
             placeholder="Buscar por coautor ou projeto..."
             className="pl-9 text-sm"
@@ -163,11 +163,11 @@ const CoordinatorCoauthorsPage = () => {
           <table className="w-full text-sm whitespace-nowrap">
             <thead>
               <tr style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}0C` }}>
-                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Nome do Coautor</th>
-                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Status do Capítulo</th>
+                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>Nome do Coautor</th>
+                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>Status do Capítulo</th>
                 <th
                   className="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider cursor-pointer select-none"
-                  style={{ color: `${NAV}50` }}
+                  style={{ color: `${NAV}75` }}
                   onClick={() => handleSort('deadline')}
                 >
                   <span className="inline-flex items-center justify-center gap-1">
@@ -195,11 +195,11 @@ const CoordinatorCoauthorsPage = () => {
                     <td className="px-6 py-4">
                       {chap ? (
                         <div className="flex flex-col gap-1">
-                          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: `${NAV}40` }}>{c.projectNames}</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: `${NAV}70` }}>{c.projectNames}</span>
                           <span className="text-xs font-bold px-2.5 py-0.5 rounded-full w-fit" style={{ color: st.text, background: st.bg }}>{st.label}</span>
                         </div>
                       ) : (
-                        <span className="text-xs" style={{ color: `${NAV}40` }}>Sem capítulo ativo</span>
+                        <span className="text-xs" style={{ color: `${NAV}70` }}>Sem capítulo ativo</span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-center">
@@ -211,7 +211,7 @@ const CoordinatorCoauthorsPage = () => {
                               ? { background: `${RED}12`, color: RED }
                               : daysRem <= 7
                               ? { background: 'rgba(245,158,11,0.1)', color: '#F59E0B' }
-                              : { background: `${NAV}08`, color: `${NAV}60` }
+                              : { background: `${NAV}08`, color: `${NAV}85` }
                           }
                         >
                           {new Date(chap.deadline).toLocaleDateString('pt-BR')}
@@ -223,7 +223,7 @@ const CoordinatorCoauthorsPage = () => {
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan="3" className="px-6 py-12 text-center text-sm" style={{ color: `${NAV}50` }}>
+                  <td colSpan="3" className="px-6 py-12 text-center text-sm" style={{ color: `${NAV}75` }}>
                     Nenhum coautor encontrado com os filtros atuais.
                   </td>
                 </tr>

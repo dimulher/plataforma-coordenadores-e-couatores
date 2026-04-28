@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -17,7 +17,7 @@ const MetricCard = ({ icon: Icon, iconColor, label, value }) => (
     </span>
     <div>
       <p className="text-2xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{value}</p>
-      <p className="text-xs font-medium uppercase tracking-wider mt-0.5" style={{ color: `${NAV}50` }}>{label}</p>
+      <p className="text-xs font-medium uppercase tracking-wider mt-0.5" style={{ color: `${NAV}75` }}>{label}</p>
     </div>
   </div>
 );
@@ -139,23 +139,23 @@ const GestorDashboard = () => {
               </form>
               <div className="space-y-2 flex-1">
                 {paymentLinks.length === 0
-                  ? <p className="text-xs italic text-center py-2" style={{ color: `${NAV}40` }}>Nenhum link cadastrado.</p>
+                  ? <p className="text-xs italic text-center py-2" style={{ color: `${NAV}70` }}>Nenhum link cadastrado.</p>
                   : paymentLinks.map(lk => (
                     <div key={lk.id} className="flex items-center gap-2 p-2.5 rounded-xl" style={linkRowStyle}>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate" style={{ color: NAV }}>{lk.label}</p>
-                        <p className="text-xs truncate" style={{ color: `${NAV}50` }}>{lk.url}</p>
+                        <p className="text-xs truncate" style={{ color: `${NAV}75` }}>{lk.url}</p>
                       </div>
-                      <button onClick={() => copyLink(lk.url)} className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}40` }}
-                        onMouseEnter={e => { e.currentTarget.style.color = BLUE; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}40`; }}>
+                      <button onClick={() => copyLink(lk.url)} className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}70` }}
+                        onMouseEnter={e => { e.currentTarget.style.color = BLUE; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}70`; }}>
                         <Copy className="h-3.5 w-3.5" />
                       </button>
-                      <a href={lk.url} target="_blank" rel="noopener noreferrer" className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}40` }}
-                        onMouseEnter={e => { e.currentTarget.style.color = '#10B981'; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}40`; }}>
+                      <a href={lk.url} target="_blank" rel="noopener noreferrer" className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}70` }}
+                        onMouseEnter={e => { e.currentTarget.style.color = '#10B981'; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}70`; }}>
                         <ExternalLink className="h-3.5 w-3.5" />
                       </a>
-                      <button onClick={() => deleteLink(lk.id)} className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}30` }}
-                        onMouseEnter={e => { e.currentTarget.style.color = RED; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}30`; }}>
+                      <button onClick={() => deleteLink(lk.id)} className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}55` }}
+                        onMouseEnter={e => { e.currentTarget.style.color = RED; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}55`; }}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
@@ -185,7 +185,7 @@ const GestorDashboard = () => {
               </form>
               <div className="space-y-2 flex-1">
                 {agendaLinks.length === 0
-                  ? <p className="text-xs italic text-center py-2" style={{ color: `${NAV}40` }}>Nenhuma agenda cadastrada.</p>
+                  ? <p className="text-xs italic text-center py-2" style={{ color: `${NAV}70` }}>Nenhuma agenda cadastrada.</p>
                   : agendaLinks.map(lk => (
                     <div key={lk.id} className="flex items-center gap-2 p-2.5 rounded-xl" style={linkRowStyle}>
                       <div className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
@@ -194,19 +194,19 @@ const GestorDashboard = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate" style={{ color: NAV }}>{lk.label}</p>
-                        <p className="text-xs truncate" style={{ color: `${NAV}50` }}>{lk.gestor_name}</p>
+                        <p className="text-xs truncate" style={{ color: `${NAV}75` }}>{lk.gestor_name}</p>
                       </div>
-                      <button onClick={() => copyLink(lk.url)} className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}40` }}
-                        onMouseEnter={e => { e.currentTarget.style.color = BLUE; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}40`; }}>
+                      <button onClick={() => copyLink(lk.url)} className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}70` }}
+                        onMouseEnter={e => { e.currentTarget.style.color = BLUE; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}70`; }}>
                         <Copy className="h-3.5 w-3.5" />
                       </button>
-                      <a href={lk.url} target="_blank" rel="noopener noreferrer" className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}40` }}
-                        onMouseEnter={e => { e.currentTarget.style.color = '#10B981'; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}40`; }}>
+                      <a href={lk.url} target="_blank" rel="noopener noreferrer" className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}70` }}
+                        onMouseEnter={e => { e.currentTarget.style.color = '#10B981'; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}70`; }}>
                         <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                       {lk.gestor_id === user?.id && (
-                        <button onClick={() => deleteLink(lk.id)} className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}30` }}
-                          onMouseEnter={e => { e.currentTarget.style.color = RED; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}30`; }}>
+                        <button onClick={() => deleteLink(lk.id)} className="shrink-0 p-1 rounded transition-colors" style={{ color: `${NAV}55` }}
+                          onMouseEnter={e => { e.currentTarget.style.color = RED; }} onMouseLeave={e => { e.currentTarget.style.color = `${NAV}55`; }}>
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       )}
@@ -222,14 +222,14 @@ const GestorDashboard = () => {
           <BrandCardHeader icon={Megaphone} iconColor="#F59E0B" accentColor="#F59E0B" title="Avisos" />
           <div className="px-5 py-5">
             {stats.recentAlerts.length === 0 ? (
-              <p className="text-sm italic text-center py-4" style={{ color: `${NAV}40` }}>Nenhum aviso no momento.</p>
+              <p className="text-sm italic text-center py-4" style={{ color: `${NAV}70` }}>Nenhum aviso no momento.</p>
             ) : (
               <div className="space-y-3">
                 {stats.recentAlerts.map(alert => (
                   <div key={alert.id} className="p-3 rounded-xl" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}>
                     <p className="text-sm font-semibold" style={{ color: '#92640A' }}>{alert.title}</p>
                     <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#B45309' }}>{alert.content}</p>
-                    <p className="text-[10px] mt-1" style={{ color: `${NAV}40` }}>
+                    <p className="text-[10px] mt-1" style={{ color: `${NAV}70` }}>
                       {new Date(alert.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                     </p>
                   </div>

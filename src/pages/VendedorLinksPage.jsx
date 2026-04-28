@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -99,7 +99,7 @@ const VendedorLinksPage = () => {
 
       <div>
         <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Meus Links</h1>
-        <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>
+        <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>
           Links de pagamento, sites, agendas e outros recursos para compartilhar com clientes.
         </p>
       </div>
@@ -111,7 +111,7 @@ const VendedorLinksPage = () => {
 
           {/* Tipo */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wide mb-2 block" style={{ color: `${NAV}60` }}>
+            <label className="text-xs font-semibold uppercase tracking-wide mb-2 block" style={{ color: `${NAV}85` }}>
               Tipo
             </label>
             <div className="flex flex-wrap gap-2">
@@ -182,7 +182,7 @@ const VendedorLinksPage = () => {
           <Loader2 className="h-8 w-8 animate-spin" style={{ color: BLUE }} />
         </div>
       ) : links.length === 0 ? (
-        <div className="text-center py-16" style={{ color: `${NAV}35` }}>
+        <div className="text-center py-16" style={{ color: `${NAV}65` }}>
           <Link2 className="h-10 w-10 mx-auto mb-3 opacity-40" />
           <p className="font-medium">Nenhum link cadastrado ainda.</p>
           <p className="text-sm mt-1 opacity-70">Use o formulário acima para adicionar seus links.</p>
@@ -210,7 +210,7 @@ const VendedorLinksPage = () => {
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-semibold truncate" style={{ color: NAV }}>{link.label}</p>
-                          <p className="text-xs truncate" style={{ color: `${NAV}50` }}>{link.url}</p>
+                          <p className="text-xs truncate" style={{ color: `${NAV}75` }}>{link.url}</p>
                         </div>
                       </div>
 
@@ -230,10 +230,10 @@ const VendedorLinksPage = () => {
                         <button
                           onClick={() => handleDelete(link.id)}
                           className="p-1.5 rounded-lg transition-colors"
-                          style={{ color: `${NAV}30` }}
+                          style={{ color: `${NAV}55` }}
                           title="Remover link"
                           onMouseEnter={e => { e.currentTarget.style.color = RED; e.currentTarget.style.background = `${RED}10`; }}
-                          onMouseLeave={e => { e.currentTarget.style.color = `${NAV}30`; e.currentTarget.style.background = 'transparent'; }}
+                          onMouseLeave={e => { e.currentTarget.style.color = `${NAV}55`; e.currentTarget.style.background = 'transparent'; }}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>

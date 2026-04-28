@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,7 +10,7 @@ import { NAV, BLUE, RED, BrandCard, BrandCardHeader, BtnPrimary, BtnOutline } fr
 const Field = ({ label, id, type = 'text', value, onChange, placeholder, disabled, icon: Icon }) => (
   <div className="space-y-1.5">
     <label htmlFor={id} className="text-sm font-medium flex items-center gap-1.5" style={{ color: `${NAV}80` }}>
-      {Icon && <Icon className="h-3.5 w-3.5" style={{ color: `${NAV}50` }} />}
+      {Icon && <Icon className="h-3.5 w-3.5" style={{ color: `${NAV}75` }} />}
       {label}
     </label>
     <input
@@ -114,7 +114,7 @@ const GestorSettingsPage = () => {
       <div className="space-y-6 pb-12 max-w-2xl mx-auto">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Dados de Cadastro</h1>
-          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Gerencie suas informações pessoais e de acesso</p>
+          <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Gerencie suas informações pessoais e de acesso</p>
         </div>
 
         {/* Foto */}
@@ -138,7 +138,7 @@ const GestorSettingsPage = () => {
               <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleAvatarChange} />
               <BtnOutline onClick={() => fileInputRef.current?.click()} disabled={uploadingAvatar} loading={uploadingAvatar}
                 icon={Camera} label="Alterar Foto" loadingLabel="Enviando..." color={BLUE} />
-              <p className="text-xs mt-2" style={{ color: `${NAV}40` }}>PNG, JPG ou WEBP. Máx. 5MB.</p>
+              <p className="text-xs mt-2" style={{ color: `${NAV}70` }}>PNG, JPG ou WEBP. Máx. 5MB.</p>
             </div>
           </div>
         </BrandCard>
@@ -156,7 +156,7 @@ const GestorSettingsPage = () => {
             </div>
             <div className="space-y-1.5">
               <label htmlFor="cep" className="text-sm font-medium flex items-center gap-1.5" style={{ color: `${NAV}80` }}>
-                <Hash className="h-3.5 w-3.5" style={{ color: `${NAV}50` }} /> CEP
+                <Hash className="h-3.5 w-3.5" style={{ color: `${NAV}75` }} /> CEP
               </label>
               <input id="cep" type="text" value={cep} maxLength={9} placeholder="00000-000"
                 onChange={async (e) => {

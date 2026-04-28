@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { PlatformSummaryCards } from '@/components/PlatformSummaryCards';
@@ -250,7 +250,7 @@ const AdminDashboard = () => {
 
       {/* Resumo Geral */}
       <section className="space-y-4">
-        <h2 className="text-base font-bold uppercase tracking-wider" style={{ color: `${NAV}50`, fontFamily: 'Poppins, sans-serif' }}>
+        <h2 className="text-base font-bold uppercase tracking-wider" style={{ color: `${NAV}75`, fontFamily: 'Poppins, sans-serif' }}>
           Resumo Geral da Plataforma
         </h2>
         <PlatformSummaryCards
@@ -267,7 +267,7 @@ const AdminDashboard = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5" style={{ color: BLUE }} />
-            <h2 className="text-base font-bold uppercase tracking-wider" style={{ color: `${NAV}50`, fontFamily: 'Poppins, sans-serif' }}>
+            <h2 className="text-base font-bold uppercase tracking-wider" style={{ color: `${NAV}75`, fontFamily: 'Poppins, sans-serif' }}>
               Funil de Leads
             </h2>
           </div>
@@ -280,11 +280,11 @@ const AdminDashboard = () => {
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
                 style={{
                   background: activePeriod === p.id ? NAV : 'white',
-                  color: activePeriod === p.id ? 'white' : `${NAV}60`,
+                  color: activePeriod === p.id ? 'white' : `${NAV}85`,
                   border: `1px solid ${activePeriod === p.id ? NAV : `${NAV}18`}`,
                 }}
-                onMouseEnter={e => { if (activePeriod !== p.id) { e.currentTarget.style.borderColor = `${NAV}40`; e.currentTarget.style.color = NAV; } }}
-                onMouseLeave={e => { if (activePeriod !== p.id) { e.currentTarget.style.borderColor = `${NAV}18`; e.currentTarget.style.color = `${NAV}60`; } }}
+                onMouseEnter={e => { if (activePeriod !== p.id) { e.currentTarget.style.borderColor = `${NAV}70`; e.currentTarget.style.color = NAV; } }}
+                onMouseLeave={e => { if (activePeriod !== p.id) { e.currentTarget.style.borderColor = `${NAV}18`; e.currentTarget.style.color = `${NAV}85`; } }}
               >
                 {p.label}
               </button>
@@ -295,7 +295,7 @@ const AdminDashboard = () => {
 
             {/* Calendário De/Até */}
             <div className="flex items-center gap-2">
-              <CalendarDays className="w-4 h-4" style={{ color: `${NAV}40` }} />
+              <CalendarDays className="w-4 h-4" style={{ color: `${NAV}70` }} />
               <input
                 type="date"
                 value={dateFrom}
@@ -308,7 +308,7 @@ const AdminDashboard = () => {
                   boxShadow: activePeriod === 'custom' ? `0 0 0 2px ${BLUE}18` : 'none',
                 }}
               />
-              <span className="text-xs font-medium" style={{ color: `${NAV}50` }}>até</span>
+              <span className="text-xs font-medium" style={{ color: `${NAV}75` }}>até</span>
               <input
                 type="date"
                 value={dateTo}
@@ -338,7 +338,7 @@ const AdminDashboard = () => {
               <p className="text-3xl font-bold leading-none mb-1" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
                 {loadingLeads ? '—' : leadsStats.entrados}
               </p>
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Leads Entrados</p>
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: `${NAV}75` }}>Leads Entrados</p>
             </div>
           </div>
 
@@ -353,7 +353,7 @@ const AdminDashboard = () => {
               <p className="text-3xl font-bold leading-none mb-1" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
                 {loadingLeads ? '—' : leadsStats.atendidos}
               </p>
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Atendidos</p>
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: `${NAV}75` }}>Atendidos</p>
               {!loadingLeads && leadsStats.entrados > 0 && (
                 <p className="text-xs mt-0.5" style={{ color: '#F59E0B' }}>{taxaAtendimento}% dos entrados</p>
               )}
@@ -371,7 +371,7 @@ const AdminDashboard = () => {
               <p className="text-3xl font-bold leading-none mb-1" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
                 {loadingLeads ? '—' : leadsStats.fechados}
               </p>
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Fechados</p>
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: `${NAV}75` }}>Fechados</p>
               {!loadingLeads && leadsStats.entrados > 0 && (
                 <p className="text-xs mt-0.5" style={{ color: '#10B981' }}>{taxaFechamento}% dos entrados</p>
               )}
@@ -387,7 +387,7 @@ const AdminDashboard = () => {
                 <h3 className="font-bold text-sm" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
                   Leads por dia
                 </h3>
-                <p className="text-xs mt-0.5" style={{ color: `${NAV}50` }}>
+                <p className="text-xs mt-0.5" style={{ color: `${NAV}75` }}>
                   {fmtDate(dateFrom)} → {fmtDate(dateTo)}
                 </p>
               </div>
@@ -399,8 +399,8 @@ const AdminDashboard = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={leadsStats.chartData} margin={{ left: 0, right: 8, top: 4, bottom: 4 }} barCategoryGap="30%">
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={`${NAV}08`} />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: `${NAV}55` }} />
-                  <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 11, fill: `${NAV}45` }} width={28} />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: `${NAV}80` }} />
+                  <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 11, fill: `${NAV}72` }} width={28} />
                   <Tooltip content={<LeadsTooltip />} cursor={{ fill: `${NAV}04` }} />
                   <Legend
                     iconType="circle" iconSize={8}
@@ -418,14 +418,14 @@ const AdminDashboard = () => {
         {/* Estado vazio */}
         {!loadingLeads && leadsStats.entrados === 0 && (
           <div className="rounded-2xl py-10 text-center" style={{ background: 'white', border: `1px dashed ${NAV}15` }}>
-            <p className="text-sm" style={{ color: `${NAV}40` }}>Nenhum lead encontrado no período selecionado.</p>
+            <p className="text-sm" style={{ color: `${NAV}70` }}>Nenhum lead encontrado no período selecionado.</p>
           </div>
         )}
       </section>
 
       {/* Produção Editorial */}
       <section>
-        <h2 className="text-base font-bold uppercase tracking-wider mb-4" style={{ color: `${NAV}50`, fontFamily: 'Poppins, sans-serif' }}>
+        <h2 className="text-base font-bold uppercase tracking-wider mb-4" style={{ color: `${NAV}75`, fontFamily: 'Poppins, sans-serif' }}>
           Produção Editorial
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -439,7 +439,7 @@ const AdminDashboard = () => {
               <div className="text-4xl font-bold mb-1" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
                 {editorialMetrics[key]}
               </div>
-              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: `${NAV}50` }}>{title}</div>
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: `${NAV}75` }}>{title}</div>
             </div>
           ))}
         </div>
@@ -452,13 +452,13 @@ const AdminDashboard = () => {
             <h3 className="font-bold text-sm" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
               Coordenadores por Leads
             </h3>
-            <p className="text-xs mt-0.5" style={{ color: `${NAV}50` }}>Mais quentes → Mais frios</p>
+            <p className="text-xs mt-0.5" style={{ color: `${NAV}75` }}>Mais quentes → Mais frios</p>
           </div>
           <div style={{ height: 320, padding: '0 16px 16px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={coordChartData} layout="vertical" margin={{ left: 16, right: 24, top: 4, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={`${NAV}08`} />
-                <XAxis type="number" axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 11, fill: `${NAV}50` }} />
+                <XAxis type="number" axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 11, fill: `${NAV}75` }} />
                 <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} width={80} tick={{ fontSize: 11, fill: `${NAV}70` }} />
                 <Tooltip contentStyle={{ borderRadius: '10px', border: `1px solid ${NAV}10`, boxShadow: `0 4px 16px ${NAV}10`, fontFamily: "'Be Vietnam Pro', sans-serif" }} />
                 <Bar dataKey="leads" name="Leads" radius={[0, 4, 4, 0]}>
@@ -480,14 +480,14 @@ const AdminDashboard = () => {
             <h3 className="font-bold text-sm" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
               Metas de Coautores por Coordenador
             </h3>
-            <p className="text-xs mt-0.5" style={{ color: `${NAV}50` }}>Progresso em relação às metas</p>
+            <p className="text-xs mt-0.5" style={{ color: `${NAV}75` }}>Progresso em relação às metas</p>
           </div>
           <div style={{ height: 320, padding: '0 16px 16px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={coordChartData} margin={{ left: 0, right: 24, top: 4, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={`${NAV}08`} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: `${NAV}60` }} angle={-30} textAnchor="end" interval={0} />
-                <YAxis axisLine={false} tickLine={false} allowDecimals={false} domain={[0, 'auto']} tick={{ fontSize: 11, fill: `${NAV}50` }} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: `${NAV}85` }} angle={-30} textAnchor="end" interval={0} />
+                <YAxis axisLine={false} tickLine={false} allowDecimals={false} domain={[0, 'auto']} tick={{ fontSize: 11, fill: `${NAV}75` }} />
                 <Tooltip contentStyle={{ borderRadius: '10px', border: `1px solid ${NAV}10`, boxShadow: `0 4px 16px ${NAV}10` }} />
                 <ReferenceLine y={3}  stroke="#F59E0B" strokeDasharray="4 4" label={{ value: 'Meta 3',  position: 'right', fontSize: 10, fill: '#F59E0B' }} />
                 <ReferenceLine y={6}  stroke="#10B981" strokeDasharray="4 4" label={{ value: 'Meta 6',  position: 'right', fontSize: 10, fill: '#10B981' }} />

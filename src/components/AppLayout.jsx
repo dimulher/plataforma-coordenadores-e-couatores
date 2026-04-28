@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, UserSquare2, FolderKanban, FileText,
   GraduationCap, Megaphone, HeartHandshake as Handshake, Trophy,
   DollarSign, Settings, Menu, X, User, ChevronLeft, ChevronRight,
-  Target, Workflow, Lock, Globe, Users2, LogOut, ShoppingCart, Link2,
+  Target, Workflow, Lock, Globe, Users2, LogOut, ShoppingCart, Link2, BarChart3,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -36,6 +36,7 @@ const AppLayout = () => {
     { path: '/app/admin/chapters',         icon: FileText,        label: 'Produção Editorial' },
     { path: '/app/admin/site-requests',    icon: Globe,           label: 'Sites Solicitados' },
     { path: '/app/admin/announcements',    icon: Megaphone,       label: 'Avisos' },
+    { path: '/app/admin/reports',          icon: BarChart3,       label: 'Relatórios' },
   ];
 
   const generalItems = [

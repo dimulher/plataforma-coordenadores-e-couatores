@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useCoordinatorData } from '@/hooks/useCoordinatorData';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,7 +21,7 @@ const CoordinatorRanking = () => {
     if (index === 0) return <span className="text-2xl" title="1º Lugar">🥇</span>;
     if (index === 1) return <span className="text-2xl" title="2º Lugar">🥈</span>;
     if (index === 2) return <span className="text-2xl" title="3º Lugar">🥉</span>;
-    return <span className="text-lg font-bold px-2" style={{ color: `${NAV}60` }}>{index + 1}º</span>;
+    return <span className="text-lg font-bold px-2" style={{ color: `${NAV}85` }}>{index + 1}º</span>;
   };
 
   if (loading) return (
@@ -52,7 +52,7 @@ const CoordinatorRanking = () => {
               <thead style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}08` }}>
                 <tr>
                   {['Posição', 'Nome do Coordenador', 'Fechamentos', 'Receita Gerada', 'Taxa de Conversão'].map(h => (
-                    <th key={h} className="px-6 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>{h}</th>
+                    <th key={h} className="px-6 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -94,7 +94,7 @@ const CoordinatorRanking = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1.5 font-medium" style={{ color: NAV }}>
                           {coord.conversion_rate}%
-                          <TrendingUp className="h-4 w-4" style={{ color: coord.conversion_rate > 10 ? '#10B981' : `${NAV}40` }} />
+                          <TrendingUp className="h-4 w-4" style={{ color: coord.conversion_rate > 10 ? '#10B981' : `${NAV}70` }} />
                         </div>
                       </td>
                     </tr>
@@ -102,7 +102,7 @@ const CoordinatorRanking = () => {
                 })}
                 {ranking.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-6 py-16 text-center" style={{ color: `${NAV}40` }}>
+                    <td colSpan={5} className="px-6 py-16 text-center" style={{ color: `${NAV}70` }}>
                       Nenhum coordenador encontrado.
                     </td>
                   </tr>

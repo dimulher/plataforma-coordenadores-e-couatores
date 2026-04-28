@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -51,7 +51,7 @@ const CoordinatorCoauthorDetailPage = () => {
     : null;
 
   const riskStyle = daysRem === null
-    ? { bg: `${NAV}08`, text: `${NAV}60`, border: `${NAV}12` }
+    ? { bg: `${NAV}08`, text: `${NAV}85`, border: `${NAV}12` }
     : daysRem < 0
     ? { bg: `${RED}10`, text: RED, border: `${RED}30` }
     : daysRem <= 7
@@ -69,7 +69,7 @@ const CoordinatorCoauthorDetailPage = () => {
           onMouseLeave={e => { e.currentTarget.style.color = BLUE; }}>
           Meus Coautores
         </Link>
-        <ChevronRight className="w-4 h-4" style={{ color: `${NAV}40` }} />
+        <ChevronRight className="w-4 h-4" style={{ color: `${NAV}70` }} />
         <span className="font-semibold" style={{ color: NAV }}>{author.name}</span>
       </div>
 
@@ -79,14 +79,14 @@ const CoordinatorCoauthorDetailPage = () => {
         <div>
           <h1 className="text-4xl font-bold tracking-tight" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{author.name}</h1>
           <div className="mt-2 flex flex-wrap gap-2 items-center">
-            <span className="text-sm" style={{ color: `${NAV}60` }}>{author.email}</span>
+            <span className="text-sm" style={{ color: `${NAV}85` }}>{author.email}</span>
             {projects.map(p => (
               <span key={p.id} className="text-sm font-medium flex items-center gap-1 px-2 py-0.5 rounded-md"
                 style={{ color: BLUE, background: `${BLUE}12`, border: `1px solid ${BLUE}25` }}>
                 {p.name} <ExternalLink className="w-3 h-3" />
               </span>
             ))}
-            {projects.length === 0 && <span className="text-sm" style={{ color: `${NAV}40` }}>Sem projeto</span>}
+            {projects.length === 0 && <span className="text-sm" style={{ color: `${NAV}70` }}>Sem projeto</span>}
           </div>
         </div>
         <div className="flex gap-3 shrink-0">
@@ -116,9 +116,9 @@ const CoordinatorCoauthorDetailPage = () => {
 
               <div className="flex flex-col items-end gap-4">
                 <div className="text-right">
-                  <p className="text-sm font-medium mb-1" style={{ color: `${NAV}60` }}>Prazo Final</p>
+                  <p className="text-sm font-medium mb-1" style={{ color: `${NAV}85` }}>Prazo Final</p>
                   <p className="text-xl font-bold flex items-center justify-end gap-2" style={{ color: NAV }}>
-                    <Clock className="w-5 h-5" style={{ color: `${NAV}50` }} />
+                    <Clock className="w-5 h-5" style={{ color: `${NAV}75` }} />
                     {new Date(currentChapter.deadline).toLocaleDateString('pt-BR')}
                   </p>
                 </div>
@@ -153,7 +153,7 @@ const CoordinatorCoauthorDetailPage = () => {
             {/* Progress bar */}
             <div className="space-y-3">
               <div className="flex justify-between items-end">
-                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>Progresso de Escrita</span>
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>Progresso de Escrita</span>
                 <span className="font-bold" style={{ color: NAV }}>
                   {currentChapter.word_count.toLocaleString('pt-BR')} / {currentChapter.word_goal.toLocaleString('pt-BR')} palavras
                   <span className="ml-2" style={{ color: BLUE }}>({progress}%)</span>
@@ -167,7 +167,7 @@ const CoordinatorCoauthorDetailPage = () => {
                   {progress > 10 && <span className="text-white font-bold text-sm drop-shadow">{progress}%</span>}
                 </div>
               </div>
-              <p className="text-right text-xs" style={{ color: `${NAV}50` }}>
+              <p className="text-right text-xs" style={{ color: `${NAV}75` }}>
                 Última edição: {timeAgoFull(currentChapter.updated_at)}
               </p>
             </div>
@@ -176,7 +176,7 @@ const CoordinatorCoauthorDetailPage = () => {
       ) : (
         <div
           className="py-12 text-center rounded-2xl border-2 border-dashed"
-          style={{ borderColor: `${NAV}12`, background: 'white', color: `${NAV}50` }}
+          style={{ borderColor: `${NAV}12`, background: 'white', color: `${NAV}75` }}
         >
           Nenhum capítulo ativo ou pendente para este coautor no momento.
         </div>
@@ -186,7 +186,7 @@ const CoordinatorCoauthorDetailPage = () => {
       <BrandCard>
         <BrandCardHeader icon={Clock} iconColor={BLUE} accentColor={BLUE}
           title={`Histórico de Atividades`}
-          extra={<span className="text-xs" style={{ color: `${NAV}50` }}>Últimas 10</span>}
+          extra={<span className="text-xs" style={{ color: `${NAV}75` }}>Últimas 10</span>}
         />
         <div className="px-6 py-6">
           <div className="relative ml-3 md:ml-4 space-y-8" style={{ borderLeft: `2px solid ${NAV}0C` }}>
@@ -204,7 +204,7 @@ const CoordinatorCoauthorDetailPage = () => {
                   />
                   <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 mb-2">
                     <span className="text-sm font-bold" style={{ color: NAV }}>{act.action.replace(/_/g, ' ')}</span>
-                    <span className="text-xs flex items-center gap-1" style={{ color: `${NAV}50` }}>
+                    <span className="text-xs flex items-center gap-1" style={{ color: `${NAV}75` }}>
                       <Clock className="w-3 h-3" />
                       {date.toLocaleDateString('pt-BR')} · {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                     </span>
@@ -223,7 +223,7 @@ const CoordinatorCoauthorDetailPage = () => {
               );
             })}
             {activities.length === 0 && (
-              <div className="pl-6 text-sm" style={{ color: `${NAV}50` }}>Nenhuma atividade registrada no histórico.</div>
+              <div className="pl-6 text-sm" style={{ color: `${NAV}75` }}>Nenhuma atividade registrada no histórico.</div>
             )}
           </div>
         </div>

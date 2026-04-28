@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ const STATUS_CONFIG = {
   PENDENTE:     { label: 'Pendente',     color: '#F59E0B', bg: 'rgba(245,158,11,0.10)' },
   EM_ANDAMENTO: { label: 'Em Andamento', color: BLUE,      bg: `${BLUE}12` },
   CONCLUIDO:    { label: 'Concluído',    color: '#10B981', bg: 'rgba(16,185,129,0.10)' },
-  CANCELADO:    { label: 'Cancelado',    color: `${NAV}60`, bg: `${NAV}08` },
+  CANCELADO:    { label: 'Cancelado',    color: `${NAV}85`, bg: `${NAV}08` },
 };
 
 const StatusBadge = ({ status }) => {
@@ -108,7 +108,7 @@ const AdminSiteRequestsPage = () => {
       <div className="space-y-6 pb-12">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Solicitações de Site</h1>
-          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Gerencie os pedidos de site de divulgação dos coordenadores.</p>
+          <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Gerencie os pedidos de site de divulgação dos coordenadores.</p>
         </div>
 
         {/* KPI Cards */}
@@ -125,7 +125,7 @@ const AdminSiteRequestsPage = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold" style={{ color: NAV }}>{value}</p>
-                <p className="text-xs" style={{ color: `${NAV}55` }}>{label}</p>
+                <p className="text-xs" style={{ color: `${NAV}80` }}>{label}</p>
               </div>
             </div>
           ))}
@@ -134,7 +134,7 @@ const AdminSiteRequestsPage = () => {
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
             <Input
               placeholder="Buscar por nome ou email do coordenador..."
               className="pl-9 bg-white text-sm"
@@ -169,7 +169,7 @@ const AdminSiteRequestsPage = () => {
                 <thead style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}08` }}>
                   <tr>
                     {['Coordenador', 'Líder', 'Solicitado em', 'Status', 'Site', 'Ações'].map(h => (
-                      <th key={h} className="px-5 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>{h}</th>
+                      <th key={h} className="px-5 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -181,13 +181,13 @@ const AdminSiteRequestsPage = () => {
                     >
                       <td className="px-5 py-4">
                         <p className="font-semibold" style={{ color: NAV }}>{req.coordinator?.name || req.coordinator_name || '—'}</p>
-                        <p className="text-xs" style={{ color: `${NAV}45` }}>{req.coordinator?.email || '—'}</p>
+                        <p className="text-xs" style={{ color: `${NAV}72` }}>{req.coordinator?.email || '—'}</p>
                       </td>
-                      <td className="px-5 py-4 text-xs" style={{ color: `${NAV}60` }}>
+                      <td className="px-5 py-4 text-xs" style={{ color: `${NAV}85` }}>
                         {req.coordinator?.manager?.name || req.gestor_name || '—'}
                       </td>
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-1.5 text-xs" style={{ color: `${NAV}55` }}>
+                        <div className="flex items-center gap-1.5 text-xs" style={{ color: `${NAV}80` }}>
                           <Calendar className="h-3.5 w-3.5" />
                           {req.requested_at
                             ? new Date(req.requested_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -207,7 +207,7 @@ const AdminSiteRequestsPage = () => {
                             <ExternalLink className="h-3.5 w-3.5" /> Ver site
                           </a>
                         ) : (
-                          <span className="text-xs" style={{ color: `${NAV}30` }}>—</span>
+                          <span className="text-xs" style={{ color: `${NAV}55` }}>—</span>
                         )}
                       </td>
                       <td className="px-5 py-4">
@@ -227,8 +227,8 @@ const AdminSiteRequestsPage = () => {
                     <tr>
                       <td colSpan={6} className="px-6 py-16 text-center">
                         <Globe className="h-12 w-12 mx-auto mb-3" style={{ color: `${NAV}20` }} />
-                        <p className="font-medium" style={{ color: `${NAV}50` }}>Nenhuma solicitação encontrada</p>
-                        <p className="text-sm mt-1" style={{ color: `${NAV}35` }}>
+                        <p className="font-medium" style={{ color: `${NAV}75` }}>Nenhuma solicitação encontrada</p>
+                        <p className="text-sm mt-1" style={{ color: `${NAV}65` }}>
                           {searchTerm || statusFilter !== 'ALL' ? 'Tente ajustar os filtros' : 'As solicitações aparecerão aqui'}
                         </p>
                       </td>
@@ -258,10 +258,10 @@ const AdminSiteRequestsPage = () => {
                   <p className="font-semibold" style={{ color: NAV }}>{selected.coordinator?.name || selected.coordinator_name || '—'}</p>
                   <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${BLUE}12`, color: BLUE }}>Coordenador</span>
                 </div>
-                <p className="text-sm" style={{ color: `${NAV}55` }}>{selected.coordinator?.email}</p>
-                {selected.coordinator?.phone && <p className="text-sm" style={{ color: `${NAV}55` }}>{selected.coordinator.phone}</p>}
+                <p className="text-sm" style={{ color: `${NAV}80` }}>{selected.coordinator?.email}</p>
+                {selected.coordinator?.phone && <p className="text-sm" style={{ color: `${NAV}80` }}>{selected.coordinator.phone}</p>}
                 {(selected.coordinator?.manager?.name || selected.gestor_name) && (
-                  <p className="text-xs mt-1" style={{ color: `${NAV}40` }}>Líder: {selected.coordinator?.manager?.name || selected.gestor_name}</p>
+                  <p className="text-xs mt-1" style={{ color: `${NAV}70` }}>Líder: {selected.coordinator?.manager?.name || selected.gestor_name}</p>
                 )}
               </div>
 

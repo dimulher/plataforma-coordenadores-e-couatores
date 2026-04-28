@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
@@ -165,7 +165,7 @@ const CoauthorChaptersPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Meu Capítulo</h1>
-          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Escreva, gerencie e envie seu capítulo para revisão.</p>
+          <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Escreva, gerencie e envie seu capítulo para revisão.</p>
         </div>
         <div className="flex gap-2">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -239,7 +239,7 @@ const CoauthorChaptersPage = () => {
                 {/* Top */}
                 <div className="flex justify-between items-start mb-4 gap-3">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: `${NAV}50` }}>
+                    <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: `${NAV}75` }}>
                       {getProjectName(chapter.project_id)}
                     </p>
                     <h3 className="text-lg font-bold leading-tight" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
@@ -266,13 +266,13 @@ const CoauthorChaptersPage = () => {
                         style={{ width: `${progress}%`, background: isEditable ? BLUE : '#10B981' }} />
                     </div>
                     <div className="flex justify-between mt-1.5">
-                      <span className="text-[11px]" style={{ color: `${NAV}50` }}>Meta: {wg} palavras</span>
+                      <span className="text-[11px]" style={{ color: `${NAV}75` }}>Meta: {wg} palavras</span>
                       <span className="text-[11px] font-medium" style={{ color: remColor }}>
                         {remaining === 0 ? 'Meta atingida!' : `Faltam ${remaining} palavras`}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-xs" style={{ color: `${NAV}60` }}>
+                  <div className="flex items-center gap-1 text-xs" style={{ color: `${NAV}85` }}>
                     <Clock className="w-3.5 h-3.5" />
                     Prazo: <strong style={{ color: NAV }}>{chapter.deadline ? new Date(chapter.deadline).toLocaleDateString('pt-BR') : 'N/A'}</strong>
                   </div>
@@ -280,7 +280,7 @@ const CoauthorChaptersPage = () => {
 
                 {/* Footer */}
                 <div className="pt-4 flex flex-col gap-3" style={{ borderTop: `1px solid ${NAV}0A` }}>
-                  <p className="text-[11px]" style={{ color: `${NAV}40` }}>
+                  <p className="text-[11px]" style={{ color: `${NAV}70` }}>
                     Última atualização: {fmtDateTime(chapter.updated_at)}
                   </p>
 
@@ -312,7 +312,7 @@ const CoauthorChaptersPage = () => {
                         <CheckCircle className="w-4 h-4" />
                         {approving === chapter.id ? 'Aprovando...' : 'Aprovar Capítulo Revisado'}
                       </button>
-                      <p className="text-[11px] text-center" style={{ color: `${NAV}40` }}>
+                      <p className="text-[11px] text-center" style={{ color: `${NAV}70` }}>
                         {timeLeft
                           ? `Se não aprovar em ${timeLeft}, será aprovado automaticamente.`
                           : 'Prazo expirado — será aprovado automaticamente.'}
@@ -349,7 +349,7 @@ const CoauthorChaptersPage = () => {
             <h3 className="text-lg font-semibold mb-2" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
               {statusFilter !== 'ALL' ? 'Nenhum capítulo com este status.' : 'Você ainda não começou a escrever.'}
             </h3>
-            <p className="text-sm mb-6" style={{ color: `${NAV}60` }}>
+            <p className="text-sm mb-6" style={{ color: `${NAV}85` }}>
               {statusFilter !== 'ALL'
                 ? 'Tente outro filtro ou comece a escrever seu capítulo.'
                 : 'Clique abaixo para criar seu capítulo.'}

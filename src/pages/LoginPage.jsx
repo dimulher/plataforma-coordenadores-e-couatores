@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/contexts/AuthContext';
@@ -258,7 +258,7 @@ export default function LoginPage() {
                   <label style={{
                     display: 'block', fontSize: 12, fontWeight: 700,
                     textTransform: 'uppercase', letterSpacing: '0.08em',
-                    color: `${NAV}60`, marginBottom: 8,
+                    color: `${NAV}85`, marginBottom: 8,
                   }}>
                     E-mail
                   </label>
@@ -279,7 +279,7 @@ export default function LoginPage() {
                     <label style={{
                       fontSize: 12, fontWeight: 700,
                       textTransform: 'uppercase', letterSpacing: '0.08em',
-                      color: `${NAV}60`,
+                      color: `${NAV}85`,
                     }}>
                       Senha
                     </label>
@@ -315,11 +315,11 @@ export default function LoginPage() {
                         position: 'absolute', right: 14, top: '50%',
                         transform: 'translateY(-50%)',
                         background: 'none', border: 'none', cursor: 'pointer',
-                        color: `${NAV}40`, display: 'flex', padding: 2,
+                        color: `${NAV}70`, display: 'flex', padding: 2,
                         transition: 'color .15s',
                       }}
                       onMouseEnter={e => { e.currentTarget.style.color = `${NAV}80`; }}
-                      onMouseLeave={e => { e.currentTarget.style.color = `${NAV}40`; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = `${NAV}70`; }}
                     >
                       {showPwd
                         ? <EyeOff style={{ width: 17, height: 17 }} />
@@ -337,7 +337,7 @@ export default function LoginPage() {
                     width: '100%', padding: '14px 0',
                     borderRadius: 14, border: 'none',
                     background: isLoading
-                      ? `${NAV}60`
+                      ? `${NAV}85`
                       : `linear-gradient(135deg, ${RED} 0%, #c42200 100%)`,
                     color: 'white', fontSize: 15, fontWeight: 700,
                     fontFamily: 'Poppins, sans-serif',
@@ -373,7 +373,7 @@ export default function LoginPage() {
             {/* footer */}
             <p style={{
               textAlign: 'center', marginTop: 28,
-              fontSize: 12, color: `${NAV}40`,
+              fontSize: 12, color: `${NAV}70`,
             }}>
               © 2026 Novos Autores do Brasil. Todos os direitos reservados.
             </p>

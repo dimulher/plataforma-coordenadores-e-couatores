@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useCoordinatorData } from '@/hooks/useCoordinatorData';
@@ -7,7 +7,7 @@ import { Search } from 'lucide-react';
 import { NAV, BLUE, RED } from '@/lib/brand';
 
 const COLUMNS = [
-  { id: 'INDICADO',       title: 'Indicado',       color: `${NAV}50` },
+  { id: 'INDICADO',       title: 'Indicado',       color: `${NAV}75` },
   { id: 'EM_ATENDIMENTO', title: 'Em Atend.',       color: BLUE },
   { id: 'EM_AVALIACAO',   title: 'Em Avaliação',    color: '#F59E0B' },
   { id: 'APROVADO',       title: 'Aprovado',        color: '#10B981' },
@@ -37,10 +37,10 @@ const CoordinatorFunnelPage = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
           <div>
             <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Relatório</h1>
-            <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Acompanhe o funil dos seus indicados.</p>
+            <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Acompanhe o funil dos seus indicados.</p>
           </div>
           <div className="relative w-full md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
             <Input
               placeholder="Buscar candidato..."
               value={searchTerm}
@@ -80,11 +80,11 @@ const CoordinatorFunnelPage = () => {
                         style={{ border: `1px solid ${NAV}0C`, boxShadow: `0 1px 3px ${NAV}06` }}
                       >
                         <h4 className="font-semibold text-sm truncate" style={{ color: NAV }}>{cand.name}</h4>
-                        {cand.phone && <p className="text-xs mt-0.5" style={{ color: `${NAV}55` }}>{cand.phone}</p>}
+                        {cand.phone && <p className="text-xs mt-0.5" style={{ color: `${NAV}80` }}>{cand.phone}</p>}
                       </div>
                     ))}
                     {columnCands.length === 0 && (
-                      <div className="h-16 flex items-center justify-center text-xs" style={{ color: `${NAV}30` }}>Vazio</div>
+                      <div className="h-16 flex items-center justify-center text-xs" style={{ color: `${NAV}55` }}>Vazio</div>
                     )}
                   </div>
                 </div>

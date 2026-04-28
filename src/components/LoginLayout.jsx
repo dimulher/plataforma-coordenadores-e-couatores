@@ -1,4 +1,4 @@
-
+﻿
 /**
  * Shared login shell — used by CoauthorLoginPage, CoordinatorLoginPage, AdminLoginPage.
  * Applies the Novos Autores do Brasil brand identity.
@@ -65,7 +65,7 @@ const LoginLayout = ({
         className="relative w-full max-w-[420px] rounded-2xl p-8"
         style={{
           background: '#ffffff',
-          boxShadow: `0 24px 64px ${NAV}60, 0 0 0 1px ${NAV}18`,
+          boxShadow: `0 24px 64px ${NAV}85, 0 0 0 1px ${NAV}18`,
         }}
       >
         {/* Logo + title */}
@@ -75,7 +75,7 @@ const LoginLayout = ({
             className="flex items-center justify-center w-14 h-14 rounded-2xl mb-4"
             style={{
               background: NAV,
-              boxShadow: `0 4px 16px ${NAV}40`,
+              boxShadow: `0 4px 16px ${NAV}70`,
             }}
           >
             <img src="/logo-nab.png" alt="NAB" className="w-8 h-8 object-contain" />
@@ -198,7 +198,7 @@ const LoginLayout = ({
                 type="button"
                 onClick={() => setShowPwd(v => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
-                style={{ color: `${NAV}40` }}
+                style={{ color: `${NAV}70` }}
               >
                 {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -238,13 +238,13 @@ const LoginLayout = ({
                 href={link.to}
                 className="text-sm transition-colors"
                 style={{
-                  color: link.primary ? BLUE : `${NAV}45`,
+                  color: link.primary ? BLUE : `${NAV}72`,
                   fontFamily: "'Be Vietnam Pro', sans-serif",
                   fontWeight: link.primary ? 600 : 400,
                   textDecoration: 'none',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.color = link.primary ? NAV : `${NAV}80`; }}
-                onMouseLeave={e => { e.currentTarget.style.color = link.primary ? BLUE : `${NAV}45`; }}
+                onMouseLeave={e => { e.currentTarget.style.color = link.primary ? BLUE : `${NAV}72`; }}
               >
                 {link.label}
               </a>

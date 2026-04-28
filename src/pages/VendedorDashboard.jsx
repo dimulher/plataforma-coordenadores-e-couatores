@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,7 +33,7 @@ const MetricCard = ({ icon: Icon, iconColor, label, value }) => (
     </span>
     <div>
       <p className="text-2xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{value}</p>
-      <p className="text-xs font-medium uppercase tracking-wider mt-0.5" style={{ color: `${NAV}50` }}>{label}</p>
+      <p className="text-xs font-medium uppercase tracking-wider mt-0.5" style={{ color: `${NAV}75` }}>{label}</p>
     </div>
   </div>
 );
@@ -107,9 +107,9 @@ const VendedorDashboard = () => {
             <BrandCardHeader icon={ShoppingCart} iconColor={BLUE} accentColor={BLUE} title="Leads Recentes" />
             <div className="px-5 pb-5 space-y-2">
               {recentes.length === 0 ? (
-                <p className="text-sm italic text-center py-6" style={{ color: `${NAV}40` }}>Nenhum lead atribuído ainda.</p>
+                <p className="text-sm italic text-center py-6" style={{ color: `${NAV}70` }}>Nenhum lead atribuído ainda.</p>
               ) : recentes.map(lead => {
-                const sc = STATUS_COLORS[lead.status] || { bg: `${NAV}08`, color: `${NAV}60` };
+                const sc = STATUS_COLORS[lead.status] || { bg: `${NAV}08`, color: `${NAV}85` };
                 return (
                   <div
                     key={lead.id}
@@ -121,7 +121,7 @@ const VendedorDashboard = () => {
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-semibold truncate" style={{ color: NAV }}>{lead.name}</p>
-                      <p className="text-xs truncate" style={{ color: `${NAV}50` }}>{lead.email || lead.phone || '—'}</p>
+                      <p className="text-xs truncate" style={{ color: `${NAV}75` }}>{lead.email || lead.phone || '—'}</p>
                     </div>
                     <span
                       className="ml-3 text-[10px] font-bold px-2 py-1 rounded-lg shrink-0"
@@ -150,14 +150,14 @@ const VendedorDashboard = () => {
           <BrandCardHeader icon={Megaphone} iconColor="#F59E0B" accentColor="#F59E0B" title="Avisos" />
           <div className="px-5 py-5">
             {announcements.length === 0 ? (
-              <p className="text-sm italic text-center py-4" style={{ color: `${NAV}40` }}>Nenhum aviso no momento.</p>
+              <p className="text-sm italic text-center py-4" style={{ color: `${NAV}70` }}>Nenhum aviso no momento.</p>
             ) : (
               <div className="space-y-3">
                 {announcements.map(a => (
                   <div key={a.id} className="p-3 rounded-xl" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}>
                     <p className="text-sm font-semibold" style={{ color: '#92640A' }}>{a.title}</p>
                     <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#B45309' }}>{a.content}</p>
-                    <p className="text-[10px] mt-1" style={{ color: `${NAV}40` }}>
+                    <p className="text-[10px] mt-1" style={{ color: `${NAV}70` }}>
                       {new Date(a.created_at).toLocaleDateString('pt-BR')}
                     </p>
                   </div>

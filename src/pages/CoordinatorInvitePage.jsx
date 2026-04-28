@@ -122,6 +122,7 @@ const CoordinatorInvitePage = () => {
                         body: JSON.stringify({
                             ...formData,
                             manager_id: managerId,
+                            project_id: projectId || null,
                             registration_date: new Date().toISOString(),
                             role: 'COORDENADOR',
                             status: 'PENDING_CONTRACT'

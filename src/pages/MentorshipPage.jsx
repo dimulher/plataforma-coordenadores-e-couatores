@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
@@ -155,16 +155,16 @@ const MentorshipPage = () => {
         >
           <div className="px-5 py-3 flex items-center justify-between" style={{ borderBottom: `1px solid ${NAV}08`, background: `${BLUE}06` }}>
             <span className="text-sm font-bold" style={{ color: BLUE, fontFamily: 'Poppins, sans-serif' }}>Editar Sessão</span>
-            <button onClick={cancelEdit} className="p-1 rounded-lg transition-colors" style={{ color: `${NAV}50` }}
+            <button onClick={cancelEdit} className="p-1 rounded-lg transition-colors" style={{ color: `${NAV}75` }}
               onMouseEnter={e => { e.currentTarget.style.color = RED; e.currentTarget.style.background = `${RED}10`; }}
-              onMouseLeave={e => { e.currentTarget.style.color = `${NAV}50`; e.currentTarget.style.background = 'transparent'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = `${NAV}75`; e.currentTarget.style.background = 'transparent'; }}
             >
               <X className="h-4 w-4" />
             </button>
           </div>
           <div className="p-5 space-y-3">
             <div className="space-y-1">
-              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}55` }}>Título</label>
+              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}80` }}>Título</label>
               <input
                 value={editForm.title}
                 onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))}
@@ -174,7 +174,7 @@ const MentorshipPage = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}55` }}>Data e Hora</label>
+                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}80` }}>Data e Hora</label>
                 <input
                   type="datetime-local"
                   value={editForm.date}
@@ -184,7 +184,7 @@ const MentorshipPage = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold uppercase tracking-wider flex items-center gap-1" style={{ color: `${NAV}55` }}>
+                <label className="text-xs font-bold uppercase tracking-wider flex items-center gap-1" style={{ color: `${NAV}80` }}>
                   <LinkIcon className="h-3 w-3" />
                   {isPast ? 'Link da Gravação' : 'Link da Sessão'}
                 </label>
@@ -199,7 +199,7 @@ const MentorshipPage = () => {
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}55` }}>Descrição</label>
+              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}80` }}>Descrição</label>
               <textarea
                 rows={2}
                 value={editForm.description}
@@ -303,9 +303,9 @@ const MentorshipPage = () => {
           <button
             onClick={() => openEdit(m)}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all"
-            style={{ border: `1.5px dashed ${NAV}20`, color: `${NAV}45`, background: 'transparent' }}
+            style={{ border: `1.5px dashed ${NAV}20`, color: `${NAV}72`, background: 'transparent' }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.color = BLUE; e.currentTarget.style.background = `${BLUE}06`; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = `${NAV}20`; e.currentTarget.style.color = `${NAV}45`; e.currentTarget.style.background = 'transparent'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = `${NAV}20`; e.currentTarget.style.color = `${NAV}72`; e.currentTarget.style.background = 'transparent'; }}
           >
             <LinkIcon className="h-4 w-4" />
             Adicionar link da gravação
@@ -328,7 +328,7 @@ const MentorshipPage = () => {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Mentoria</h1>
-          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Sessões de orientação e acompanhamento</p>
+          <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Sessões de orientação e acompanhamento</p>
         </div>
         {isAdmin && (
           <BtnPrimary
@@ -346,7 +346,7 @@ const MentorshipPage = () => {
           <div className="px-6 py-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}60` }}>
+                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}85` }}>
                   Título da Sessão *
                 </label>
                 <input
@@ -361,7 +361,7 @@ const MentorshipPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}60` }}>
+                  <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}85` }}>
                     <Calendar className="inline h-3 w-3 mr-1" />Data e Hora *
                   </label>
                   <input
@@ -374,7 +374,7 @@ const MentorshipPage = () => {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}60` }}>
+                  <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}85` }}>
                     <LinkIcon className="inline h-3 w-3 mr-1" />Link da Sessão (Meet / Zoom)
                   </label>
                   <input
@@ -389,7 +389,7 @@ const MentorshipPage = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}60` }}>
+                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}85` }}>
                   Descrição (Opcional)
                 </label>
                 <textarea
@@ -422,7 +422,7 @@ const MentorshipPage = () => {
             <h3 className="text-lg font-semibold mb-1" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
               Nenhuma mentoria agendada
             </h3>
-            <p className="text-sm" style={{ color: `${NAV}50` }}>
+            <p className="text-sm" style={{ color: `${NAV}75` }}>
               {isAdmin
                 ? 'Clique em "Nova Mentoria" para agendar uma sessão.'
                 : 'As sessões serão divulgadas aqui com os links de acesso.'}
@@ -450,7 +450,7 @@ const MentorshipPage = () => {
       {/* Sessões anteriores */}
       {past.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-base font-bold" style={{ color: `${NAV}60`, fontFamily: 'Poppins, sans-serif' }}>Sessões Anteriores</h2>
+          <h2 className="text-base font-bold" style={{ color: `${NAV}85`, fontFamily: 'Poppins, sans-serif' }}>Sessões Anteriores</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {past.map(m => <MentorCard key={m.id} m={m} isPast={true} />)}
           </div>

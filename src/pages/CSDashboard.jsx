@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,7 +21,7 @@ const STATUS_LABELS = {
 };
 
 const STATUS_COLORS = {
-  RASCUNHO:                     `${NAV}40`,
+  RASCUNHO:                     `${NAV}70`,
   EM_EDICAO:                    BLUE,
   AJUSTES_SOLICITADOS:          '#F59E0B',
   ENVIADO_PARA_REVISAO:         '#8B5CF6',
@@ -43,7 +43,7 @@ const MetricCard = ({ icon: Icon, iconColor, label, value }) => (
     </span>
     <div>
       <p className="text-2xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{value}</p>
-      <p className="text-xs font-medium uppercase tracking-wider mt-0.5" style={{ color: `${NAV}50` }}>{label}</p>
+      <p className="text-xs font-medium uppercase tracking-wider mt-0.5" style={{ color: `${NAV}75` }}>{label}</p>
     </div>
   </div>
 );
@@ -115,11 +115,11 @@ const CSDashboard = () => {
           <BrandCardHeader icon={TrendingUp} iconColor="#8B5CF6" accentColor="#8B5CF6" title="Funil Editorial" />
           <div className="px-5 pb-5">
             {statusCounts.length === 0 ? (
-              <p className="text-sm italic text-center py-6" style={{ color: `${NAV}40` }}>Nenhum capítulo cadastrado.</p>
+              <p className="text-sm italic text-center py-6" style={{ color: `${NAV}70` }}>Nenhum capítulo cadastrado.</p>
             ) : (
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={statusCounts} layout="vertical" margin={{ left: 8, right: 16 }}>
-                  <XAxis type="number" tick={{ fontSize: 11, fill: `${NAV}60` }} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: `${NAV}85` }} />
                   <YAxis type="category" dataKey="status" width={130} tick={{ fontSize: 11, fill: `${NAV}80` }} />
                   <Tooltip
                     formatter={(v) => [v, 'Capítulos']}
@@ -139,7 +139,7 @@ const CSDashboard = () => {
           <BrandCardHeader icon={FileText} iconColor={RED} accentColor={RED} title="Requerem Atenção" />
           <div className="px-5 pb-5 space-y-2">
             {needsAttention.length === 0 ? (
-              <p className="text-sm italic text-center py-6" style={{ color: `${NAV}40` }}>Tudo em dia!</p>
+              <p className="text-sm italic text-center py-6" style={{ color: `${NAV}70` }}>Tudo em dia!</p>
             ) : needsAttention.map(ch => {
               const isLate = ch.deadline && new Date(ch.deadline) < new Date();
               return (
@@ -153,7 +153,7 @@ const CSDashboard = () => {
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-semibold truncate" style={{ color: NAV }}>{ch.author_name}</p>
-                    <p className="text-xs truncate" style={{ color: `${NAV}55` }}>{ch.title}</p>
+                    <p className="text-xs truncate" style={{ color: `${NAV}80` }}>{ch.title}</p>
                   </div>
                   <span
                     className="ml-3 text-[10px] font-bold px-2 py-1 rounded-lg shrink-0"

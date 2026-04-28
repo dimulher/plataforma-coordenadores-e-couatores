@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -48,15 +48,15 @@ const CoauthorFolder = ({ author, navigate }) => {
             style={{
               borderRight: `1px solid ${NAV}0C`,
               background: activeTab === key && expanded ? 'white' : 'transparent',
-              color: activeTab === key && expanded ? BLUE : `${NAV}60`,
+              color: activeTab === key && expanded ? BLUE : `${NAV}85`,
             }}
             onMouseEnter={e => { if (!(activeTab === key && expanded)) e.currentTarget.style.color = NAV; }}
-            onMouseLeave={e => { if (!(activeTab === key && expanded)) e.currentTarget.style.color = `${NAV}60`; }}
+            onMouseLeave={e => { if (!(activeTab === key && expanded)) e.currentTarget.style.color = `${NAV}85`; }}
           >
             <Icon className="w-3.5 h-3.5" />
             {label}
             {count !== undefined && (
-              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold" style={{ background: `${NAV}12`, color: `${NAV}60` }}>
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold" style={{ background: `${NAV}12`, color: `${NAV}85` }}>
                 {count}
               </span>
             )}
@@ -65,9 +65,9 @@ const CoauthorFolder = ({ author, navigate }) => {
         <button
           onClick={() => setExpanded(v => !v)}
           className="ml-auto px-3 transition-colors"
-          style={{ color: `${NAV}40` }}
+          style={{ color: `${NAV}70` }}
           onMouseEnter={e => { e.currentTarget.style.color = NAV; }}
-          onMouseLeave={e => { e.currentTarget.style.color = `${NAV}40`; }}
+          onMouseLeave={e => { e.currentTarget.style.color = `${NAV}70`; }}
           title={expanded ? 'Recolher' : 'Expandir'}
         >
           {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -88,11 +88,11 @@ const CoauthorFolder = ({ author, navigate }) => {
           }
           <div>
             <p className="font-bold text-sm" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{author.name}</p>
-            <p className="text-xs" style={{ color: `${NAV}50` }}>{author.email}</p>
+            <p className="text-xs" style={{ color: `${NAV}75` }}>{author.email}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: `${NAV}08`, color: `${NAV}60`, border: `1px solid ${NAV}10` }}>
+          <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: `${NAV}08`, color: `${NAV}85`, border: `1px solid ${NAV}10` }}>
             {author.coordinatorName}
           </span>
           <button
@@ -113,25 +113,25 @@ const CoauthorFolder = ({ author, navigate }) => {
           {activeTab === 'capitulos' && (
             <div className="space-y-2">
               {author.chapters.length === 0 ? (
-                <p className="text-sm text-center py-3" style={{ color: `${NAV}50` }}>Nenhum capítulo atribuído.</p>
+                <p className="text-sm text-center py-3" style={{ color: `${NAV}75` }}>Nenhum capítulo atribuído.</p>
               ) : (
                 author.chapters.map(chap => {
-                  const cfg = STATUS_MAP[chap.status] || { label: chap.status, text: `${NAV}60`, bg: `${NAV}08` };
+                  const cfg = STATUS_MAP[chap.status] || { label: chap.status, text: `${NAV}85`, bg: `${NAV}08` };
                   return (
                     <div key={chap.id} className="flex items-center justify-between bg-white rounded-xl px-4 py-3"
                       style={{ border: `1px solid ${NAV}0C` }}>
                       <div>
                         <p className="text-sm font-medium truncate max-w-[260px]" style={{ color: NAV }}>{chap.title}</p>
-                        <p className="text-[10px] uppercase mt-0.5 font-bold tracking-wider" style={{ color: `${NAV}40` }}>{chap.projectName || '—'}</p>
+                        <p className="text-[10px] uppercase mt-0.5 font-bold tracking-wider" style={{ color: `${NAV}70` }}>{chap.projectName || '—'}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ color: cfg.text, background: cfg.bg }}>{cfg.label}</span>
                         <button
                           onClick={() => navigate(`/app/admin/chapters/${chap.id}/review`)}
                           className="p-1.5 rounded-lg transition-colors"
-                          style={{ color: `${NAV}50` }}
+                          style={{ color: `${NAV}75` }}
                           onMouseEnter={e => { e.currentTarget.style.color = BLUE; e.currentTarget.style.background = `${BLUE}10`; }}
-                          onMouseLeave={e => { e.currentTarget.style.color = `${NAV}50`; e.currentTarget.style.background = 'transparent'; }}
+                          onMouseLeave={e => { e.currentTarget.style.color = `${NAV}75`; e.currentTarget.style.background = 'transparent'; }}
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
@@ -149,16 +149,16 @@ const CoauthorFolder = ({ author, navigate }) => {
                 <>
                   <img src={author.avatar_url} className="h-28 w-28 rounded-full object-cover shadow"
                     style={{ border: `3px solid ${BLUE}30` }} alt={author.name} />
-                  <p className="text-xs" style={{ color: `${NAV}50` }}>Foto de perfil cadastrada</p>
+                  <p className="text-xs" style={{ color: `${NAV}75` }}>Foto de perfil cadastrada</p>
                   <a href={author.avatar_url} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-1 text-xs font-medium" style={{ color: BLUE }}>
                     <ExternalLink className="w-3.5 h-3.5" /> Abrir imagem
                   </a>
                 </>
               ) : (
-                <div className="flex flex-col items-center gap-2" style={{ color: `${NAV}30` }}>
+                <div className="flex flex-col items-center gap-2" style={{ color: `${NAV}55` }}>
                   <ImageIcon className="w-10 h-10" />
-                  <p className="text-sm" style={{ color: `${NAV}50` }}>Nenhuma foto cadastrada</p>
+                  <p className="text-sm" style={{ color: `${NAV}75` }}>Nenhuma foto cadastrada</p>
                 </div>
               )}
             </div>
@@ -188,9 +188,9 @@ const CoauthorFolder = ({ author, navigate }) => {
                   </div>
                 </>
               ) : (
-                <div className="flex flex-col items-center gap-2" style={{ color: `${NAV}30` }}>
+                <div className="flex flex-col items-center gap-2" style={{ color: `${NAV}55` }}>
                   <FileText className="w-10 h-10" />
-                  <p className="text-sm" style={{ color: `${NAV}50` }}>Nenhum contrato cadastrado</p>
+                  <p className="text-sm" style={{ color: `${NAV}75` }}>Nenhum contrato cadastrado</p>
                 </div>
               )}
             </div>
@@ -266,7 +266,7 @@ const AdminCoauthorsPage = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Coautores</h1>
-          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Pastas individuais com capítulos, foto e contrato de cada autor.</p>
+          <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Pastas individuais com capítulos, foto e contrato de cada autor.</p>
         </div>
         <span
           className="text-sm font-semibold px-4 py-2 rounded-xl"
@@ -282,7 +282,7 @@ const AdminCoauthorsPage = () => {
         style={{ border: `1px solid ${NAV}0F`, boxShadow: `0 1px 4px ${NAV}08` }}
       >
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
           <Input
             placeholder="Buscar por nome, email ou coordenador..."
             className="pl-9 text-sm"
@@ -312,7 +312,7 @@ const AdminCoauthorsPage = () => {
         <div className="flex flex-col items-center justify-center py-20 rounded-2xl border-2 border-dashed"
           style={{ borderColor: `${NAV}12`, background: 'white' }}>
           <Users2 className="h-12 w-12 mb-3" style={{ color: `${NAV}25` }} />
-          <p className="font-medium" style={{ color: `${NAV}60` }}>Nenhum coautor encontrado.</p>
+          <p className="font-medium" style={{ color: `${NAV}85` }}>Nenhum coautor encontrado.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">

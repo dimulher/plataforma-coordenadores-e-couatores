@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -81,7 +81,7 @@ const CoordinatorLinkPage = () => {
       <div className="space-y-6 max-w-3xl pb-12">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Link de Captação</h1>
-          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Compartilhe seu link exclusivo para atrair novos autores.</p>
+          <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Compartilhe seu link exclusivo para atrair novos autores.</p>
         </div>
 
         {link && (
@@ -92,7 +92,7 @@ const CoordinatorLinkPage = () => {
                 <span className="text-xl">{link.flag}</span>
                 <h3 className="font-bold text-lg" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{link.label}</h3>
               </div>
-              <p className="text-sm mb-4" style={{ color: `${NAV}60` }}>{link.description}</p>
+              <p className="text-sm mb-4" style={{ color: `${NAV}85` }}>{link.description}</p>
               <div className="flex gap-2">
                 <input
                   readOnly
@@ -118,7 +118,7 @@ const CoordinatorLinkPage = () => {
         <BrandCard>
           <div className="px-6 py-4 flex items-start gap-3">
             <LinkIcon className="h-4 w-4 mt-0.5 shrink-0" style={{ color: BLUE }} />
-            <p className="text-sm leading-relaxed" style={{ color: `${NAV}60` }}>
+            <p className="text-sm leading-relaxed" style={{ color: `${NAV}85` }}>
               Seu link é exclusivo e direciona o lead para a página do seu projeto. Os cadastros são automaticamente vinculados ao seu perfil.
             </p>
           </div>

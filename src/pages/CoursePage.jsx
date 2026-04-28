@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
@@ -63,7 +63,7 @@ const CoursePage = () => {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Aulas do Curso</h1>
-          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Assista às aulas e materiais de aprendizado</p>
+          <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Assista às aulas e materiais de aprendizado</p>
         </div>
 
         {loading ? (

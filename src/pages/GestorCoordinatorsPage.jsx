@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -92,7 +92,7 @@ const GestorCoordinatorsPage = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Meus Coordenadores</h1>
-          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Gerencie e acompanhe o desempenho dos seus coordenadores.</p>
+          <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Gerencie e acompanhe o desempenho dos seus coordenadores.</p>
         </div>
         <BtnPrimary onClick={() => setInviteOpen(v => !v)} icon={UserSquare2} label="Convidar Coordenador" />
       </div>
@@ -106,12 +106,12 @@ const GestorCoordinatorsPage = () => {
               Compartilhe o link do projeto com o novo coordenador. Ele será vinculado ao seu time ao se cadastrar.
             </p>
             {projects.length === 0
-              ? <p className="text-sm italic text-center py-4" style={{ color: `${NAV}40` }}>Nenhum projeto ativo encontrado.</p>
+              ? <p className="text-sm italic text-center py-4" style={{ color: `${NAV}70` }}>Nenhum projeto ativo encontrado.</p>
               : projects.map(proj => {
                   const link = `${window.location.origin}/register/coordinator/${user?.id}/${proj.id}`;
                   return (
                     <div key={proj.id} className="space-y-1.5">
-                      <p className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}60` }}>{proj.name}</p>
+                      <p className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}85` }}>{proj.name}</p>
                       <div className="flex items-center gap-2">
                         <input
                           value={link} readOnly
@@ -143,7 +143,7 @@ const GestorCoordinatorsPage = () => {
       <BrandCard>
         <div className="px-6 py-4" style={{ borderBottom: `1px solid ${NAV}08` }}>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
             <Input
               placeholder="Buscar por nome ou email..."
               className="pl-9 bg-white text-sm"
@@ -159,7 +159,7 @@ const GestorCoordinatorsPage = () => {
             <thead>
               <tr style={{ background: `${NAV}04` }}>
                 {['Coordenador', 'Projeto', 'Leads', 'Coautores'].map(h => (
-                  <th key={h} className="px-6 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>{h}</th>
+                  <th key={h} className="px-6 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -183,7 +183,7 @@ const GestorCoordinatorsPage = () => {
                       </Avatar>
                       <div>
                         <p className="font-semibold text-sm" style={{ color: NAV }}>{coord.name}</p>
-                        <p className="text-xs" style={{ color: `${NAV}50` }}>{coord.email}</p>
+                        <p className="text-xs" style={{ color: `${NAV}75` }}>{coord.email}</p>
                       </div>
                     </div>
                   </td>
@@ -198,7 +198,7 @@ const GestorCoordinatorsPage = () => {
                           {coord.project_name}
                         </span>
                       );
-                    })() : <span className="text-xs italic" style={{ color: `${NAV}30` }}>—</span>}
+                    })() : <span className="text-xs italic" style={{ color: `${NAV}55` }}>—</span>}
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-sm font-bold px-2.5 py-1 rounded-full" style={{ background: `${BLUE}10`, color: BLUE }}>{coord.leads}</span>
@@ -212,7 +212,7 @@ const GestorCoordinatorsPage = () => {
                 <tr>
                   <td colSpan={4} className="px-6 py-16 text-center">
                     <Users className="h-12 w-12 mx-auto mb-3" style={{ color: `${NAV}20` }} />
-                    <p className="font-medium" style={{ color: `${NAV}50` }}>Nenhum coordenador encontrado.</p>
+                    <p className="font-medium" style={{ color: `${NAV}75` }}>Nenhum coordenador encontrado.</p>
                   </td>
                 </tr>
               )}

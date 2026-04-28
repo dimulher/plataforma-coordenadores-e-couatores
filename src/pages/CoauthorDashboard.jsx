@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
@@ -82,9 +82,9 @@ const CoauthorDashboard = () => {
                         <span className="text-3xl font-bold tracking-tight" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
                           {(chapter.word_count || 0).toLocaleString('pt-BR')}
                         </span>
-                        <span className="ml-2 font-medium text-sm" style={{ color: `${NAV}60` }}>palavras escritas</span>
+                        <span className="ml-2 font-medium text-sm" style={{ color: `${NAV}85` }}>palavras escritas</span>
                       </div>
-                      <span className="text-sm font-medium" style={{ color: `${NAV}60` }}>
+                      <span className="text-sm font-medium" style={{ color: `${NAV}85` }}>
                         Meta: {(chapter.word_goal || 0).toLocaleString('pt-BR')}
                       </span>
                     </div>
@@ -102,7 +102,7 @@ const CoauthorDashboard = () => {
                   </div>
                 </div>
               ) : (
-                <p className="py-4 text-sm" style={{ color: `${NAV}60` }}>Nenhum capítulo atribuído.</p>
+                <p className="py-4 text-sm" style={{ color: `${NAV}85` }}>Nenhum capítulo atribuído.</p>
               )}
             </div>
           </BrandCard>
@@ -153,7 +153,7 @@ const CoauthorDashboard = () => {
                   </div>
                   <div>
                     <p className="font-bold text-sm" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Contrato de Coautoria</p>
-                    <p className="text-xs mt-0.5" style={{ color: `${NAV}60` }}>
+                    <p className="text-xs mt-0.5" style={{ color: `${NAV}85` }}>
                       {user?.contract_status === 'ASSINADO'
                         ? `Assinado em ${new Date(user.contract_signed_at).toLocaleDateString('pt-BR')}`
                         : 'O contrato foi enviado para sua assinatura.'}
@@ -187,7 +187,7 @@ const CoauthorDashboard = () => {
                 className="text-center py-8 rounded-xl border-2 border-dashed"
                 style={{ borderColor: `${NAV}12` }}
               >
-                <p className="text-sm mb-3" style={{ color: `${NAV}60` }}>
+                <p className="text-sm mb-3" style={{ color: `${NAV}85` }}>
                   Fique atento aos comunicados da editora aqui.
                 </p>
                 <button
@@ -229,7 +229,7 @@ const CoauthorDashboard = () => {
                 </div>
               ) : (
                 <div className="text-center py-8 rounded-xl border-2 border-dashed" style={{ borderColor: `${NAV}12` }}>
-                  <p className="text-sm" style={{ color: `${NAV}50` }}>Nenhuma mentoria agendada no momento.</p>
+                  <p className="text-sm" style={{ color: `${NAV}75` }}>Nenhuma mentoria agendada no momento.</p>
                 </div>
               )}
             </div>

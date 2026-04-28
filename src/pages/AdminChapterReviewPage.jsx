@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -33,7 +33,7 @@ const AdminChapterReviewPage = () => {
   }, [chapter?.author_id]);
 
   if (!chapter) return (
-    <div className="p-8 text-center text-sm" style={{ color: `${NAV}50` }}>Carregando capítulo para revisão...</div>
+    <div className="p-8 text-center text-sm" style={{ color: `${NAV}75` }}>Carregando capítulo para revisão...</div>
   );
 
   const closeModal = () => {
@@ -156,13 +156,13 @@ const AdminChapterReviewPage = () => {
           </h3>
           <div className="space-y-4">
             {(!chapter.reviewer_notes || chapter.reviewer_notes.length === 0) ? (
-              <p className="text-sm italic" style={{ color: `${NAV}40` }}>Nenhuma nota registrada.</p>
+              <p className="text-sm italic" style={{ color: `${NAV}70` }}>Nenhuma nota registrada.</p>
             ) : (
               chapter.reviewer_notes.map((n, i) => (
                 <div key={i} className="rounded-xl p-4" style={{ background: `${NAV}04`, border: `1px solid ${NAV}0C` }}>
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-semibold text-sm" style={{ color: NAV }}>{n.author_name || n.author || 'Revisor'}</span>
-                    <span className="text-xs" style={{ color: `${NAV}50` }}>
+                    <span className="text-xs" style={{ color: `${NAV}75` }}>
                       {new Date(n.created_at || n.date).toLocaleDateString('pt-BR')}
                     </span>
                   </div>
@@ -193,7 +193,7 @@ const AdminChapterReviewPage = () => {
             {modalType === 'APPROVE' && (
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: `${NAV}80` }}>
-                  Link do arquivo corrigido <span style={{ color: `${NAV}45` }}>(opcional)</span>
+                  Link do arquivo corrigido <span style={{ color: `${NAV}72` }}>(opcional)</span>
                 </label>
                 <Input
                   placeholder="https://docs.google.com/... ou link do arquivo"
@@ -208,7 +208,7 @@ const AdminChapterReviewPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: `${NAV}80` }}>
                 {modalType === 'APPROVE' ? 'Mensagem ao coautor' : 'Comentários'}
-                {' '}<span style={{ color: `${NAV}45` }}>(opcional)</span>
+                {' '}<span style={{ color: `${NAV}72` }}>(opcional)</span>
               </label>
               <Textarea
                 placeholder="Insira suas observações aqui..."

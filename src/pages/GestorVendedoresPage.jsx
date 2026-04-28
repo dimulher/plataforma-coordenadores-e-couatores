@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -105,7 +105,7 @@ const GestorVendedoresPage = () => {
 
       <div>
         <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Vendedores</h1>
-        <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>
+        <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>
           Atribua vendedores aos seus Líderes de Coordenação. Cada vendedor verá todos os leads dos coordenadores do líder atribuído.
         </p>
       </div>
@@ -129,7 +129,7 @@ const GestorVendedoresPage = () => {
                 {vendedores.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
               </select>
               {vendedores.length === 0 && (
-                <p className="text-xs" style={{ color: `${NAV}45` }}>Nenhum vendedor cadastrado ainda.</p>
+                <p className="text-xs" style={{ color: `${NAV}72` }}>Nenhum vendedor cadastrado ainda.</p>
               )}
             </div>
 
@@ -146,7 +146,7 @@ const GestorVendedoresPage = () => {
                 {liders.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
               </select>
               {liders.length === 0 && (
-                <p className="text-xs" style={{ color: `${NAV}45` }}>Nenhum líder vinculado ao seu time.</p>
+                <p className="text-xs" style={{ color: `${NAV}72` }}>Nenhum líder vinculado ao seu time.</p>
               )}
             </div>
 
@@ -173,7 +173,7 @@ const GestorVendedoresPage = () => {
         <BrandCardHeader icon={Users2} iconColor="#F97316" accentColor="#F97316" title="Atribuições Ativas" />
         <div className="px-6 pb-6">
           {Object.keys(byLider).length === 0 ? (
-            <p className="text-sm italic text-center py-8" style={{ color: `${NAV}40` }}>
+            <p className="text-sm italic text-center py-8" style={{ color: `${NAV}70` }}>
               Nenhuma atribuição configurada. Use o formulário acima para vincular vendedores aos seus líderes.
             </p>
           ) : (
@@ -208,7 +208,7 @@ const GestorVendedoresPage = () => {
                           </div>
                           <div>
                             <p className="text-sm font-semibold" style={{ color: NAV }}>{a.vendedor_name}</p>
-                            <p className="text-xs" style={{ color: `${NAV}50` }}>{a.vendedor_email}</p>
+                            <p className="text-xs" style={{ color: `${NAV}75` }}>{a.vendedor_email}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -221,10 +221,10 @@ const GestorVendedoresPage = () => {
                           <button
                             onClick={() => handleRemove(a.assignment_id)}
                             className="p-1.5 rounded-lg transition-colors"
-                            style={{ color: `${NAV}30` }}
+                            style={{ color: `${NAV}55` }}
                             title="Remover atribuição"
                             onMouseEnter={e => { e.currentTarget.style.color = RED; e.currentTarget.style.background = `${RED}10`; }}
-                            onMouseLeave={e => { e.currentTarget.style.color = `${NAV}30`; e.currentTarget.style.background = 'transparent'; }}
+                            onMouseLeave={e => { e.currentTarget.style.color = `${NAV}55`; e.currentTarget.style.background = 'transparent'; }}
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -249,12 +249,12 @@ const GestorVendedoresPage = () => {
             className="px-5 py-4 rounded-2xl flex items-start gap-3"
             style={{ background: `${NAV}04`, border: `1px solid ${NAV}0C` }}
           >
-            <ShoppingCart className="h-4 w-4 mt-0.5 shrink-0" style={{ color: `${NAV}50` }} />
+            <ShoppingCart className="h-4 w-4 mt-0.5 shrink-0" style={{ color: `${NAV}75` }} />
             <div>
               <p className="text-sm font-semibold" style={{ color: NAV }}>
                 {semAtribuicao.length} vendedor{semAtribuicao.length > 1 ? 'es' : ''} sem atribuição
               </p>
-              <p className="text-xs mt-0.5" style={{ color: `${NAV}55` }}>
+              <p className="text-xs mt-0.5" style={{ color: `${NAV}80` }}>
                 {semAtribuicao.map(v => v.name).join(', ')}
               </p>
             </div>

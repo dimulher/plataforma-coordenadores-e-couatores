@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -80,7 +80,7 @@ const AdminCoordinatorsPage = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Coordenadores</h1>
-          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Acompanhe a equipe e a produção dos coautores de cada coordenador.</p>
+          <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Acompanhe a equipe e a produção dos coautores de cada coordenador.</p>
         </div>
         <span className="text-sm font-semibold px-4 py-2 rounded-xl" style={{ background: `${BLUE}12`, color: BLUE, border: `1px solid ${BLUE}25` }}>
           {coordinators.length} cadastrado{coordinators.length !== 1 ? 's' : ''}
@@ -90,7 +90,7 @@ const AdminCoordinatorsPage = () => {
       {/* Filtros */}
       <div className="flex flex-col md:flex-row gap-3 p-4 rounded-2xl bg-white" style={{ border: `1px solid ${NAV}0F`, boxShadow: `0 1px 4px ${NAV}08` }}>
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
           <Input
             placeholder="Buscar por nome ou email..."
             className="pl-9 text-sm"
@@ -124,7 +124,7 @@ const AdminCoordinatorsPage = () => {
                 <tr style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}0C` }}>
                   {['Coordenador', 'Líder', 'Projeto', 'Coautores', 'Em Andamento', 'Entregues'].map((h, i) => (
                     <th key={h} className={`px-6 py-3 text-xs font-bold uppercase tracking-wider ${i >= 3 ? 'text-center' : 'text-left'}`}
-                      style={{ color: `${NAV}50` }}>{h}</th>
+                      style={{ color: `${NAV}75` }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -149,7 +149,7 @@ const AdminCoordinatorsPage = () => {
                         }
                         <div>
                           <p className="font-semibold" style={{ color: NAV }}>{coord.name}</p>
-                          <p className="text-xs" style={{ color: `${NAV}50` }}>{coord.email}</p>
+                          <p className="text-xs" style={{ color: `${NAV}75` }}>{coord.email}</p>
                         </div>
                       </div>
                     </td>
@@ -166,7 +166,7 @@ const AdminCoordinatorsPage = () => {
                         >
                           {coord.project_name}
                         </span>
-                      ) : <span style={{ color: `${NAV}30` }}>—</span>}
+                      ) : <span style={{ color: `${NAV}55` }}>—</span>}
                     </td>
                     <td className="px-6 py-4 text-center font-medium" style={{ color: NAV }}>{coord.authorsCount}</td>
                     <td className="px-6 py-4 text-center font-bold" style={{ color: BLUE }}>{coord.inProgress}</td>
@@ -177,7 +177,7 @@ const AdminCoordinatorsPage = () => {
                   <tr>
                     <td colSpan={6} className="px-6 py-16 text-center">
                       <UserSquare2 className="h-12 w-12 mx-auto mb-3" style={{ color: `${NAV}20` }} />
-                      <p style={{ color: `${NAV}50` }}>Nenhum coordenador encontrado.</p>
+                      <p style={{ color: `${NAV}75` }}>Nenhum coordenador encontrado.</p>
                     </td>
                   </tr>
                 )}

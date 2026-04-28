@@ -25,6 +25,7 @@ import AdminChaptersPage from '@/pages/AdminChaptersPage';
 import AdminProjectDetailPage from '@/pages/AdminProjectDetailPage';
 import AdminSiteRequestsPage from '@/pages/AdminSiteRequestsPage';
 import AdminAnnouncementsPage from '@/pages/AdminAnnouncementsPage';
+import AdminReportsPage from '@/pages/AdminReportsPage';
 import CoursePage from '@/pages/CoursePage';
 import AnnouncementsPage from '@/pages/AnnouncementsPage';
 import MentorshipPage from '@/pages/MentorshipPage';
@@ -109,6 +110,7 @@ function AppRoutes() {
         <Route path="admin/projects/:projectId" element={<ProtectedRoute requiredRoles={['ADMIN']}><AdminProjectDetailPage /></ProtectedRoute>} />
         <Route path="admin/site-requests" element={<ProtectedRoute requiredRoles={['ADMIN']}><AdminSiteRequestsPage /></ProtectedRoute>} />
         <Route path="admin/announcements" element={<ProtectedRoute requiredRoles={['ADMIN']}><AdminAnnouncementsPage /></ProtectedRoute>} />
+        <Route path="admin/reports" element={<ProtectedRoute requiredRoles={['ADMIN']}><AdminReportsPage /></ProtectedRoute>} />
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="chapters" element={<ChaptersPage />} />
         <Route path="chapters/:chapterId/edit" element={<ProtectedRoute requiredRoles={['COAUTOR', 'ADMIN']}><ChapterEditorPage /></ProtectedRoute>} />

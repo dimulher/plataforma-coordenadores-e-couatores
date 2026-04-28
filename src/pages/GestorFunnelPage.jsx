@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -14,7 +14,7 @@ import { Search, ArrowLeft, Users, Phone, Mail, FileText, UserCheck } from 'luci
 import { NAV, BLUE, RED } from '@/lib/brand';
 
 const COLUMNS = [
-  { id: 'INDICADO',       title: 'Indicado',      color: `${NAV}60` },
+  { id: 'INDICADO',       title: 'Indicado',      color: `${NAV}85` },
   { id: 'EM_ATENDIMENTO', title: 'Em Atend.',      color: BLUE },
   { id: 'EM_AVALIACAO',   title: 'Em Avaliação',   color: '#F59E0B' },
   { id: 'APROVADO',       title: 'Aprovado',       color: '#10B981' },
@@ -158,12 +158,12 @@ const GestorFunnelPage = () => {
                 </div>
                 <div>
                   <h1 className="text-xl font-bold leading-tight" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{selectedCoord.name}</h1>
-                  <p className="text-xs" style={{ color: `${NAV}45` }}>Clique em um lead para adicionar relatório · Arraste para mover</p>
+                  <p className="text-xs" style={{ color: `${NAV}72` }}>Clique em um lead para adicionar relatório · Arraste para mover</p>
                 </div>
               </div>
             </div>
             <div className="relative w-full md:w-56">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
               <Input
                 placeholder="Buscar lead..."
                 value={searchTerm}
@@ -209,7 +209,7 @@ const GestorFunnelPage = () => {
                           onMouseLeave={e => { e.currentTarget.style.borderColor = lead.vendedor_id ? `${BLUE}35` : `${NAV}0C`; }}
                         >
                           <p className="text-sm font-semibold truncate" style={{ color: NAV }}>{lead.name}</p>
-                          {lead.phone && <p className="text-xs mt-0.5" style={{ color: `${NAV}55` }}>{lead.phone}</p>}
+                          {lead.phone && <p className="text-xs mt-0.5" style={{ color: `${NAV}80` }}>{lead.phone}</p>}
                           {lead.vendedor_id && (
                             <div className="mt-1.5 flex items-center gap-1">
                               <UserCheck className="w-3 h-3 shrink-0" style={{ color: BLUE }} />
@@ -218,14 +218,14 @@ const GestorFunnelPage = () => {
                           )}
                           {lead.notes && (
                             <div className="mt-1 flex items-center gap-1">
-                              <FileText className="w-3 h-3 shrink-0" style={{ color: `${NAV}40` }} />
-                              <p className="text-[11px] truncate" style={{ color: `${NAV}50` }}>{lead.notes}</p>
+                              <FileText className="w-3 h-3 shrink-0" style={{ color: `${NAV}70` }} />
+                              <p className="text-[11px] truncate" style={{ color: `${NAV}75` }}>{lead.notes}</p>
                             </div>
                           )}
                         </div>
                       ))}
                       {colLeads.length === 0 && (
-                        <div className="h-12 flex items-center justify-center text-xs rounded-xl border-2 border-dashed" style={{ color: `${NAV}30`, borderColor: `${col.color}20` }}>
+                        <div className="h-12 flex items-center justify-center text-xs rounded-xl border-2 border-dashed" style={{ color: `${NAV}55`, borderColor: `${col.color}20` }}>
                           Soltar aqui
                         </div>
                       )}
@@ -299,7 +299,7 @@ const GestorFunnelPage = () => {
                     onBlur={isLider() ? undefined : e => { e.target.style.borderColor = `${NAV}20`; e.target.style.boxShadow = 'none'; }}
                   />
                   {isLider() && (
-                    <p className="text-xs mt-1.5" style={{ color: `${NAV}40` }}>
+                    <p className="text-xs mt-1.5" style={{ color: `${NAV}70` }}>
                       Somente o vendedor atribuído pode editar o relatório.
                     </p>
                   )}
@@ -339,10 +339,10 @@ const GestorFunnelPage = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Relatório de Time</h1>
-            <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Selecione um coordenador para ver o funil de leads.</p>
+            <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Selecione um coordenador para ver o funil de leads.</p>
           </div>
           <div className="relative w-full md:w-56">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
             <Input
               placeholder="Buscar coordenador..."
               value={searchTerm}
@@ -354,7 +354,7 @@ const GestorFunnelPage = () => {
         </div>
 
         {filteredCoords.length === 0 && (
-          <div className="text-center py-20" style={{ color: `${NAV}35` }}>Nenhum coordenador encontrado.</div>
+          <div className="text-center py-20" style={{ color: `${NAV}65` }}>Nenhum coordenador encontrado.</div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -381,7 +381,7 @@ const GestorFunnelPage = () => {
                   </div>
                   <div>
                     <p className="font-semibold" style={{ color: NAV }}>{coord.name}</p>
-                    <p className="text-xs flex items-center gap-1" style={{ color: `${NAV}45` }}>
+                    <p className="text-xs flex items-center gap-1" style={{ color: `${NAV}72` }}>
                       <Users className="w-3 h-3" /> {total} lead{total !== 1 ? 's' : ''}
                     </p>
                   </div>
@@ -390,7 +390,7 @@ const GestorFunnelPage = () => {
                   {byStatus.map(col => (
                     <div key={col.id} className="rounded-xl px-2 py-1.5 text-center" style={{ background: `${col.color}08` }}>
                       <p className="text-base font-bold" style={{ color: col.color }}>{col.count}</p>
-                      <p className="text-[10px] leading-tight" style={{ color: `${NAV}50` }}>{col.title}</p>
+                      <p className="text-[10px] leading-tight" style={{ color: `${NAV}75` }}>{col.title}</p>
                     </div>
                   ))}
                 </div>

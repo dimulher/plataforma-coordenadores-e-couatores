@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
@@ -82,7 +82,7 @@ const CoauthorProjectsPage = () => {
         </div>
         <p className="text-sm font-medium mb-3 truncate" style={{ color: NAV }}>{chapter.title || 'Sem título'}</p>
         <div className="mb-4">
-          <div className="flex justify-between text-xs mb-1" style={{ color: `${NAV}60` }}>
+          <div className="flex justify-between text-xs mb-1" style={{ color: `${NAV}85` }}>
             <span>Progresso da escrita</span>
             <span className="font-semibold">{wordCount.toLocaleString()} / {wordGoal.toLocaleString()} ({progress}%)</span>
           </div>
@@ -104,7 +104,7 @@ const CoauthorProjectsPage = () => {
 
       <div>
         <h1 className="text-3xl font-bold mb-1" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Meu Projeto</h1>
-        <p className="text-sm" style={{ color: `${NAV}60` }}>Acompanhe o projeto literário do qual você faz parte.</p>
+        <p className="text-sm" style={{ color: `${NAV}85` }}>Acompanhe o projeto literário do qual você faz parte.</p>
       </div>
 
       {projects.length === 0 && myChapter && (
@@ -113,7 +113,7 @@ const CoauthorProjectsPage = () => {
             <div className="h-1.5 w-full rounded-t-2xl" style={{ background: `linear-gradient(90deg, ${BLUE}, ${RED})` }} />
             <div className="p-6">
               <h3 className="text-lg font-bold mb-1" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Novos Autores do Brasil</h3>
-              <p className="text-sm" style={{ color: `${NAV}60` }}>Projeto de coautoria</p>
+              <p className="text-sm" style={{ color: `${NAV}85` }}>Projeto de coautoria</p>
               {renderChapterStatus(myChapter)}
             </div>
           </BrandCard>
@@ -134,7 +134,7 @@ const CoauthorProjectsPage = () => {
                   <span className="text-xs font-bold px-2.5 py-1 rounded-full"
                     style={project.status === 'ativo'
                       ? { background: 'rgba(16,185,129,0.10)', color: '#10B981' }
-                      : { background: `${NAV}08`, color: `${NAV}60` }
+                      : { background: `${NAV}08`, color: `${NAV}85` }
                     }>
                     {project.status === 'ativo' ? 'Ativo' : 'Inativo'}
                   </span>
@@ -146,22 +146,22 @@ const CoauthorProjectsPage = () => {
 
                 <div className="space-y-3 mb-4 flex-1">
                   <div className="flex items-center gap-2 text-sm" style={{ color: `${NAV}70` }}>
-                    <Calendar className="w-4 h-4 shrink-0" style={{ color: `${NAV}40` }} />
+                    <Calendar className="w-4 h-4 shrink-0" style={{ color: `${NAV}70` }} />
                     <span><strong>Início:</strong> {project.start_date ? new Date(project.start_date).toLocaleDateString('pt-BR') : 'N/A'}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm" style={{ color: `${NAV}70` }}>
-                    <Calendar className="w-4 h-4 shrink-0" style={{ color: `${NAV}40` }} />
+                    <Calendar className="w-4 h-4 shrink-0" style={{ color: `${NAV}70` }} />
                     <span><strong>Término:</strong> {project.end_date ? new Date(project.end_date).toLocaleDateString('pt-BR') : 'N/A'}</span>
                   </div>
                   <div className="flex items-start gap-2 text-sm" style={{ color: `${NAV}70` }}>
-                    <Users className="w-4 h-4 shrink-0 mt-0.5" style={{ color: `${NAV}40` }} />
+                    <Users className="w-4 h-4 shrink-0 mt-0.5" style={{ color: `${NAV}70` }} />
                     <p><strong>Coordenador</strong> — {coordinatorName}</p>
                   </div>
                 </div>
 
                 <div className="pt-4 mt-auto" style={{ borderTop: `1px solid ${NAV}0A` }}>
                   <div className="flex justify-between text-xs font-semibold mb-2">
-                    <span style={{ color: `${NAV}60` }}>Progresso do Projeto</span>
+                    <span style={{ color: `${NAV}85` }}>Progresso do Projeto</span>
                     <span style={{ color: BLUE }}>{project.progress || 0}%</span>
                   </div>
                   <div className="h-1.5 rounded-full overflow-hidden mb-4" style={{ background: `${NAV}10` }}>
@@ -178,7 +178,7 @@ const CoauthorProjectsPage = () => {
           <div className="col-span-full py-12 text-center rounded-2xl border-2 border-dashed"
             style={{ borderColor: `${NAV}12`, background: 'white' }}>
             <BookOpen className="w-12 h-12 mx-auto mb-4" style={{ color: `${NAV}25` }} />
-            <p className="font-medium" style={{ color: `${NAV}60` }}>Você ainda não está participando de nenhum projeto.</p>
+            <p className="font-medium" style={{ color: `${NAV}85` }}>Você ainda não está participando de nenhum projeto.</p>
           </div>
         )}
       </div>

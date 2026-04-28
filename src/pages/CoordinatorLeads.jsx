@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useCoordinatorData } from '@/hooks/useCoordinatorData';
 import { useToast } from '@/hooks/use-toast';
@@ -7,7 +7,7 @@ import { Clock, Phone, Mail } from 'lucide-react';
 import { NAV, BLUE, RED } from '@/lib/brand';
 
 const COLUMNS = [
-  { id: 'NOVO',        title: 'Novo',          color: `${NAV}60` },
+  { id: 'NOVO',        title: 'Novo',          color: `${NAV}85` },
   { id: 'CONTATO',     title: 'Contato Feito', color: BLUE },
   { id: 'QUALIFICADO', title: 'Qualificado',   color: '#8B5CF6' },
   { id: 'PROPOSTA',    title: 'Proposta',      color: '#F59E0B' },
@@ -53,7 +53,7 @@ const CoordinatorLeads = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
           <div>
             <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Funil de Vendas</h1>
-            <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Arraste os cards para atualizar o status</p>
+            <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Arraste os cards para atualizar o status</p>
           </div>
           <div className="w-full md:w-64">
             <div className="relative">
@@ -105,7 +105,7 @@ const CoordinatorLeads = () => {
                             <h4 className="font-semibold text-sm truncate flex-1" style={{ color: NAV }}>{lead.name}</h4>
                             {urgent && <div className="h-2 w-2 rounded-full shrink-0 ml-2 mt-1" style={{ background: RED }} title="Parado há > 3 dias" />}
                           </div>
-                          <div className="space-y-1 text-xs" style={{ color: `${NAV}55` }}>
+                          <div className="space-y-1 text-xs" style={{ color: `${NAV}80` }}>
                             <div className="flex items-center gap-1.5 truncate">
                               <Mail className="h-3 w-3 shrink-0" />
                               <span className="truncate">{lead.email}</span>
@@ -115,7 +115,7 @@ const CoordinatorLeads = () => {
                               <span>{lead.phone}</span>
                             </div>
                           </div>
-                          <div className="mt-3 pt-2 flex justify-between items-center text-[10px]" style={{ borderTop: `1px solid ${NAV}08`, color: `${NAV}45` }}>
+                          <div className="mt-3 pt-2 flex justify-between items-center text-[10px]" style={{ borderTop: `1px solid ${NAV}08`, color: `${NAV}72` }}>
                             <div className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
                               {new Date(lead.created_at).toLocaleDateString('pt-BR')}
@@ -130,7 +130,7 @@ const CoordinatorLeads = () => {
                       );
                     })}
                     {colLeads.length === 0 && (
-                      <div className="h-20 flex items-center justify-center text-xs rounded-xl border-2 border-dashed" style={{ color: `${NAV}30`, borderColor: `${col.color}20` }}>
+                      <div className="h-20 flex items-center justify-center text-xs rounded-xl border-2 border-dashed" style={{ color: `${NAV}55`, borderColor: `${col.color}20` }}>
                         Arraste cards para cá
                       </div>
                     )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,7 +16,7 @@ import {
 import { NAV, BLUE, RED } from '@/lib/brand';
 
 const COLUMNS = [
-  { id: 'INDICADO',       title: 'Indicado',      color: `${NAV}60` },
+  { id: 'INDICADO',       title: 'Indicado',      color: `${NAV}85` },
   { id: 'EM_ATENDIMENTO', title: 'Em Atend.',      color: BLUE },
   { id: 'EM_AVALIACAO',   title: 'Em Avaliação',   color: '#F59E0B' },
   { id: 'APROVADO',       title: 'Aprovado',       color: '#10B981' },
@@ -177,7 +177,7 @@ const VendedorLeadsPage = () => {
                   <h1 className="text-xl font-bold leading-tight" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
                     {selectedCoord.coordinator_name}
                   </h1>
-                  <p className="text-xs" style={{ color: `${NAV}45` }}>
+                  <p className="text-xs" style={{ color: `${NAV}72` }}>
                     Líder: {selectedCoord.lider_name} · Atribua um lead para poder movê-lo
                   </p>
                 </div>
@@ -196,7 +196,7 @@ const VendedorLeadsPage = () => {
                     className="px-3 py-1.5 text-xs font-semibold transition-colors"
                     style={kanbanFilter === opt.key
                       ? { background: BLUE, color: '#fff' }
-                      : { background: 'white', color: `${NAV}60` }
+                      : { background: 'white', color: `${NAV}85` }
                     }
                   >
                     {opt.label}
@@ -205,7 +205,7 @@ const VendedorLeadsPage = () => {
               </div>
 
               <div className="relative w-44">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
                 <Input
                   placeholder="Buscar lead..."
                   value={searchTerm}
@@ -266,7 +266,7 @@ const VendedorLeadsPage = () => {
                           >
                             <p className="text-sm font-semibold truncate" style={{ color: NAV }}>{lead.name}</p>
                             {lead.phone && (
-                              <p className="text-xs mt-0.5" style={{ color: `${NAV}55` }}>{lead.phone}</p>
+                              <p className="text-xs mt-0.5" style={{ color: `${NAV}80` }}>{lead.phone}</p>
                             )}
 
                             {/* Vendedor badge / claim button */}
@@ -274,11 +274,11 @@ const VendedorLeadsPage = () => {
                               <div className="mt-1.5 flex items-center gap-1">
                                 <UserCheck
                                   className="w-3 h-3 shrink-0"
-                                  style={{ color: isMyLead ? BLUE : `${NAV}45` }}
+                                  style={{ color: isMyLead ? BLUE : `${NAV}72` }}
                                 />
                                 <p
                                   className="text-[11px] truncate font-medium"
-                                  style={{ color: isMyLead ? BLUE : `${NAV}45` }}
+                                  style={{ color: isMyLead ? BLUE : `${NAV}72` }}
                                 >
                                   {isMyLead ? 'Meu lead' : lead.vendedor_name}
                                 </p>
@@ -302,8 +302,8 @@ const VendedorLeadsPage = () => {
 
                             {lead.notes && (
                               <div className="mt-1.5 flex items-center gap-1">
-                                <FileText className="w-3 h-3 shrink-0" style={{ color: `${NAV}35` }} />
-                                <p className="text-[11px] truncate" style={{ color: `${NAV}50` }}>{lead.notes}</p>
+                                <FileText className="w-3 h-3 shrink-0" style={{ color: `${NAV}65` }} />
+                                <p className="text-[11px] truncate" style={{ color: `${NAV}75` }}>{lead.notes}</p>
                               </div>
                             )}
                           </div>
@@ -313,7 +313,7 @@ const VendedorLeadsPage = () => {
                       {colLeads.length === 0 && (
                         <div
                           className="h-12 flex items-center justify-center text-xs rounded-xl border-2 border-dashed"
-                          style={{ color: `${NAV}30`, borderColor: `${col.color}20` }}
+                          style={{ color: `${NAV}55`, borderColor: `${col.color}20` }}
                         >
                           Soltar aqui
                         </div>
@@ -394,7 +394,7 @@ const VendedorLeadsPage = () => {
                   readOnly={!!(selectedLead.vendedor_id && selectedLead.vendedor_id !== user.id)}
                 />
                 {selectedLead.vendedor_id && selectedLead.vendedor_id !== user.id && (
-                  <p className="text-xs text-center" style={{ color: `${NAV}45` }}>
+                  <p className="text-xs text-center" style={{ color: `${NAV}72` }}>
                     Somente visualização — lead atribuído a outro vendedor
                   </p>
                 )}
@@ -429,7 +429,7 @@ const VendedorLeadsPage = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Meus Leads</h1>
-            <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>
+            <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>
               Selecione um coordenador para ver o funil de leads.
             </p>
           </div>
@@ -440,7 +440,7 @@ const VendedorLeadsPage = () => {
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
               style={filterMyLeads
                 ? { background: BLUE, color: '#fff' }
-                : { background: 'white', color: `${NAV}60`, border: `1px solid ${NAV}15` }
+                : { background: 'white', color: `${NAV}85`, border: `1px solid ${NAV}15` }
               }
             >
               <Filter className="w-3.5 h-3.5" />
@@ -448,7 +448,7 @@ const VendedorLeadsPage = () => {
             </button>
 
             <div className="relative w-44">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
               <Input
                 placeholder="Buscar coordenador..."
                 value={searchTerm}
@@ -461,7 +461,7 @@ const VendedorLeadsPage = () => {
         </div>
 
         {filteredCoords.length === 0 && (
-          <div className="text-center py-20" style={{ color: `${NAV}35` }}>
+          <div className="text-center py-20" style={{ color: `${NAV}65` }}>
             <Users className="h-12 w-12 mx-auto mb-3 opacity-30" />
             <p className="font-medium">Nenhum lead atribuído ainda.</p>
             <p className="text-sm mt-1 opacity-70">Aguarde seu gestor vincular líderes à sua conta.</p>
@@ -497,7 +497,7 @@ const VendedorLeadsPage = () => {
                     <p className="font-semibold truncate" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>
                       {group.coordinator_name}
                     </p>
-                    <p className="text-xs flex items-center gap-1.5" style={{ color: `${NAV}45` }}>
+                    <p className="text-xs flex items-center gap-1.5" style={{ color: `${NAV}72` }}>
                       <Users className="w-3 h-3" />
                       {total} lead{total !== 1 ? 's' : ''}
                       {myLeads > 0 && (
@@ -509,7 +509,7 @@ const VendedorLeadsPage = () => {
                         </span>
                       )}
                     </p>
-                    <p className="text-[10px] mt-0.5 truncate" style={{ color: `${NAV}35` }}>
+                    <p className="text-[10px] mt-0.5 truncate" style={{ color: `${NAV}65` }}>
                       Líder: {group.lider_name}
                     </p>
                   </div>
@@ -523,7 +523,7 @@ const VendedorLeadsPage = () => {
                       style={{ background: `${col.color}08` }}
                     >
                       <p className="text-base font-bold" style={{ color: col.color }}>{col.count}</p>
-                      <p className="text-[10px] leading-tight" style={{ color: `${NAV}50` }}>{col.title}</p>
+                      <p className="text-[10px] leading-tight" style={{ color: `${NAV}75` }}>{col.title}</p>
                     </div>
                   ))}
                 </div>

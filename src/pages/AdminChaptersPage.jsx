@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
@@ -38,7 +38,7 @@ const STATUS_FILTER_MAP = {
 };
 
 const StatusBadge = ({ status }) => {
-  const cfg = STATUS_MAP[status] || { label: status || '—', text: `${NAV}60`, bg: `${NAV}08` };
+  const cfg = STATUS_MAP[status] || { label: status || '—', text: `${NAV}85`, bg: `${NAV}08` };
   return (
     <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ color: cfg.text, background: cfg.bg }}>
       {cfg.label}
@@ -111,7 +111,7 @@ const AdminChaptersPage = () => {
 
       <div>
         <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Produção Editorial</h1>
-        <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Visão completa de todos os capítulos e status de entrega.</p>
+        <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Visão completa de todos os capítulos e status de entrega.</p>
       </div>
 
       {/* Filtros */}
@@ -120,7 +120,7 @@ const AdminChaptersPage = () => {
         style={{ border: `1px solid ${NAV}0F`, boxShadow: `0 1px 4px ${NAV}08` }}
       >
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
           <Input
             placeholder="Buscar por capítulo ou coautor..."
             className="pl-9 text-sm"
@@ -166,7 +166,7 @@ const AdminChaptersPage = () => {
                 <tr style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}0C` }}>
                   {['Coautor', 'Capítulo', 'Coordenador', 'Status', 'Ações'].map((h, i) => (
                     <th key={h} className={`px-5 py-3 text-xs font-bold uppercase tracking-wider ${i >= 3 ? 'text-center' : 'text-left'}`}
-                      style={{ color: `${NAV}50` }}>{h}</th>
+                      style={{ color: `${NAV}75` }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -182,7 +182,7 @@ const AdminChaptersPage = () => {
                     <td className="px-5 py-4 font-semibold" style={{ color: NAV }}>{c.authorName}</td>
                     <td className="px-5 py-4">
                       <p className="font-medium max-w-[220px] truncate" style={{ color: NAV }}>{c.title}</p>
-                      <p className="text-[10px] uppercase mt-0.5 truncate max-w-[220px]" style={{ color: `${NAV}40` }}>{c.projectName}</p>
+                      <p className="text-[10px] uppercase mt-0.5 truncate max-w-[220px]" style={{ color: `${NAV}70` }}>{c.projectName}</p>
                     </td>
                     <td className="px-5 py-4 text-sm" style={{ color: `${NAV}70` }}>{c.coordName}</td>
                     <td className="px-5 py-4 text-center"><StatusBadge status={c.status} /></td>
@@ -204,7 +204,7 @@ const AdminChaptersPage = () => {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan="5" className="px-6 py-12 text-center text-sm" style={{ color: `${NAV}50` }}>
+                    <td colSpan="5" className="px-6 py-12 text-center text-sm" style={{ color: `${NAV}75` }}>
                       Nenhum capítulo encontrado.
                     </td>
                   </tr>

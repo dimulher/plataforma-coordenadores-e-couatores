@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
 import { Search, FileText, Loader2, ChevronDown, ChevronUp, Users2 } from 'lucide-react';
@@ -18,7 +18,7 @@ const STATUS_LABELS = {
 };
 
 const STATUS_COLORS = {
-  RASCUNHO:                     `${NAV}40`,
+  RASCUNHO:                     `${NAV}70`,
   EM_EDICAO:                    BLUE,
   AJUSTES_SOLICITADOS:          '#F59E0B',
   ENVIADO_PARA_REVISAO:         '#8B5CF6',
@@ -106,7 +106,7 @@ const CSCoauthorsPage = () => {
 
       <div>
         <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Coautores</h1>
-        <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Visão geral de todos os coautores e o status dos seus capítulos</p>
+        <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Visão geral de todos os coautores e o status dos seus capítulos</p>
       </div>
 
       <BrandCard>
@@ -115,7 +115,7 @@ const CSCoauthorsPage = () => {
         {/* Filtros */}
         <div className="px-5 pb-4 flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}40` }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: `${NAV}70` }} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -152,7 +152,7 @@ const CSCoauthorsPage = () => {
                   <th
                     key={col.field}
                     className="text-left pb-3 pr-4 font-semibold cursor-pointer select-none"
-                    style={{ color: `${NAV}60`, fontFamily: 'Poppins, sans-serif', fontSize: 11 }}
+                    style={{ color: `${NAV}85`, fontFamily: 'Poppins, sans-serif', fontSize: 11 }}
                     onClick={() => toggleSort(col.field)}
                   >
                     {col.label}<SortIcon field={col.field} />
@@ -162,7 +162,7 @@ const CSCoauthorsPage = () => {
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={5} className="py-8 text-center text-sm italic" style={{ color: `${NAV}40` }}>Nenhum coautor encontrado.</td></tr>
+                <tr><td colSpan={5} className="py-8 text-center text-sm italic" style={{ color: `${NAV}70` }}>Nenhum coautor encontrado.</td></tr>
               ) : filtered.map(r => {
                 const isLate = r.deadline && new Date(r.deadline) < new Date() && r.status && !['APROVADO','PRODUCAO','FINALIZADO','CONCLUIDO'].includes(r.status);
                 const pct = r.wordGoal > 0 ? Math.min(100, Math.round((r.wordCount / r.wordGoal) * 100)) : 0;
@@ -176,7 +176,7 @@ const CSCoauthorsPage = () => {
                   >
                     <td className="py-3 pr-4">
                       <p className="font-semibold" style={{ color: NAV }}>{r.name}</p>
-                      <p className="text-xs" style={{ color: `${NAV}50` }}>{r.email}</p>
+                      <p className="text-xs" style={{ color: `${NAV}75` }}>{r.email}</p>
                     </td>
                     <td className="py-3 pr-4">
                       {r.status ? (
@@ -190,7 +190,7 @@ const CSCoauthorsPage = () => {
                           {STATUS_LABELS[r.status] || r.status}
                         </span>
                       ) : (
-                        <span className="text-xs italic" style={{ color: `${NAV}35` }}>Sem capítulo</span>
+                        <span className="text-xs italic" style={{ color: `${NAV}65` }}>Sem capítulo</span>
                       )}
                     </td>
                     <td className="py-3 pr-4">
@@ -198,19 +198,19 @@ const CSCoauthorsPage = () => {
                         <div className="w-20 h-1.5 rounded-full overflow-hidden" style={{ background: `${NAV}10` }}>
                           <div className="h-full rounded-full" style={{ width: `${pct}%`, background: pct >= 100 ? '#10B981' : BLUE }} />
                         </div>
-                        <span className="text-xs" style={{ color: `${NAV}60` }}>{r.wordCount}/{r.wordGoal}</span>
+                        <span className="text-xs" style={{ color: `${NAV}85` }}>{r.wordCount}/{r.wordGoal}</span>
                       </div>
                     </td>
                     <td className="py-3 pr-4">
                       {r.deadline ? (
-                        <span className="text-xs" style={{ color: isLate ? RED : `${NAV}60` }}>
+                        <span className="text-xs" style={{ color: isLate ? RED : `${NAV}85` }}>
                           {new Date(r.deadline).toLocaleDateString('pt-BR')}
                           {isLate && ' ⚠'}
                         </span>
-                      ) : <span className="text-xs" style={{ color: `${NAV}35` }}>—</span>}
+                      ) : <span className="text-xs" style={{ color: `${NAV}65` }}>—</span>}
                     </td>
                     <td className="py-3">
-                      <span className="text-xs" style={{ color: `${NAV}50` }}>
+                      <span className="text-xs" style={{ color: `${NAV}75` }}>
                         {new Date(r.updatedAt).toLocaleDateString('pt-BR')}
                       </span>
                     </td>

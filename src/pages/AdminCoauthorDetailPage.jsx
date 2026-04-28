@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/contexts/AuthContext';
@@ -52,10 +52,10 @@ const AdminCoauthorDetailPage = () => {
       <Helmet><title>{author.name} — Novos Autores do Brasil</title></Helmet>
 
       {/* Breadcrumb */}
-      <div className="flex items-center text-sm gap-2" style={{ color: `${NAV}50` }}>
-        <Link to="/app/admin/coauthors" className="transition-colors" style={{ color: `${NAV}50` }}
+      <div className="flex items-center text-sm gap-2" style={{ color: `${NAV}75` }}>
+        <Link to="/app/admin/coauthors" className="transition-colors" style={{ color: `${NAV}75` }}
           onMouseEnter={e => { e.currentTarget.style.color = BLUE; }}
-          onMouseLeave={e => { e.currentTarget.style.color = `${NAV}50`; }}
+          onMouseLeave={e => { e.currentTarget.style.color = `${NAV}75`; }}
         >Coautores</Link>
         <ChevronRight className="w-4 h-4" />
         <span className="font-medium" style={{ color: NAV }}>{author.name}</span>
@@ -67,15 +67,15 @@ const AdminCoauthorDetailPage = () => {
           <button
             onClick={() => navigate('/app/admin/coauthors')}
             className="p-2 rounded-xl transition-colors"
-            style={{ color: `${NAV}50` }}
+            style={{ color: `${NAV}75` }}
             onMouseEnter={e => { e.currentTarget.style.background = `${NAV}08`; e.currentTarget.style.color = NAV; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = `${NAV}50`; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = `${NAV}75`; }}
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
             <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>{author.name}</h1>
-            <div className="flex items-center gap-3 mt-1 text-sm" style={{ color: `${NAV}55` }}>
+            <div className="flex items-center gap-3 mt-1 text-sm" style={{ color: `${NAV}80` }}>
               <span>Coordenador: {coord?.name || 'Nenhum'}</span>
               <span>•</span>
               <span>Cadastrado em: {new Date(author.created_at).toLocaleDateString('pt-BR')}</span>
@@ -98,12 +98,12 @@ const AdminCoauthorDetailPage = () => {
               {projects.map(p => (
                 <div key={p.id} className="rounded-xl p-3" style={{ background: `${NAV}04`, border: `1px solid ${NAV}08` }}>
                   <h4 className="font-semibold text-sm" style={{ color: NAV }}>{p.name}</h4>
-                  <div className="flex justify-between items-center mt-2 text-xs" style={{ color: `${NAV}55` }}>
+                  <div className="flex justify-between items-center mt-2 text-xs" style={{ color: `${NAV}80` }}>
                     <span>Prazo: {new Date(p.end_date).toLocaleDateString('pt-BR')}</span>
                     <span className="px-2 py-0.5 rounded-full font-semibold" style={{ background: `${BLUE}12`, color: BLUE }}>{p.type}</span>
                   </div>
                   <div className="mt-3">
-                    <div className="flex justify-between text-xs font-medium mb-1" style={{ color: `${NAV}60` }}>
+                    <div className="flex justify-between text-xs font-medium mb-1" style={{ color: `${NAV}85` }}>
                       <span>Progresso</span>
                       <span style={{ color: BLUE }}>{p.progress}%</span>
                     </div>
@@ -113,7 +113,7 @@ const AdminCoauthorDetailPage = () => {
                   </div>
                 </div>
               ))}
-              {projects.length === 0 && <p className="text-sm text-center py-2" style={{ color: `${NAV}45` }}>Nenhum projeto alocado.</p>}
+              {projects.length === 0 && <p className="text-sm text-center py-2" style={{ color: `${NAV}72` }}>Nenhum projeto alocado.</p>}
             </div>
           </BrandCard>
 
@@ -133,12 +133,12 @@ const AdminCoauthorDetailPage = () => {
                     </div>
                     <div className="pb-3 flex-1">
                       <p className="text-xs font-bold" style={{ color: NAV }}>{act.chapter}</p>
-                      <p className="text-xs" style={{ color: `${NAV}60` }}>{act.action}</p>
-                      <p className="text-[10px] mt-0.5 font-mono" style={{ color: `${NAV}40` }}>{new Date(act.date).toLocaleDateString('pt-BR')}</p>
+                      <p className="text-xs" style={{ color: `${NAV}85` }}>{act.action}</p>
+                      <p className="text-[10px] mt-0.5 font-mono" style={{ color: `${NAV}70` }}>{new Date(act.date).toLocaleDateString('pt-BR')}</p>
                     </div>
                   </div>
                 ))}
-                {activities.length === 0 && <p className="text-sm text-center py-2" style={{ color: `${NAV}45` }}>Nenhuma atividade registrada.</p>}
+                {activities.length === 0 && <p className="text-sm text-center py-2" style={{ color: `${NAV}72` }}>Nenhuma atividade registrada.</p>}
               </div>
             </div>
           </BrandCard>
@@ -161,7 +161,7 @@ const AdminCoauthorDetailPage = () => {
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-3">
                       <div>
                         <h4 className="font-semibold text-lg" style={{ color: NAV }}>{chap.title}</h4>
-                        <p className="text-xs mt-0.5" style={{ color: `${NAV}50` }}>
+                        <p className="text-xs mt-0.5" style={{ color: `${NAV}75` }}>
                           Projeto: {projects.find(p => p.id === chap.project_id)?.name}
                         </p>
                       </div>
@@ -191,7 +191,7 @@ const AdminCoauthorDetailPage = () => {
                 );
               })}
               {chapters.length === 0 && (
-                <p className="p-8 text-center" style={{ color: `${NAV}45` }}>Nenhum capítulo atribuído.</p>
+                <p className="p-8 text-center" style={{ color: `${NAV}72` }}>Nenhum capítulo atribuído.</p>
               )}
             </div>
           </BrandCard>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
 import { Megaphone, Trash2, Loader2, Send, Users } from 'lucide-react';
@@ -6,14 +6,17 @@ import { useToast } from '@/hooks/use-toast';
 import { NAV, BLUE, RED, BrandCard, BrandCardHeader, BtnPrimary } from '@/lib/brand';
 
 const AUDIENCE_OPTIONS = [
-  { value: 'COORDENADOR', label: 'Coordenadores', color: BLUE },
-  { value: 'COAUTOR',     label: 'Coautores',     color: '#8B5CF6' },
-  { value: 'GESTOR',      label: 'Gestores',      color: '#F59E0B' },
+  { value: 'COORDENADOR', label: 'Coordenadores',       color: BLUE      },
+  { value: 'COAUTOR',     label: 'Coautores',           color: '#8B5CF6' },
+  { value: 'LIDER',       label: 'Líderes',             color: '#F59E0B' },
+  { value: 'GESTOR',      label: 'Gestores',            color: '#0EA5E9' },
+  { value: 'VENDEDOR',    label: 'Vendedores',          color: '#F97316' },
+  { value: 'CS',          label: 'Customer Success',    color: '#10B981' },
 ];
 
 const AudienceBadge = ({ roles }) => {
   if (!roles || roles.length === 0) return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${NAV}08`, color: `${NAV}50` }}>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${NAV}08`, color: `${NAV}75` }}>
       Todos
     </span>
   );
@@ -63,25 +66,17 @@ const AdminAnnouncementsPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim() || !form.content.trim()) return;
+    if (form.audience.length === 0) {
+      toast({ variant: 'destructive', title: 'Selecione ao menos um destinatário', description: 'Escolha para quem este aviso será enviado.' });
+      return;
+    }
     setSending(true);
 
-    const payload = {
-      title: form.title.trim(),
-      content: form.content.trim(),
-      // target_roles: form.audience.length > 0 ? form.audience : null,
-    };
-
-    // Try with target_roles first; fall back without it if column doesn't exist
-    let error;
-    ({ error } = await supabase.from('announcements').insert({
-      ...payload,
-      target_roles: form.audience.length > 0 ? form.audience : null,
-    }));
-
-    if (error?.code === '42703') {
-      // Column doesn't exist yet — insert without it
-      ({ error } = await supabase.from('announcements').insert(payload));
-    }
+    const { error } = await supabase.from('announcements').insert({
+      title:        form.title.trim(),
+      content:      form.content.trim(),
+      target_roles: form.audience,
+    });
 
     if (error) {
       toast({ variant: 'destructive', title: 'Erro ao enviar aviso', description: error.message });
@@ -114,7 +109,7 @@ const AdminAnnouncementsPage = () => {
 
       <div>
         <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Avisos</h1>
-        <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Envie comunicados para gestores, coordenadores e coautores.</p>
+        <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Envie comunicados para gestores, coordenadores e coautores.</p>
       </div>
 
       {/* Formulário */}
@@ -125,9 +120,10 @@ const AdminAnnouncementsPage = () => {
 
             {/* Público-alvo */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: `${NAV}60` }}>
+              <label className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: `${NAV}85` }}>
                 <Users className="h-3.5 w-3.5" />
                 Destinatários
+                <span className="text-[10px] font-semibold ml-1" style={{ color: RED }}>* obrigatório</span>
               </label>
               <div className="flex flex-wrap gap-2">
                 {AUDIENCE_OPTIONS.map(opt => {
@@ -147,15 +143,17 @@ const AdminAnnouncementsPage = () => {
                     </button>
                   );
                 })}
-                <span className="text-xs self-center" style={{ color: `${NAV}40` }}>
-                  {form.audience.length === 0 ? '(nenhum selecionado = todos)' : ''}
-                </span>
               </div>
+              {form.audience.length === 0 && (
+                <p className="text-xs mt-1" style={{ color: `${RED}90` }}>
+                  Selecione ao menos um destinatário para continuar.
+                </p>
+              )}
             </div>
 
             {/* Título */}
             <div className="space-y-1.5">
-              <label htmlFor="title" className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}60` }}>Título</label>
+              <label htmlFor="title" className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}85` }}>Título</label>
               <input
                 id="title" placeholder="Ex: Reunião obrigatória esta semana"
                 value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required
@@ -167,7 +165,7 @@ const AdminAnnouncementsPage = () => {
 
             {/* Conteúdo */}
             <div className="space-y-1.5">
-              <label htmlFor="content" className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}60` }}>Conteúdo</label>
+              <label htmlFor="content" className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}85` }}>Conteúdo</label>
               <textarea
                 id="content" rows={4}
                 placeholder="Descreva o aviso em detalhes..."
@@ -194,7 +192,7 @@ const AdminAnnouncementsPage = () => {
         ) : announcements.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-32">
             <Megaphone className="h-8 w-8 mb-2" style={{ color: `${NAV}25` }} />
-            <p className="text-sm" style={{ color: `${NAV}50` }}>Nenhum aviso enviado ainda.</p>
+            <p className="text-sm" style={{ color: `${NAV}75` }}>Nenhum aviso enviado ainda.</p>
           </div>
         ) : (
           <ul style={{ borderTop: `1px solid ${NAV}08` }}>
@@ -212,14 +210,14 @@ const AdminAnnouncementsPage = () => {
                     <AudienceBadge roles={a.target_roles} />
                   </div>
                   <p className="text-sm mt-0.5 line-clamp-2" style={{ color: `${NAV}70` }}>{a.content}</p>
-                  <p className="text-xs mt-1" style={{ color: `${NAV}40` }}>{formatDate(a.created_at)}</p>
+                  <p className="text-xs mt-1" style={{ color: `${NAV}70` }}>{formatDate(a.created_at)}</p>
                 </div>
                 <button
                   onClick={() => handleDelete(a.id)}
                   className="shrink-0 p-1.5 rounded-lg transition-colors mt-0.5"
-                  style={{ color: `${NAV}30` }}
+                  style={{ color: `${NAV}55` }}
                   onMouseEnter={e => { e.currentTarget.style.color = RED; e.currentTarget.style.background = `${RED}10`; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = `${NAV}30`; e.currentTarget.style.background = 'transparent'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = `${NAV}55`; e.currentTarget.style.background = 'transparent'; }}
                   title="Excluir aviso"
                 >
                   <Trash2 className="h-4 w-4" />

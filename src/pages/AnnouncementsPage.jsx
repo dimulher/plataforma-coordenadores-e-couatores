@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
@@ -38,7 +38,7 @@ const AnnouncementsPage = () => {
 
       <div>
         <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Avisos</h1>
-        <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Comunicados e informações importantes</p>
+        <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Comunicados e informações importantes</p>
       </div>
 
       {announcements.length === 0 ? (
@@ -49,7 +49,7 @@ const AnnouncementsPage = () => {
           <div className="text-center">
             <Megaphone className="h-14 w-14 mx-auto mb-4" style={{ color: `${NAV}25` }} />
             <h3 className="text-lg font-semibold mb-1" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Nenhum aviso no momento</h3>
-            <p className="text-sm" style={{ color: `${NAV}50` }}>Fique atento aos comunicados da editora aqui.</p>
+            <p className="text-sm" style={{ color: `${NAV}75` }}>Fique atento aos comunicados da editora aqui.</p>
           </div>
         </div>
       ) : (
@@ -70,7 +70,7 @@ const AnnouncementsPage = () => {
                     </h3>
                   </div>
                   {a.created_at && (
-                    <span className="flex items-center gap-1 text-[11px] shrink-0" style={{ color: `${NAV}50` }}>
+                    <span className="flex items-center gap-1 text-[11px] shrink-0" style={{ color: `${NAV}75` }}>
                       <Clock className="h-3 w-3" />
                       {fmtDate(a.created_at)}
                     </span>

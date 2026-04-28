@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useCoordinatorData } from '@/hooks/useCoordinatorData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -30,7 +30,7 @@ const CoordinatorCommissions = () => {
       <div className="space-y-6 pb-12">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Minhas Comissões</h1>
-          <p className="text-sm mt-1" style={{ color: `${NAV}60` }}>Histórico de vendas e repasses de comissão</p>
+          <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Histórico de vendas e repasses de comissão</p>
         </div>
 
         {/* KPIs */}
@@ -45,7 +45,7 @@ const CoordinatorCommissions = () => {
                 <Icon className="h-5 w-5" style={{ color }} />
               </div>
               <div>
-                <p className="text-sm font-medium" style={{ color: `${NAV}60` }}>{label}</p>
+                <p className="text-sm font-medium" style={{ color: `${NAV}85` }}>{label}</p>
                 <h4 className="text-xl font-bold" style={{ color }}>{value}</h4>
               </div>
             </div>
@@ -73,14 +73,14 @@ const CoordinatorCommissions = () => {
               <thead style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}08` }}>
                 <tr>
                   {['Lead (Cliente)', 'Projeto', 'Valor Contrato', '% Com.', 'Valor Com.', 'Status', 'Data'].map(h => (
-                    <th key={h} className="px-5 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}50` }}>{h}</th>
+                    <th key={h} className="px-5 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-16 text-center" style={{ color: `${NAV}40` }}>
+                    <td colSpan={7} className="px-6 py-16 text-center" style={{ color: `${NAV}70` }}>
                       Nenhuma comissão encontrada.
                     </td>
                   </tr>
@@ -106,7 +106,7 @@ const CoordinatorCommissions = () => {
                         {payment.commission_status.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-sm" style={{ color: `${NAV}60` }}>
+                    <td className="px-5 py-4 text-sm" style={{ color: `${NAV}85` }}>
                       {new Date(payment.created_at).toLocaleDateString('pt-BR')}
                     </td>
                   </tr>
