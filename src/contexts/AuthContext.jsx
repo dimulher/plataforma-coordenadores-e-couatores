@@ -55,6 +55,10 @@ export const AuthProvider = ({ children }) => {
               contract_url: newProfile.contract_url || null,
               website_url: newProfile.website_url || null,
               manager_id: newProfile.manager_id || null,
+              bio: newProfile.bio || null,
+              instagram: newProfile.instagram || null,
+              contact_email: newProfile.contact_email || null,
+              chapter_photo_url: newProfile.chapter_photo_url || null,
             });
             return;
           }
@@ -84,6 +88,10 @@ export const AuthProvider = ({ children }) => {
         contract_url: profile.contract_url || null,
         website_url: profile.website_url || null,
         manager_id: profile.manager_id || null,
+        bio: profile.bio || null,
+        instagram: profile.instagram || null,
+        contact_email: profile.contact_email || null,
+        chapter_photo_url: profile.chapter_photo_url || null,
       });
     } catch (err) {
       console.error('Error fetching profile, falling back to metadata:', err);

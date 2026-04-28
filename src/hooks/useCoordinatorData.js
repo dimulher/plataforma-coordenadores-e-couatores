@@ -44,8 +44,9 @@ export function useCoordinatorData() {
         .select('contract_amount, commission_amount, commission_status')
         .eq('coordinator_id', user.id);
 
-      const inProgress = chapters.filter(c => !['APROVADO', 'FINALIZADO'].includes(c.status));
+      const inProgress = chapters.filter(c => !['APROVADO', 'PRODUCAO', 'FINALIZADO', 'CONCLUIDO'].includes(c.status));
       const inReview = chapters.filter(c => ['ENVIADO_PARA_REVISAO', 'EM_REVISAO'].includes(c.status));
+      const approved = chapters.filter(c => ['APROVADO', 'PRODUCAO', 'FINALIZADO', 'CONCLUIDO'].includes(c.status));
       const overdue = inProgress.filter(c => c.deadline && new Date(c.deadline) < new Date());
 
       let revenue = 0;
@@ -60,6 +61,7 @@ export function useCoordinatorData() {
         coautoresAtivos: coauthorIds.length,
         chaptersInProgress: inProgress.length,
         chaptersInReview: inReview.length,
+        chaptersApproved: approved.length,
         chaptersOverdue: overdue.length,
         revenue,
         pendingCommission,
@@ -148,7 +150,7 @@ export function useCoordinatorData() {
         { data: chapters },
         { data: activities },
       ] = await Promise.all([
-        supabase.from('profiles').select('id, name, email, created_at').eq('id', coauthorId).single(),
+        supabase.from('profiles').select('id, name, email, created_at, bio, instagram, contact_email, chapter_photo_url').eq('id', coauthorId).single(),
         supabase.from('project_participants').select('projects(id, name)').eq('user_id', coauthorId),
         supabase.from('chapters').select('id, title, status, word_count, word_goal, deadline, updated_at').eq('author_id', coauthorId),
         supabase.from('coordinator_activities').select('*').eq('coauthor_id', coauthorId).eq('coordinator_id', user.id).order('created_at', { ascending: false }),

@@ -65,6 +65,7 @@ import CoauthorProjectsPage from '@/pages/CoauthorProjectsPage';
 import CoauthorChaptersPage from '@/pages/CoauthorChaptersPage';
 import CoauthorChapterEditorPage from '@/pages/CoauthorChapterEditorPage';
 import CoauthorSettingsPage from '@/pages/CoauthorSettingsPage';
+import CoauthorIdentityPage from '@/pages/CoauthorIdentityPage';
 
 // Redirect to role-specific dashboard or login page
 const RootRedirect = () => {
@@ -132,6 +133,7 @@ function AppRoutes() {
         <Route path="ranking" element={<CoordinatorRanking />} />
         <Route path="leads" element={<CoordinatorLeads />} />
         <Route path="link" element={<CoordinatorLinkPage />} />
+        <Route path="identity" element={<CoauthorIdentityPage />} />
         <Route path="settings" element={<CoordinatorSettingsPage />} />
       </Route>
 
@@ -177,6 +179,7 @@ function AppRoutes() {
         <Route path="announcements" element={<AnnouncementsPage />} />
         <Route path="mentorship" element={<MentorshipPage />} />
         <Route path="settings" element={<CoauthorSettingsPage />} />
+        <Route path="identity" element={<CoauthorIdentityPage />} />
       </Route>
 
       <Route path="/" element={<RootRedirect />} />

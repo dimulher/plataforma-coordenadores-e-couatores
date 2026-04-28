@@ -110,6 +110,11 @@ const CoauthorChapterEditorPage = () => {
   };
 
   const handleKeyDown = (e) => {
+    if (atWordLimit) {
+      const allowed = e.ctrlKey || e.metaKey || ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown', 'Escape'].includes(e.key);
+      if (!allowed) { e.preventDefault(); return; }
+    }
+
     const sel = window.getSelection();
     if (!sel || !sel.rangeCount) return;
     const range = sel.getRangeAt(0);
@@ -141,6 +146,12 @@ const CoauthorChapterEditorPage = () => {
         handleInput();
       }
     }
+  };
+
+  const atWordLimit = !isReadOnly && wordCount >= currentWordGoal;
+
+  const handlePaste = (e) => {
+    if (atWordLimit) e.preventDefault();
   };
 
   const handleCommand = (cmd, arg) => {
@@ -252,9 +263,14 @@ const CoauthorChapterEditorPage = () => {
             {!isReadOnly && <EditorToolbar onCommand={handleCommand} disabled={isReadOnly} />}
 
             <div className="flex-1 bg-white relative">
+              {atWordLimit && (
+                <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold" style={{ background: '#FEF2F2', borderBottom: '1px solid #FECACA', color: '#B91C1C' }}>
+                  <span>Limite de {currentWordGoal.toLocaleString('pt-BR')} palavras atingido. Você pode apagar texto, mas não adicionar mais.</span>
+                </div>
+              )}
               <div
                 className="absolute inset-0 overflow-y-auto custom-scrollbar"
-                style={{ padding: '60px 80px' }}
+                style={{ padding: atWordLimit ? '52px 80px 60px' : '60px 80px' }}
               >
                 {isReadOnly ? (
                   <div
@@ -268,6 +284,7 @@ const CoauthorChapterEditorPage = () => {
                     contentEditable={true}
                     onInput={handleInput}
                     onKeyDown={handleKeyDown}
+                    onPaste={handlePaste}
                     className="editor-content outline-none text-gray-800 text-[16px] leading-[1.8] min-h-full"
                     suppressContentEditableWarning={true}
                     placeholder="Comece a escrever seu capítulo aqui..."

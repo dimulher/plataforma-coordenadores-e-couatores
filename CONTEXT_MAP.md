@@ -1,5 +1,5 @@
 # CONTEXT_MAP — Plataforma Novos Autores do Brasil (NAB)
-> Documento de referência para LLMs. Atualizado em 2026-04-17. Stack: React 18 + Vite + Supabase + Tailwind.
+> Documento de referência para LLMs. Atualizado em 2026-04-28. Stack: React 18 + Vite + Supabase + Tailwind.
 
 ---
 
@@ -84,18 +84,25 @@ referral_code (TEXT)           // slug da landing page do coordenador
 click_count (INT)
 contract_status (ENVIADO | ASSINADO)
 contract_signed_at, contract_url, website_url
+// Identidade do coautor (adicionadas em 20260428_identity_fields.sql)
+bio (TEXT)                     // minicurrículo, max 350 chars, aparece na capa do livro
+instagram (TEXT)               // handle @usuario
+contact_email (TEXT)           // e-mail público (diferente do email de login)
+chapter_photo_url (TEXT)       // URL pública no Cloudflare R2
 ```
 
 #### `chapters` — Capítulos dos coautores
 ```
 id, project_id → projects, author_id → profiles
-title, content_text, word_count, word_goal (default 1500)
+title, content_text, word_count, word_goal (default 1000)
 status: RASCUNHO | EM_EDICAO | AJUSTES_SOLICITADOS |
         ENVIADO_PARA_REVISAO | EM_REVISAO | APROVADO | PRODUCAO |
         FINALIZADO | CONCLUIDO
 current_stage: Contrato | Revisão | Produção | Aprovação | Entrega
 deadline, submitted_at, approved_at, created_at, updated_at
 ```
+> **word_goal padrão = 1000.** Ao atingir o limite, o editor bloqueia nova digitação e colagem (banner vermelho).
+> **Aprovação de capítulo** é exclusiva do ADMIN — COORDENADOR vê o status mas não aprova.
 
 #### `chapter_versions` — Histórico de versões
 ```
@@ -197,7 +204,7 @@ GESTOR (manager_id na profile do LIDER)
 ### RPC Functions (SECURITY DEFINER — bypassam RLS)
 | Função | Chamada em | Propósito |
 |---|---|---|
-| `get_my_profile()` | AuthContext.jsx | Perfil do usuário logado |
+| `get_my_profile()` | AuthContext.jsx | Perfil do usuário logado (inclui bio, instagram, contact_email, chapter_photo_url) |
 | `get_all_coordinators_admin()` | AdminDashboard.jsx | Todos os coordenadores (admin) |
 | `get_my_coordinators()` | GestorCoordinatorsPage, GestorFunnelPage | Coordenadores do LIDER logado |
 | `get_team_stats()` | GestorCoordinatorsPage | Estatísticas agregadas da equipe |
@@ -340,9 +347,9 @@ CoordinatorDashboard → botão "Solicitar Site"
 ### ✅ Operacional (100%)
 - Autenticação e login unificado com redirect por role (7 roles)
 - Dashboard Admin (métricas, gráficos, analytics de leads)
-- Dashboard Coordenador (KPIs, próximas entregas)
-- Dashboard Coautor (capítulo ativo, jornada, mentoria)
-- Editor de capítulo (autosave, versões, notas do revisor)
+- Dashboard Coordenador (KPIs, próximas entregas, jornada de coordenação)
+- Dashboard Coautor (capítulo ativo, jornada de publicação em 8 etapas, mentoria)
+- Editor de capítulo (autosave, versões, notas do revisor, bloqueio de escrita ao atingir word_goal)
 - Fluxo de aprovação coautor: admin envia arquivo corrigido → coautor aprova em 72h (auto-aprovação se expirar)
 - Funil de leads do coordenador (kanban drag-drop)
 - Cadastro de mentoria (admin CRUD, todos visualizam)
@@ -357,7 +364,10 @@ CoordinatorDashboard → botão "Solicitar Site"
 - Página de comissões do coordenador
 - Ranking de coordenadores
 - Link de captação do coordenador
-- Revisão de capítulos pelo admin
+- Revisão de capítulos pelo admin (exclusiva — coordenador não aprova capítulos)
+- **Minha Identidade** (`/coauthor/identity`): foto (R2), bio, Instagram, e-mail — item próprio na sidebar
+- Upload de fotos de capítulo para **Cloudflare R2** via edge function `upload-r2`
+- **JourneyTimeline**: componente reutilizável de 8 etapas (Contrato → Aulas → Mídias → Capítulo → Entrega → Revisão → Em Produção → Lançamento)
 
 ### 🔄 Parcialmente Implementado
 - **Storage de avatares**: lógica existe no frontend, mas bucket `profiles` precisa ser criado manualmente no Supabase
@@ -386,13 +396,14 @@ Estas páginas **existem como estrutura** mas ainda serão implementadas com dad
 
 | # | Prioridade | Descrição |
 |---|---|---|
-| 1 | 🔴 Alta | Migrar `useAdminMetrics` e `useCoordinatorMetrics` de localStorage → Supabase queries reais |
-| 2 | 🔴 Alta | Executar migration `supabase/migrations/20260305_patch_coautor.sql` para criar bucket `profiles` e padronizar RLS |
-| 3 | 🟡 Média | Extrair URLs hardcoded (n8n, WhatsApp) para variáveis de ambiente (`VITE_N8N_WEBHOOK_URL`, `VITE_WHATSAPP_NUMBER`) |
-| 4 | 🟡 Média | Remover `console.log` de produção em `AuthContext.jsx` (dados de perfil logados no browser) |
-| 5 | 🟡 Média | `announcements.target_roles` coluna pode não existir — código faz fallback com `error.code === '42703'` |
-| 6 | 🟢 Baixa | Implementar "Esqueceu a senha?" via Supabase Auth reset |
-| 7 | 🟢 Baixa | `AdminProjectDetailPage` ainda usa localStorage — migrar para Supabase |
+| 1 | 🟡 Média | Migrar `useAdminMetrics` e `useCoordinatorMetrics` de localStorage → Supabase queries reais |
+| 2 | 🟡 Média | Extrair URLs hardcoded (n8n, WhatsApp) para variáveis de ambiente (`VITE_N8N_WEBHOOK_URL`, `VITE_WHATSAPP_NUMBER`) |
+| 3 | 🟡 Média | Remover `console.log` de produção em `AuthContext.jsx` (dados de perfil logados no browser) |
+| 4 | 🟢 Baixa | `announcements.target_roles` coluna pode não existir — código faz fallback com `error.code === '42703'` |
+| 5 | 🟢 Baixa | Implementar "Esqueceu a senha?" via Supabase Auth reset |
+| 6 | 🟢 Baixa | `AdminProjectDetailPage` ainda usa localStorage — migrar para Supabase |
+
+> **Migrations executadas (2026-04-28):** `20260305_patch_coautor.sql`, `20260428_identity_fields.sql`, `20260428_reports_fix.sql` — bucket `profiles`, RLS, triggers, RPCs de identidade e relatórios, todos aplicados.
 
 ---
 
@@ -541,8 +552,15 @@ VITE_SUPABASE_ANON_KEY=<jwt_anon>
 supabase functions deploy create-gestor       # Cria GESTOR (n8n único fluxo)
 supabase functions deploy create-coordinator  # Cria COORDENADOR (n8n um fluxo por gestor)
 supabase functions deploy create-coautor      # Cria COAUTOR (n8n após pagamento)
+supabase functions deploy upload-r2           # Upload de imagens para Cloudflare R2
 ```
 > Documentação de setup n8n: `supabase/functions/create-gestor/N8N_SETUP.md` e `supabase/functions/create-coordinator/N8N_SETUP.md`
+
+**Cloudflare R2 (fotos de capítulo):**
+- Bucket: `fotoscoautores` | Account ID: `03d19904ceb36c67b946548892fbd19e`
+- Public URL base: `https://pub-d2c6c0c22f3b4cbc964ab20cf2beecd9.r2.dev`
+- Credenciais (Access Key/Secret) já configuradas como secrets da edge function no Supabase
+- Caminho do arquivo: `{nome-autor-sanitizado}-{timestamp}.{ext}`
 
 ---
 
@@ -565,3 +583,8 @@ supabase functions deploy create-coautor      # Cria COAUTOR (n8n após pagament
 | `supabase/functions/create-coordinator/index.ts` | ⭐⭐ | Provisionamento de coordenadores via n8n (requer manager_id) |
 | `supabase/functions/create-coautor/index.ts` | ⭐⭐ | Provisionamento de coautores via n8n (após pagamento) |
 | `supabase/migrations/` | ⭐⭐ | Schema completo do banco |
+| `supabase/migrations/20260428_identity_fields.sql` | ⭐⭐ | Adiciona bio/instagram/contact_email/chapter_photo_url em profiles; recria get_my_profile() |
+| `supabase/migrations/20260428_reports_fix.sql` | ⭐⭐ | Corrige RPCs de relatórios admin + constraint de status de leads |
+| `src/pages/CoauthorIdentityPage.jsx` | ⭐⭐ | Página dedicada de identidade do coautor (foto R2 + bio + redes) |
+| `src/components/JourneyTimeline.jsx` | ⭐ | Timeline reutilizável de 8 etapas para dashboards |
+| `supabase/functions/upload-r2/index.ts` | ⭐⭐ | Edge function de upload para Cloudflare R2 |

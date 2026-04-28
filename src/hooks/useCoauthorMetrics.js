@@ -22,13 +22,12 @@ export function useCoauthorMetrics() {
 
       const project = participations?.[0]?.projects || null;
 
-      // Fetch active chapter (first chapter not approved/finalized ordered by deadline)
+      // Fetch most recent chapter (any status, ordered by updated_at)
       const { data: chapters } = await supabase
         .from('chapters')
         .select('*')
         .eq('author_id', user.id)
-        .not('status', 'in', '("APROVADO","FINALIZADO")')
-        .order('deadline', { ascending: true })
+        .order('updated_at', { ascending: false })
         .limit(1);
 
       const chapter = chapters?.[0] || null;

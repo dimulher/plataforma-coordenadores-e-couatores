@@ -6,7 +6,7 @@ import { useCoordinatorData } from '@/hooks/useCoordinatorData';
 import { ChapterStatusBadge } from '@/components/ChapterStatusBadge';
 import { CoordinatorObservationModal } from '@/components/CoordinatorObservationModal';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Clock, MessageSquarePlus, ChevronRight, Circle, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Clock, MessageSquarePlus, ChevronRight, Circle, ExternalLink, AlertCircle } from 'lucide-react';
 import { NAV, BLUE, RED, BrandCard, BrandCardHeader, BtnPrimary, BtnOutline } from '@/lib/brand';
 
 const timeAgoFull = (dateStr) => {
@@ -115,37 +115,17 @@ const CoordinatorCoauthorDetailPage = () => {
               </div>
 
               <div className="flex flex-col items-end gap-4">
-                <div className="text-right">
-                  <p className="text-sm font-medium mb-1" style={{ color: `${NAV}85` }}>Prazo Final</p>
-                  <p className="text-xl font-bold flex items-center justify-end gap-2" style={{ color: NAV }}>
-                    <Clock className="w-5 h-5" style={{ color: `${NAV}75` }} />
-                    {new Date(currentChapter.deadline).toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
-
                 {(currentChapter.status === 'ENVIADO_PARA_REVISAO' || currentChapter.status === 'EM_REVISAO') && (
-                  <div className="flex gap-2">
-                    <BtnOutline
-                      onClick={async () => {
-                        setIsUpdating(true);
-                        const success = await updateChapterStatus(currentChapter.id, 'REVISAR', author.id);
-                        if (success) { await loadData(); toast({ title: 'Revisão solicitada' }); }
-                        setIsUpdating(false);
-                      }}
-                      disabled={isUpdating}
-                      icon={AlertCircle} label="Solicitar Ajustes" color={RED}
-                    />
-                    <BtnPrimary
-                      onClick={async () => {
-                        setIsUpdating(true);
-                        const success = await updateChapterStatus(currentChapter.id, 'APROVADO', author.id);
-                        if (success) { await loadData(); toast({ title: 'Capítulo aprovado!' }); }
-                        setIsUpdating(false);
-                      }}
-                      disabled={isUpdating}
-                      icon={CheckCircle} label="Aprovar Capítulo"
-                    />
-                  </div>
+                  <BtnOutline
+                    onClick={async () => {
+                      setIsUpdating(true);
+                      const success = await updateChapterStatus(currentChapter.id, 'REVISAR', author.id);
+                      if (success) { await loadData(); toast({ title: 'Revisão solicitada' }); }
+                      setIsUpdating(false);
+                    }}
+                    disabled={isUpdating}
+                    icon={AlertCircle} label="Solicitar Ajustes" color={RED}
+                  />
                 )}
               </div>
             </div>

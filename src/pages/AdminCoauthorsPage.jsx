@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Search, Loader2, Users2, BookOpen, ImageIcon, FileText,
-  ExternalLink, ChevronDown, ChevronUp, Eye,
+  ExternalLink, ChevronDown, ChevronUp, Eye, UserCircle2, Link2,
+  X, Clock, Mail,
 } from 'lucide-react';
 import { NAV, BLUE, RED, BrandCard } from '@/lib/brand';
 
@@ -22,15 +23,16 @@ const STATUS_MAP = {
   CONCLUIDO:            { label: 'Concluído',  text: '#10B981', bg: 'rgba(16,185,129,0.10)' },
 };
 
-const CoauthorFolder = ({ author, navigate }) => {
+const CoauthorFolder = ({ author, navigate, onViewProfile }) => {
   const [activeTab, setActiveTab] = useState('capitulos');
   const [expanded, setExpanded] = useState(false);
   const initials = (author.name || 'C').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
   const tabs = [
-    { key: 'capitulos', label: 'Capítulos', icon: BookOpen, count: author.chapters.length },
-    { key: 'foto',      label: 'Foto',      icon: ImageIcon },
-    { key: 'contrato',  label: 'Contrato',  icon: FileText },
+    { key: 'capitulos',  label: 'Capítulos',  icon: BookOpen,     count: author.chapters.length },
+    { key: 'identidade', label: 'Identidade', icon: UserCircle2 },
+    { key: 'foto',       label: 'Foto',       icon: ImageIcon },
+    { key: 'contrato',   label: 'Contrato',   icon: FileText },
   ];
 
   return (
@@ -96,7 +98,7 @@ const CoauthorFolder = ({ author, navigate }) => {
             {author.coordinatorName}
           </span>
           <button
-            onClick={() => navigate(`/app/admin/coauthors/${author.id}`)}
+            onClick={() => onViewProfile(author)}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
             style={{ color: BLUE, background: `${BLUE}0D` }}
             onMouseEnter={e => { e.currentTarget.style.background = `${BLUE}18`; }}
@@ -143,20 +145,54 @@ const CoauthorFolder = ({ author, navigate }) => {
             </div>
           )}
 
-          {activeTab === 'foto' && (
-            <div className="flex flex-col items-center gap-3 py-4">
-              {author.avatar_url ? (
-                <>
-                  <img src={author.avatar_url} className="h-28 w-28 rounded-full object-cover shadow"
-                    style={{ border: `3px solid ${BLUE}30` }} alt={author.name} />
-                  <p className="text-xs" style={{ color: `${NAV}75` }}>Foto de perfil cadastrada</p>
-                  <a href={author.avatar_url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs font-medium" style={{ color: BLUE }}>
-                    <ExternalLink className="w-3.5 h-3.5" /> Abrir imagem
+          {activeTab === 'identidade' && (
+            <div className="space-y-4 py-2">
+              {/* Bio */}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: `${NAV}72` }}>Minicurrículo</p>
+                {author.bio ? (
+                  <p className="text-sm leading-relaxed p-3 rounded-xl bg-white" style={{ color: NAV, border: `1px solid ${NAV}0C` }}>{author.bio}</p>
+                ) : (
+                  <p className="text-xs italic p-3 rounded-xl" style={{ color: `${NAV}72`, background: `${NAV}04` }}>Não preenchido.</p>
+                )}
+              </div>
+
+              {/* Redes sociais */}
+              <div className="flex flex-wrap gap-3">
+                {author.instagram && (
+                  <a href={author.instagram.startsWith('http') ? author.instagram : `https://instagram.com/${author.instagram.replace('@','')}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full"
+                    style={{ background: 'rgba(225,48,108,0.1)', color: '#E1306C', border: '1px solid rgba(225,48,108,0.25)' }}>
+                    <Link2 className="w-3 h-3" /> {author.instagram}
                   </a>
-                </>
+                )}
+                {author.contact_email && (
+                  <a href={`mailto:${author.contact_email}`}
+                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full"
+                    style={{ background: 'rgba(63,125,176,0.1)', color: '#3F7DB0', border: '1px solid rgba(63,125,176,0.25)' }}>
+                    <Link2 className="w-3 h-3" /> {author.contact_email}
+                  </a>
+                )}
+                {!author.instagram && !author.contact_email && (
+                  <p className="text-xs" style={{ color: `${NAV}72` }}>Nenhuma rede social cadastrada.</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'foto' && (
+            <div className="py-4">
+              {author.chapter_photo_url ? (
+                <div className="flex items-center gap-4 p-3 rounded-xl" style={{ border: `1px solid ${NAV}0C`, background: 'white' }}>
+                  <img src={author.chapter_photo_url} alt="Foto capítulo" className="w-20 h-20 rounded-xl object-cover shrink-0" style={{ border: '2px solid rgba(139,92,246,0.2)' }} />
+                  <a href={author.chapter_photo_url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-xs font-medium" style={{ color: BLUE }}>
+                    <ExternalLink className="w-3 h-3" /> Abrir imagem
+                  </a>
+                </div>
               ) : (
-                <div className="flex flex-col items-center gap-2" style={{ color: `${NAV}55` }}>
+                <div className="flex flex-col items-center gap-2 py-6" style={{ color: `${NAV}55` }}>
                   <ImageIcon className="w-10 h-10" />
                   <p className="text-sm" style={{ color: `${NAV}75` }}>Nenhuma foto cadastrada</p>
                 </div>
@@ -208,13 +244,14 @@ const AdminCoauthorsPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [coordFilter, setCoordFilter] = useState('ALL');
+  const [profileModal, setProfileModal] = useState(null);
 
   const fetchCoauthors = useCallback(async () => {
     setLoading(true);
     try {
       const [{ data: coordRaw }, { data: coauthorRaw, error }] = await Promise.all([
         supabase.from('profiles').select('id, name, email, avatar_url, contract_url, contract_status').eq('role', 'COORDENADOR').order('name'),
-        supabase.from('profiles').select('id, name, email, avatar_url, coordinator_id, contract_url, contract_status').eq('role', 'COAUTOR').order('name'),
+        supabase.from('profiles').select('id, name, email, avatar_url, coordinator_id, contract_url, contract_status, bio, instagram, contact_email, chapter_photo_url').eq('role', 'COAUTOR').order('name'),
       ]);
       if (error) throw error;
 
@@ -229,7 +266,7 @@ const AdminCoauthorsPage = () => {
 
       const ids = allProfiles.map(p => p.id);
       const { data: chapters } = ids.length > 0
-        ? await supabase.from('chapters').select('id, author_id, title, status, project:project_id(name)').in('author_id', ids)
+        ? await supabase.from('chapters').select('id, author_id, title, status, word_count, word_goal, deadline, project:project_id(name)').in('author_id', ids)
         : { data: [] };
 
       setCoauthors(allProfiles.map(author => ({
@@ -304,6 +341,124 @@ const AdminCoauthorsPage = () => {
         </Select>
       </div>
 
+      {/* Modal perfil completo */}
+      {profileModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,27,54,0.65)', backdropFilter: 'blur(6px)' }}
+          onClick={() => setProfileModal(null)}
+        >
+          <div
+            className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl"
+            style={{ boxShadow: `0 24px 64px ${NAV}40` }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Banner: foto do capítulo */}
+            <div className="relative rounded-t-2xl overflow-hidden" style={{ minHeight: 200 }}>
+              {profileModal.chapter_photo_url ? (
+                <img src={profileModal.chapter_photo_url} alt="Foto" className="w-full object-cover" style={{ maxHeight: 260, minHeight: 200 }} />
+              ) : (
+                <div className="w-full" style={{ height: 180, background: `linear-gradient(135deg, ${BLUE}, ${NAV})` }} />
+              )}
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 35%, rgba(0,27,54,0.85))' }} />
+              <div className="absolute bottom-5 left-6 right-14">
+                <h2 className="text-2xl font-bold text-white drop-shadow" style={{ fontFamily: 'Poppins, sans-serif' }}>{profileModal.name}</h2>
+                <p className="text-sm text-white/75 mt-0.5">{profileModal.coordinatorName}</p>
+              </div>
+              <button
+                onClick={() => setProfileModal(null)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.35)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; }}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Conteúdo */}
+            <div className="p-6 space-y-6">
+              {/* Minicurrículo */}
+              {profileModal.bio ? (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: `${NAV}72` }}>Minicurrículo — Capa do Livro</p>
+                  <p className="text-sm leading-relaxed p-4 rounded-xl" style={{ color: NAV, background: `${NAV}04`, border: `1px solid ${NAV}0C` }}>{profileModal.bio}</p>
+                </div>
+              ) : (
+                <p className="text-sm italic" style={{ color: `${NAV}55` }}>Minicurrículo não preenchido.</p>
+              )}
+
+              {/* Redes sociais */}
+              {(profileModal.instagram || profileModal.contact_email) && (
+                <div className="flex flex-wrap gap-2">
+                  {profileModal.instagram && (
+                    <a
+                      href={profileModal.instagram.startsWith('http') ? profileModal.instagram : `https://instagram.com/${profileModal.instagram.replace('@','')}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full"
+                      style={{ background: 'rgba(225,48,108,0.1)', color: '#E1306C', border: '1px solid rgba(225,48,108,0.25)' }}
+                    >
+                      <Link2 className="w-3 h-3" /> {profileModal.instagram}
+                    </a>
+                  )}
+                  {profileModal.contact_email && (
+                    <a
+                      href={`mailto:${profileModal.contact_email}`}
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full"
+                      style={{ background: `${BLUE}12`, color: BLUE, border: `1px solid ${BLUE}25` }}
+                    >
+                      <Mail className="w-3 h-3" /> {profileModal.contact_email}
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* Capítulos */}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: `${NAV}72` }}>Capítulos</p>
+                {profileModal.chapters.length === 0 ? (
+                  <p className="text-sm italic" style={{ color: `${NAV}55` }}>Nenhum capítulo atribuído.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {profileModal.chapters.map(chap => {
+                      const cfg = STATUS_MAP[chap.status] || { label: chap.status, text: `${NAV}85`, bg: `${NAV}08` };
+                      const progress = chap.word_goal > 0 ? Math.min(100, Math.round((chap.word_count / chap.word_goal) * 100)) : 0;
+                      const daysRem = chap.deadline ? Math.ceil((new Date(chap.deadline) - new Date()) / 86400000) : null;
+                      return (
+                        <div key={chap.id} className="p-4 rounded-xl space-y-3" style={{ border: `1px solid ${NAV}0C`, background: `${NAV}02` }}>
+                          <div className="flex items-start justify-between gap-3">
+                            <p className="font-semibold text-sm leading-tight" style={{ color: NAV }}>{chap.title}</p>
+                            <span className="shrink-0 text-xs font-bold px-2.5 py-1 rounded-full" style={{ color: cfg.text, background: cfg.bg }}>{cfg.label}</span>
+                          </div>
+                          {chap.word_goal > 0 && (
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-xs" style={{ color: `${NAV}75` }}>
+                                <span>{(chap.word_count || 0).toLocaleString('pt-BR')} palavras</span>
+                                <span>{progress}% de {chap.word_goal.toLocaleString('pt-BR')}</span>
+                              </div>
+                              <div className="h-2 rounded-full overflow-hidden" style={{ background: `${NAV}10` }}>
+                                <div className="h-full rounded-full" style={{ width: `${progress}%`, background: BLUE }} />
+                              </div>
+                            </div>
+                          )}
+                          {chap.deadline && (
+                            <p className="flex items-center gap-1 text-xs" style={{ color: daysRem !== null && daysRem < 0 ? '#AC1B00' : `${NAV}75` }}>
+                              <Clock className="w-3 h-3" />
+                              {daysRem === null ? '' : daysRem < 0 ? `Atrasado ${Math.abs(daysRem)} dias` : daysRem === 0 ? 'Entrega hoje' : `${daysRem} dias para entrega`}
+                              {' · '}{new Date(chap.deadline).toLocaleDateString('pt-BR')}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex items-center justify-center h-48">
           <Loader2 className="h-8 w-8 animate-spin" style={{ color: BLUE }} />
@@ -317,7 +472,7 @@ const AdminCoauthorsPage = () => {
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           {filtered.map(author => (
-            <CoauthorFolder key={author.id} author={author} navigate={navigate} />
+            <CoauthorFolder key={author.id} author={author} navigate={navigate} onViewProfile={setProfileModal} />
           ))}
         </div>
       )}

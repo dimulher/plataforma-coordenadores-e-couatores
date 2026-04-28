@@ -6,8 +6,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useCoordinatorData } from '@/hooks/useCoordinatorData';
 import { supabase } from '@/lib/supabase';
-import { Users, CheckCircle, ArrowRight, BookOpen, Globe, ExternalLink, Loader2, Clock } from 'lucide-react';
+import { Users, CheckCircle, ArrowRight, BookOpen, Globe, ExternalLink, Loader2, Clock, FileText, Camera, Edit3, Send, CheckCircle2, Package, Star } from 'lucide-react';
 import { NAV, BLUE, RED, CREAM, WelcomeBanner, BrandCard, BrandCardHeader, BtnOutline, BtnPrimary } from '@/lib/brand';
+import { JourneyTimeline } from '@/components/JourneyTimeline';
 
 const toSlug = (name) =>
   name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -166,6 +167,29 @@ const CoordinatorDashboard = () => {
     );
   };
 
+  const contractDone  = user?.contract_status === 'ASSINADO';
+  const aulasDone     = contractDone;
+  const midiasDone    = !!(siteRequest?.website_url || user?.website_url);
+  const coautoresDone = (metrics?.coautoresAtivos || 0) > 0;
+  const chapDone      = (metrics?.chaptersInProgress || 0) > 0 || (metrics?.chaptersInReview || 0) > 0 || (metrics?.chaptersApproved || 0) > 0;
+  const revisaoDone   = (metrics?.chaptersInReview || 0) > 0 || (metrics?.chaptersApproved || 0) > 0;
+  const entregaDone   = (metrics?.chaptersApproved || 0) > 0;
+  const producaoDone  = false;
+  const lancDone      = false;
+  const coordBoolArr  = [contractDone, aulasDone, midiasDone, coautoresDone, chapDone, revisaoDone, entregaDone, producaoDone, lancDone];
+  const coordActiveIdx = coordBoolArr.findIndex(v => !v);
+  const coordJourneySteps = [
+    { id: 'contrato',   label: 'Contrato',    icon: FileText,     done: contractDone,  active: coordActiveIdx === 0 },
+    { id: 'aulas',      label: 'Aulas',       icon: BookOpen,     done: aulasDone,     active: coordActiveIdx === 1 },
+    { id: 'midias',     label: 'Mídias',      icon: Camera,       done: midiasDone,    active: coordActiveIdx === 2 },
+    { id: 'coautores',  label: 'Coautores',   icon: Edit3,        done: coautoresDone, active: coordActiveIdx === 3 },
+    { id: 'capitulos',  label: 'Capítulos',   icon: Send,         done: chapDone,      active: coordActiveIdx === 4 },
+    { id: 'revisao',    label: 'Revisão',     icon: CheckCircle2, done: revisaoDone,   active: coordActiveIdx === 5 },
+    { id: 'entrega',    label: 'Entrega',     icon: Send,         done: entregaDone,   active: coordActiveIdx === 6 },
+    { id: 'producao',   label: 'Em Produção', icon: Package,      done: producaoDone,  active: coordActiveIdx === 7 },
+    { id: 'lancamento', label: 'Lançamento',  icon: Star,         done: lancDone,      active: coordActiveIdx === 8 },
+  ];
+
   return (
     <div className="space-y-6 pb-12">
       <Helmet><title>Painel do Coordenador — Novos Autores do Brasil</title></Helmet>
@@ -174,6 +198,8 @@ const CoordinatorDashboard = () => {
         name={`Bem-vindo, ${user?.name?.split(' ')[0] || 'Coordenador'}!`}
         subtitle="Gerencie sua equipe e acompanhe a produção."
       />
+
+      <JourneyTimeline steps={coordJourneySteps} title="Sua Jornada de Coordenação" />
 
       {/* Site de divulgação */}
       <BrandCard>

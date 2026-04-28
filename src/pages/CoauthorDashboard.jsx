@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { JourneyTimeline } from '@/components/JourneyTimeline';
 import { NAV, BLUE, RED, CREAM, WelcomeBanner, BrandCard, BrandCardHeader, BtnPrimary, BtnOutline } from '@/lib/brand';
-import { BookOpen, Calendar, Video, Edit3 } from 'lucide-react';
+import { BookOpen, Calendar, Video, Edit3, Camera, FileText, Send, CheckCircle2, Package, Star } from 'lucide-react';
 
 const CoauthorDashboard = () => {
   const { metrics, loading, refresh } = useCoauthorMetrics();
@@ -42,8 +42,30 @@ const CoauthorDashboard = () => {
     </div>
   );
 
-  const { project, chapter, mentorship } = metrics || {};
+  const { chapter, mentorship } = metrics || {};
   const wordProgress = chapter?.word_goal ? Math.min(((chapter.word_count || 0) / chapter.word_goal) * 100, 100) : 0;
+
+  const SUBMITTED_ST = ['ENVIADO_PARA_REVISAO', 'EM_REVISAO', 'APROVADO', 'PRODUCAO', 'FINALIZADO', 'CONCLUIDO'];
+  const contractDone  = user?.contract_status === 'ASSINADO';
+  const aulasDone     = contractDone;
+  const midiasDone    = !!(user?.bio || user?.instagram || user?.contact_email || user?.chapter_photo_url);
+  const chapDone      = (chapter?.word_count || 0) > 100;
+  const entregaDone   = SUBMITTED_ST.includes(chapter?.status);
+  const revisaoDone   = ['APROVADO', 'PRODUCAO', 'FINALIZADO', 'CONCLUIDO'].includes(chapter?.status);
+  const producaoDone  = ['PRODUCAO', 'FINALIZADO', 'CONCLUIDO'].includes(chapter?.status);
+  const lancDone      = ['FINALIZADO', 'CONCLUIDO'].includes(chapter?.status);
+  const boolArr = [contractDone, aulasDone, midiasDone, chapDone, entregaDone, revisaoDone, producaoDone, lancDone];
+  const activeIdx = boolArr.findIndex(v => !v);
+  const journeySteps = [
+    { id: 'contrato',   label: 'Contrato',    icon: FileText,     done: contractDone, active: activeIdx === 0 },
+    { id: 'aulas',      label: 'Aulas',       icon: BookOpen,     done: aulasDone,    active: activeIdx === 1 },
+    { id: 'midias',     label: 'Mídias',      icon: Camera,       done: midiasDone,   active: activeIdx === 2 },
+    { id: 'capitulo',   label: 'Capítulo',    icon: Edit3,        done: chapDone,     active: activeIdx === 3 },
+    { id: 'entrega',    label: 'Entrega',     icon: Send,         done: entregaDone,  active: activeIdx === 4 },
+    { id: 'revisao',    label: 'Revisão',     icon: CheckCircle2, done: revisaoDone,  active: activeIdx === 5 },
+    { id: 'producao',   label: 'Em Produção', icon: Package,      done: producaoDone, active: activeIdx === 6 },
+    { id: 'lancamento', label: 'Lançamento',  icon: Star,         done: lancDone,     active: activeIdx === 7 },
+  ];
 
   return (
     <div className="space-y-6 pb-12">
@@ -54,6 +76,8 @@ const CoauthorDashboard = () => {
         name={`Bem-vindo, ${user?.name?.split(' ')[0] || 'Autor'}!`}
         subtitle="Vamos continuar sua jornada de publicação."
       />
+
+      <JourneyTimeline steps={journeySteps} title="Sua Jornada de Publicação" />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ── Left column ────────────────────────────────── */}
@@ -106,21 +130,6 @@ const CoauthorDashboard = () => {
               )}
             </div>
           </BrandCard>
-
-          {/* Timeline */}
-          {chapter && (
-            <BrandCard>
-              <div className="px-6 py-6">
-                <p
-                  className="text-xs font-bold uppercase tracking-[0.15em] text-center mb-6"
-                  style={{ color: BLUE, fontFamily: 'Poppins, sans-serif' }}
-                >
-                  Sua Jornada da Publicação
-                </p>
-                <JourneyTimeline currentStage={chapter.current_stage || 'Contrato'} />
-              </div>
-            </BrandCard>
-          )}
 
           {/* Contrato */}
           <BrandCard>
@@ -175,6 +184,7 @@ const CoauthorDashboard = () => {
               </div>
             </div>
           </BrandCard>
+
         </div>
 
         {/* ── Right column ───────────────────────────────── */}

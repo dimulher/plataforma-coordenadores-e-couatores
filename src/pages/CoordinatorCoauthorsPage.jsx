@@ -1,21 +1,13 @@
 ﻿
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
 import { useCoordinatorData } from '@/hooks/useCoordinatorData';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CoordinatorObservationModal } from '@/components/CoordinatorObservationModal';
-import { Search, ArrowUpDown, Users } from 'lucide-react';
-import { NAV, BLUE, RED, BrandCard, BrandCardHeader } from '@/lib/brand';
+import { Search, Users } from 'lucide-react';
+import { NAV, BLUE, BrandCard, BrandCardHeader } from '@/lib/brand';
 
-const timeAgo = (dateStr) => {
-  const diff = (new Date() - new Date(dateStr)) / 1000;
-  if (diff < 60) return 'Agora';
-  if (diff < 3600) return `${Math.floor(diff / 60)} min`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
-  return `${Math.floor(diff / 86400)} dias`;
-};
 
 const STATUS_MAP = {
   RASCUNHO:             { label: 'Em escrita',  text: BLUE,      bg: `${BLUE}12` },
@@ -33,12 +25,10 @@ const getStatus = (s) => STATUS_MAP[s] || { label: s || 'Sem status', text: `${N
 
 const CoordinatorCoauthorsPage = () => {
   const { getCoauthorsList, addObservation, loading } = useCoordinatorData();
-  const navigate = useNavigate();
+
   const [coauthors, setCoauthors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [deadlineFilter, setDeadlineFilter] = useState('ALL');
-  const [sortConfig, setSortConfig] = useState({ key: 'deadline', direction: 'asc' });
   const [selectedCoauthor, setSelectedCoauthor] = useState(null);
 
   const loadData = async () => {
@@ -54,14 +44,6 @@ const CoordinatorCoauthorsPage = () => {
     </div>
   );
 
-  const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
-    setSortConfig({ key, direction });
-  };
-
-  const getDaysRem = (date) => Math.ceil((new Date(date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-
   const filtered = coauthors.filter(c => {
     const matchSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.projectNames.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -75,31 +57,7 @@ const CoordinatorCoauthorsPage = () => {
       if (statusFilter === 'CONCLUIDO' && !['FINALIZADO', 'CONCLUIDO'].includes(st)) matchStatus = false;
     }
 
-    let matchDeadline = true;
-    if (deadlineFilter !== 'ALL' && c.currentChapter) {
-      const days = getDaysRem(c.currentChapter.deadline);
-      if (deadlineFilter === 'ATRASADOS' && days < 0) matchDeadline = true;
-      else if (deadlineFilter === '7DIAS' && days >= 0 && days <= 7) matchDeadline = true;
-      else if (deadlineFilter === '30DIAS' && days >= 0 && days <= 30) matchDeadline = true;
-      else matchDeadline = false;
-    } else if (deadlineFilter !== 'ALL') {
-      matchDeadline = false;
-    }
-
-    return matchSearch && matchStatus && matchDeadline;
-  }).sort((a, b) => {
-    if (sortConfig.key === 'deadline') {
-      const d1 = a.currentChapter ? new Date(a.currentChapter.deadline).getTime() : 9999999999999;
-      const d2 = b.currentChapter ? new Date(b.currentChapter.deadline).getTime() : 9999999999999;
-      return sortConfig.direction === 'asc' ? d1 - d2 : d2 - d1;
-    }
-    if (sortConfig.key === 'progress') return sortConfig.direction === 'asc' ? a.progress - b.progress : b.progress - a.progress;
-    if (sortConfig.key === 'lastUpdate') {
-      const d1 = new Date(a.lastUpdate).getTime();
-      const d2 = new Date(b.lastUpdate).getTime();
-      return sortConfig.direction === 'asc' ? d1 - d2 : d2 - d1;
-    }
-    return 0;
+    return matchSearch && matchStatus;
   });
 
   const handleSaveObservation = async (obs) => {
@@ -143,17 +101,6 @@ const CoordinatorCoauthorsPage = () => {
             <SelectItem value="CONCLUIDO">Concluído</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={deadlineFilter} onValueChange={setDeadlineFilter}>
-          <SelectTrigger className="w-full md:w-48 text-sm bg-white" style={{ borderColor: `${NAV}20`, color: NAV }}>
-            <SelectValue placeholder="Por Prazo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">Todos os Prazos</SelectItem>
-            <SelectItem value="ATRASADOS">Atrasados</SelectItem>
-            <SelectItem value="7DIAS">Próximos 7 dias</SelectItem>
-            <SelectItem value="30DIAS">Próximos 30 dias</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {/* Table */}
@@ -165,31 +112,17 @@ const CoordinatorCoauthorsPage = () => {
               <tr style={{ background: `${NAV}04`, borderBottom: `1px solid ${NAV}0C` }}>
                 <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>Nome do Coautor</th>
                 <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}75` }}>Status do Capítulo</th>
-                <th
-                  className="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider cursor-pointer select-none"
-                  style={{ color: `${NAV}75` }}
-                  onClick={() => handleSort('deadline')}
-                >
-                  <span className="inline-flex items-center justify-center gap-1">
-                    Prazo <ArrowUpDown className="w-3 h-3" />
-                  </span>
-                </th>
               </tr>
             </thead>
             <tbody>
               {filtered.map(c => {
                 const chap = c.currentChapter;
-                const daysRem = chap ? getDaysRem(chap.deadline) : null;
                 const st = getStatus(chap?.status);
 
                 return (
                   <tr
                     key={c.id}
-                    className="cursor-pointer transition-colors"
                     style={{ borderBottom: `1px solid ${NAV}08` }}
-                    onClick={() => navigate(`/coordinator/coauthors/${c.id}`)}
-                    onMouseEnter={e => { e.currentTarget.style.background = `${NAV}04`; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                   >
                     <td className="px-6 py-4 font-semibold" style={{ color: NAV }}>{c.name}</td>
                     <td className="px-6 py-4">
@@ -202,28 +135,12 @@ const CoordinatorCoauthorsPage = () => {
                         <span className="text-xs" style={{ color: `${NAV}70` }}>Sem capítulo ativo</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      {chap ? (
-                        <span
-                          className="text-xs font-bold px-2.5 py-1 rounded-lg"
-                          style={
-                            daysRem < 0
-                              ? { background: `${RED}12`, color: RED }
-                              : daysRem <= 7
-                              ? { background: 'rgba(245,158,11,0.1)', color: '#F59E0B' }
-                              : { background: `${NAV}08`, color: `${NAV}85` }
-                          }
-                        >
-                          {new Date(chap.deadline).toLocaleDateString('pt-BR')}
-                        </span>
-                      ) : '—'}
-                    </td>
                   </tr>
                 );
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan="3" className="px-6 py-12 text-center text-sm" style={{ color: `${NAV}75` }}>
+                  <td colSpan="2" className="px-6 py-12 text-center text-sm" style={{ color: `${NAV}75` }}>
                     Nenhum coautor encontrado com os filtros atuais.
                   </td>
                 </tr>

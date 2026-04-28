@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, UserSquare2, FolderKanban, FileText,
   GraduationCap, Megaphone, HeartHandshake as Handshake, Trophy,
   DollarSign, Settings, Menu, X, User, ChevronLeft, ChevronRight,
-  Target, Workflow, Lock, Globe, Users2, LogOut, ShoppingCart, Link2, BarChart3,
+  Target, Workflow, Lock, Globe, Users2, LogOut, ShoppingCart, Link2, BarChart3, UserCircle2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -91,6 +91,7 @@ const AppLayout = () => {
     { path: '/coauthor/dashboard',    icon: LayoutDashboard, label: 'Meu Painel' },
     { path: '/coauthor/projects',     icon: FolderKanban,    label: 'Projetos (Em produção)', disabled: true },
     { path: '/coauthor/chapters',     icon: FileText,        label: 'Meu Capítulo' },
+    { path: '/coauthor/identity',     icon: UserCircle2,     label: 'Minha Identidade' },
     { path: '/coauthor/course',       icon: GraduationCap,   label: 'Aulas' },
     { path: '/coauthor/announcements', icon: Megaphone,      label: 'Avisos' },
     { path: '/coauthor/mentorship',   icon: Handshake,       label: 'Mentoria' },
@@ -109,6 +110,13 @@ const AppLayout = () => {
     }
     return item;
   });
+
+  if (isCoordinator()) {
+    const chapIdx = visibleGeneralItems.findIndex(i => i.label === 'Meu Capítulo');
+    if (chapIdx !== -1) {
+      visibleGeneralItems.splice(chapIdx + 1, 0, { path: '/coordinator/identity', icon: UserCircle2, label: 'Minha Identidade' });
+    }
+  }
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
