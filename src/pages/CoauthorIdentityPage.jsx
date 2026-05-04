@@ -11,7 +11,8 @@ const CoauthorIdentityPage = () => {
   const { toast } = useToast();
   const [bio, setBio]             = useState(user?.bio || '');
   const [instagram, setInstagram] = useState(user?.instagram || '');
-  const [whatsapp, setWhatsapp]   = useState(user?.whatsapp || '');
+  const [whatsappDdi, setWhatsappDdi] = useState(user?.whatsapp?.split(' ')[0] || '+55');
+  const [whatsapp, setWhatsapp]       = useState(user?.whatsapp?.split(' ').slice(1).join('') || '');
   const [chapterPhoto, setChapterPhoto] = useState(user?.chapter_photo_url || '');
   const [saving, setSaving]             = useState(false);
   const [uploading, setUploading]       = useState(false);
@@ -21,7 +22,7 @@ const CoauthorIdentityPage = () => {
     setSaving(true);
     try {
       const { error } = await supabase.from('profiles')
-        .update({ bio, instagram, whatsapp, chapter_photo_url: chapterPhoto })
+        .update({ bio, instagram, whatsapp: `${whatsappDdi} ${whatsapp}`, chapter_photo_url: chapterPhoto })
         .eq('id', user.id);
       if (error) throw error;
       await refreshProfile();
@@ -66,11 +67,11 @@ const CoauthorIdentityPage = () => {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-12">
-      <Helmet><title>Minha Identidade — Novos Autores do Brasil</title></Helmet>
+      <Helmet><title>Mídias do Capítulo — Novos Autores do Brasil</title></Helmet>
 
       <div>
-        <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Minha Identidade</h1>
-        <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Informações que aparecem na capa do livro.</p>
+        <h1 className="text-3xl font-bold" style={{ color: NAV, fontFamily: 'Poppins, sans-serif' }}>Mídias do Capítulo</h1>
+        <p className="text-sm mt-1" style={{ color: `${NAV}85` }}>Informações que aparecem na capa do capítulo.</p>
       </div>
 
       <BrandCard>
@@ -145,7 +146,31 @@ const CoauthorIdentityPage = () => {
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}72` }}>WhatsApp</label>
               <div className="flex rounded-xl overflow-hidden" style={{ border: `1.5px solid ${NAV}18` }}>
-                <span className="flex items-center px-3 text-sm font-semibold shrink-0" style={{ background: `${NAV}06`, borderRight: `1px solid ${NAV}18`, color: NAV }}>+55</span>
+                <select
+                  value={whatsappDdi}
+                  onChange={e => setWhatsappDdi(e.target.value)}
+                  className="text-sm font-semibold px-2 py-2.5 outline-none cursor-pointer shrink-0"
+                  style={{ background: `${NAV}06`, borderRight: `1px solid ${NAV}18`, color: NAV, maxWidth: 90 }}
+                >
+                  <option value="+55">🇧🇷 +55</option>
+                  <option value="+351">🇵🇹 +351</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+44">🇬🇧 +44</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+33">🇫🇷 +33</option>
+                  <option value="+49">🇩🇪 +49</option>
+                  <option value="+39">🇮🇹 +39</option>
+                  <option value="+54">🇦🇷 +54</option>
+                  <option value="+56">🇨🇱 +56</option>
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+52">🇲🇽 +52</option>
+                  <option value="+598">🇺🇾 +598</option>
+                  <option value="+595">🇵🇾 +595</option>
+                  <option value="+591">🇧🇴 +591</option>
+                  <option value="+593">🇪🇨 +593</option>
+                  <option value="+51">🇵🇪 +51</option>
+                  <option value="+58">🇻🇪 +58</option>
+                </select>
                 <input
                   type="tel"
                   placeholder="11999887766"

@@ -91,7 +91,7 @@ const AppLayout = () => {
     { path: '/coauthor/dashboard',    icon: LayoutDashboard, label: 'Meu Painel' },
     { path: '/coauthor/projects',     icon: FolderKanban,    label: 'Projetos (Em produção)', disabled: true },
     { path: '/coauthor/chapters',     icon: FileText,        label: 'Meu Capítulo' },
-    { path: '/coauthor/identity',     icon: UserCircle2,     label: 'Minha Identidade' },
+    { path: '/coauthor/identity',     icon: UserCircle2,     label: 'Mídias do Capítulo' },
     { path: '/coauthor/course',       icon: GraduationCap,   label: 'Aulas' },
     { path: '/coauthor/announcements', icon: Megaphone,      label: 'Avisos' },
     { path: '/coauthor/mentorship',   icon: Handshake,       label: 'Mentoria' },
@@ -114,7 +114,7 @@ const AppLayout = () => {
   if (isCoordinator()) {
     const chapIdx = visibleGeneralItems.findIndex(i => i.label === 'Meu Capítulo');
     if (chapIdx !== -1) {
-      visibleGeneralItems.splice(chapIdx + 1, 0, { path: '/coordinator/identity', icon: UserCircle2, label: 'Minha Identidade' });
+      visibleGeneralItems.splice(chapIdx + 1, 0, { path: '/coordinator/identity', icon: UserCircle2, label: 'Mídias do Capítulo' });
     }
   }
 
