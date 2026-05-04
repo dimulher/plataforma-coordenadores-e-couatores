@@ -109,9 +109,16 @@ const GestorCoordinatorsPage = () => {
               ? <p className="text-sm italic text-center py-4" style={{ color: `${NAV}70` }}>Nenhum projeto ativo encontrado.</p>
               : projects.map(proj => {
                   const link = `${window.location.origin}/register/coordinator/${user?.id}/${proj.id}`;
+                  const isSP = proj.name.toLowerCase().includes('paulo');
+                  const isPT = proj.name.toLowerCase().includes('portugal');
+                  const labelStyle = isSP
+                    ? { color: '#009C3B', background: 'rgba(0,156,59,0.10)', border: '1.5px solid rgba(0,156,59,0.25)' }
+                    : isPT
+                    ? { color: '#CC0000', background: 'rgba(204,0,0,0.08)', border: '1.5px solid rgba(204,0,0,0.20)' }
+                    : { color: `${NAV}85`, background: `${NAV}06`, border: `1.5px solid ${NAV}12` };
                   return (
                     <div key={proj.id} className="space-y-1.5">
-                      <p className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}85` }}>{proj.name}</p>
+                      <span className="inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full" style={labelStyle}>{proj.name}</span>
                       <div className="flex items-center gap-2">
                         <input
                           value={link} readOnly

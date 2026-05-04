@@ -78,7 +78,7 @@ const CoauthorIdentityPage = () => {
         <BrandCardHeader icon={UserCircle2} iconColor="#8B5CF6" accentColor="#8B5CF6" title="Mídias do Capítulo"
           extra={
             <span className="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
-              style={{ background: 'rgba(139,92,246,0.12)', color: '#8B5CF6' }}>Capa do Livro</span>
+              style={{ background: 'rgba(139,92,246,0.12)', color: '#8B5CF6' }}>Capa do Capítulo</span>
           }
         />
         <div className="px-6 py-6 space-y-6">
