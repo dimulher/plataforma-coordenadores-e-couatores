@@ -144,12 +144,18 @@ const CoauthorIdentityPage = () => {
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}72` }}>WhatsApp</label>
-              <div className="relative">
-                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: `${NAV}55` }} />
-                <input type="tel" placeholder="(00) 00000-0000" value={whatsapp}
-                  onChange={e => setWhatsapp(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm"
-                  style={inputStyle} onFocus={onFocus} onBlur={onBlur} />
+              <div className="flex rounded-xl overflow-hidden" style={{ border: `1.5px solid ${NAV}18` }}>
+                <span className="flex items-center px-3 text-sm font-semibold shrink-0" style={{ background: `${NAV}06`, borderRight: `1px solid ${NAV}18`, color: NAV }}>+55</span>
+                <input
+                  type="tel"
+                  placeholder="11999887766"
+                  value={whatsapp}
+                  onChange={e => setWhatsapp(e.target.value.replace(/\D/g, '').slice(0, 13))}
+                  className="flex-1 px-3 py-2.5 text-sm bg-transparent outline-none"
+                  style={{ color: NAV }}
+                  onFocus={e => { e.currentTarget.parentElement.style.borderColor = '#8B5CF6'; e.currentTarget.parentElement.style.boxShadow = '0 0 0 3px rgba(139,92,246,0.12)'; }}
+                  onBlur={e => { e.currentTarget.parentElement.style.borderColor = `${NAV}18`; e.currentTarget.parentElement.style.boxShadow = 'none'; }}
+                />
               </div>
             </div>
           </div>

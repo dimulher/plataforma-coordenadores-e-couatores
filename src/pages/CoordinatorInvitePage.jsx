@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { supabase } from '@/lib/supabase';
 import { Input } from '@/components/ui/input';
@@ -38,7 +38,6 @@ const THEMES = {
 
 const CoordinatorInvitePage = () => {
     const { managerId, projectId } = useParams();
-    const navigate = useNavigate();
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -182,19 +181,12 @@ const CoordinatorInvitePage = () => {
                                 href={whatsappGroupUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-full h-14 rounded-xl text-lg font-bold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 mb-3"
+                                className="w-full h-14 rounded-xl text-lg font-bold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90"
                                 style={{ background: '#25D366' }}
                             >
                                 Entrar no Grupo do WhatsApp <ArrowRight className="h-5 w-5" />
                             </a>
                         )}
-                        <button
-                            onClick={() => navigate('/login')}
-                            className="w-full h-12 rounded-xl text-base font-semibold flex items-center justify-center gap-2 transition-all hover:opacity-80"
-                            style={{ color: theme.bar[0], background: 'transparent', border: `1.5px solid ${theme.bar[0]}` }}
-                        >
-                            Ir para Login
-                        </button>
                     </div>
                 </div>
             </div>
