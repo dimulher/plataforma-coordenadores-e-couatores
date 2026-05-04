@@ -9,9 +9,9 @@ import { UserCircle2, Camera, Link2, ImageIcon, Loader2, Save } from 'lucide-rea
 const CoauthorIdentityPage = () => {
   const { user, refreshProfile } = useAuth();
   const { toast } = useToast();
-  const [bio, setBio]                   = useState(user?.bio || '');
-  const [instagram, setInstagram]       = useState(user?.instagram || '');
-  const [contactEmail, setContactEmail] = useState(user?.contact_email || '');
+  const [bio, setBio]             = useState(user?.bio || '');
+  const [instagram, setInstagram] = useState(user?.instagram || '');
+  const [whatsapp, setWhatsapp]   = useState(user?.whatsapp || '');
   const [chapterPhoto, setChapterPhoto] = useState(user?.chapter_photo_url || '');
   const [saving, setSaving]             = useState(false);
   const [uploading, setUploading]       = useState(false);
@@ -21,7 +21,7 @@ const CoauthorIdentityPage = () => {
     setSaving(true);
     try {
       const { error } = await supabase.from('profiles')
-        .update({ bio, instagram, contact_email: contactEmail, chapter_photo_url: chapterPhoto })
+        .update({ bio, instagram, whatsapp, chapter_photo_url: chapterPhoto })
         .eq('id', user.id);
       if (error) throw error;
       await refreshProfile();
@@ -74,7 +74,7 @@ const CoauthorIdentityPage = () => {
       </div>
 
       <BrandCard>
-        <BrandCardHeader icon={UserCircle2} iconColor="#8B5CF6" accentColor="#8B5CF6" title="Identidade do Autor"
+        <BrandCardHeader icon={UserCircle2} iconColor="#8B5CF6" accentColor="#8B5CF6" title="Mídias do Capítulo"
           extra={
             <span className="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
               style={{ background: 'rgba(139,92,246,0.12)', color: '#8B5CF6' }}>Capa do Livro</span>
@@ -117,10 +117,10 @@ const CoauthorIdentityPage = () => {
 
           {/* Bio */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}72` }}>Minicurrículo — Capa do Livro</label>
+            <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}72` }}>Minicurrículo — Capa do Capítulo</label>
             <textarea
               rows={5}
-              placeholder="Escreva uma breve apresentação que aparecerá na capa do livro ao lado do seu capítulo (máx. 350 caracteres)..."
+              placeholder="Escreva uma breve apresentação que aparecerá na capa do capítulo ao lado do seu texto (máx. 350 caracteres)..."
               value={bio}
               onChange={e => setBio(e.target.value.slice(0, 350))}
               className="w-full resize-none rounded-xl px-3 py-2.5 text-sm"
@@ -143,11 +143,11 @@ const CoauthorIdentityPage = () => {
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}72` }}>E-mail</label>
+              <label className="text-xs font-bold uppercase tracking-wider" style={{ color: `${NAV}72` }}>WhatsApp</label>
               <div className="relative">
                 <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: `${NAV}55` }} />
-                <input type="email" placeholder="seu@email.com" value={contactEmail}
-                  onChange={e => setContactEmail(e.target.value)}
+                <input type="tel" placeholder="(00) 00000-0000" value={whatsapp}
+                  onChange={e => setWhatsapp(e.target.value)}
                   className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm"
                   style={inputStyle} onFocus={onFocus} onBlur={onBlur} />
               </div>

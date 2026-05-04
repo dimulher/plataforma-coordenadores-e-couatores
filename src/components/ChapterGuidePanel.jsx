@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ClipboardList, CheckSquare, Square, Info, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ClipboardList, CheckSquare, Square, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -13,14 +13,14 @@ export const ChapterGuidePanel = ({
   onWordGoalChange,
   deadline,
   checklistItems = [
-    { id: 1, text: 'Título forte', done: false },
-    { id: 2, text: 'Introdução clara', done: false },
-    { id: 3, text: 'Desenvolvimento consistente', done: false },
-    { id: 4, text: 'Virada ou Insight', done: false },
-    { id: 5, text: 'Conclusão forte', done: false },
-    { id: 6, text: 'Assinatura', done: false }
+    { id: 1, text: 'Problema', done: false },
+    { id: 2, text: 'Sintoma', done: false },
+    { id: 3, text: 'Causa', done: false },
+    { id: 4, text: 'Consequência', done: false },
+    { id: 5, text: 'Solução', done: false },
+    { id: 6, text: 'Jornada do Herói', done: false },
+    { id: 7, text: 'Fundamentação', done: false }
   ],
-  projectRules,
   lastSubmittedDate,
   lastUpdatedDate
 }) => {
@@ -136,15 +136,6 @@ export const ChapterGuidePanel = ({
                 </div>
               </div>
 
-              {/* Rules */}
-              {projectRules && (
-                <div className="mb-8 bg-blue-50 border border-blue-100 rounded-lg p-4">
-                  <h3 className="text-sm font-bold text-blue-900 mb-2 flex items-center gap-1.5">
-                    <Info className="w-4 h-4" /> Regras do Projeto
-                  </h3>
-                  <p className="text-sm text-blue-800 leading-relaxed">{projectRules}</p>
-                </div>
-              )}
 
               {/* Meta Info */}
               <div className="mt-auto pt-6 border-t border-gray-200 space-y-3">

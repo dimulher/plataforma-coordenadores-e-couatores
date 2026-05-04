@@ -1,0 +1,7 @@
+-- Adiciona coluna de link do grupo WhatsApp para LIDERs
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS whatsapp_group_url TEXT;
+
+-- Adiciona coluna whatsapp pessoal para identidade do coautor/coordenador
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS whatsapp TEXT;

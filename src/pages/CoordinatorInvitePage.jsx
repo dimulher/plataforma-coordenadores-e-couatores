@@ -22,6 +22,7 @@ const THEMES = {
         btn: 'linear-gradient(to right, #006600, #CC0000)',
         label: 'Feira do Livro - Portugal',
         text: 'Você foi aprovado para ser coordenador do seu livro com lançamento na',
+        btnLabel: 'Quero me tornar um Coordenador Internacional →',
     },
     saopaulo: {
         bg: 'linear-gradient(135deg, #009C3B 0%, #1a1a2e 50%, #002776 100%)',
@@ -31,6 +32,7 @@ const THEMES = {
         btn: 'linear-gradient(to right, #009C3B, #002776)',
         label: 'Bienal - São Paulo',
         text: 'Você foi aprovado para ser coordenador do seu livro com lançamento na',
+        btnLabel: 'Quero me tornar um Coordenador Nacional →',
     },
 };
 
@@ -40,15 +42,22 @@ const CoordinatorInvitePage = () => {
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [projectName, setProjectName] = React.useState('');
+    const [projectName, setProjectName] = React.useState(null);
+    const [whatsappGroupUrl, setWhatsappGroupUrl] = React.useState(null);
 
     React.useEffect(() => {
-        if (!projectId) return;
+        if (!projectId) { setProjectName(''); return; }
         supabase.from('projects').select('name').eq('id', projectId).single()
-            .then(({ data }) => { if (data?.name) setProjectName(data.name); });
+            .then(({ data }) => { setProjectName(data?.name ?? ''); });
     }, [projectId]);
 
-    const isSP = projectName.toLowerCase().includes('paulo');
+    React.useEffect(() => {
+        if (!managerId) return;
+        supabase.from('profiles').select('whatsapp_group_url').eq('id', managerId).single()
+            .then(({ data }) => { setWhatsappGroupUrl(data?.whatsapp_group_url ?? null); });
+    }, [managerId]);
+
+    const isSP = (projectName ?? '').toLowerCase().includes('paulo');
     const theme = isSP ? THEMES.saopaulo : THEMES.portugal;
     const [formData, setFormData] = useState({
         name: '',
@@ -144,6 +153,14 @@ const CoordinatorInvitePage = () => {
         }
     };
 
+    if (projectName === null) {
+        return (
+            <div className="min-h-screen flex items-center justify-center" style={{ background: '#0f1a2b' }}>
+                <div className="h-8 w-8 rounded-full border-b-2 border-white animate-spin" />
+            </div>
+        );
+    }
+
     if (success) {
         return (
             <div className="min-h-screen flex items-center justify-center p-4" style={{ background: theme.bg }}>
@@ -160,12 +177,23 @@ const CoordinatorInvitePage = () => {
                         <p className="text-slate-500 mb-8 leading-relaxed">
                             Seu cadastro foi realizado. Enviaremos o acesso assim que o contrato for assinado.
                         </p>
+                        {whatsappGroupUrl && (
+                            <a
+                                href={whatsappGroupUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full h-14 rounded-xl text-lg font-bold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 mb-3"
+                                style={{ background: '#25D366' }}
+                            >
+                                Entrar no Grupo do WhatsApp <ArrowRight className="h-5 w-5" />
+                            </a>
+                        )}
                         <button
                             onClick={() => navigate('/login')}
-                            className="w-full h-14 rounded-xl text-lg font-bold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90"
-                            style={{ background: theme.bar[0] }}
+                            className="w-full h-12 rounded-xl text-base font-semibold flex items-center justify-center gap-2 transition-all hover:opacity-80"
+                            style={{ color: theme.bar[0], background: 'transparent', border: `1.5px solid ${theme.bar[0]}` }}
                         >
-                            Ir para Login <ArrowRight className="h-5 w-5" />
+                            Ir para Login
                         </button>
                     </div>
                 </div>
@@ -287,7 +315,7 @@ const CoordinatorInvitePage = () => {
                         <GlowButton type="submit" disabled={loading}>
                             {loading
                                 ? <><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" /><span>Processando...</span></>
-                                : 'Quero me tornar Coordenador Internacional →'
+                                : theme.btnLabel
                             }
                         </GlowButton>
 

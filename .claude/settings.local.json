@@ -10,7 +10,8 @@
       "Bash(npm install:*)",
       "Bash(npm run:*)",
       "Bash(find \"c:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores/\" -maxdepth 1 -name \"*.png\" -exec cp {} \"c:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores/src/assets/logo-simbolo.png\" \\\\;)",
-      "Bash(find \"c:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores/\" -maxdepth 1 -name \"*.png\" -exec cp \"{}\" \"c:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores/src/assets/logo-simbolo.png\" \\\\;)"
+      "Bash(find \"c:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores/\" -maxdepth 1 -name \"*.png\" -exec cp \"{}\" \"c:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores/src/assets/logo-simbolo.png\" \\\\;)",
+      "Bash(python \"C:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores/antigravity-kit/.agent/skills/vulnerability-scanner/scripts/security_scan.py\" \"C:/Users/rober/nab_ferramenta/plataforma-coordenadores-e-couatores\")"
     ]
   }
 }
