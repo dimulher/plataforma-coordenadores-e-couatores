@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '@/contexts/AuthContext';
 import { Eye, EyeOff, AlertCircle, ArrowRight } from 'lucide-react';
@@ -374,9 +374,16 @@ export default function LoginPage() {
               </form>
             </div>
 
+            {/* primeiro acesso */}
+            <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13 }}>
+              <Link to="/primeiro-acesso" style={{ color: BLUE, fontWeight: 600, textDecoration: 'none' }}>
+                Primeiro acesso? Clique aqui
+              </Link>
+            </p>
+
             {/* footer */}
             <p style={{
-              textAlign: 'center', marginTop: 28,
+              textAlign: 'center', marginTop: 16,
               fontSize: 12, color: `${NAV}70`,
             }}>
               © 2026 Novos Autores do Brasil. Todos os direitos reservados.
