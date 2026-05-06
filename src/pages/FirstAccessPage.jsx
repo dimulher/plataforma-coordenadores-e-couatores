@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Mail, ShieldCheck, Loader2, ArrowLeft, MessageCircle } from 'lucide-react';
 import { NAV, BLUE } from '@/lib/brand';
 
-const SEND_OTP_WEBHOOK = 'https://n8n.prosperamentor.com.br/webhook/4e40dda1-31a3-4c30-ba27-f15e3ff37fa6';
+const SEND_OTP_WEBHOOK = 'https://n8n.prosperamentor.com.br/webhook/2cf69aba-953d-43a0-8dad-d7a4f39c7f76';
 
 const FirstAccessPage = () => {
   const navigate = useNavigate();
