@@ -34,27 +34,34 @@ const FirstAccessPage = () => {
     if (!email.trim()) { setError('Informe seu e-mail.'); return; }
     setLoading(true);
     try {
-      // Verifica se existe coordenador com esse email e acesso pendente
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, name, otp_password')
-        .eq('email', email.trim().toLowerCase())
-        .eq('password_changed', false)
-        .single();
+      // Confirma que o email existe e tem OTP pendente (RPC não expõe o código)
+      const { data: rows, error: profileError } = await supabase
+        .rpc('get_profile_for_first_access', { p_email: email.trim() });
 
-      if (profileError || !profile?.otp_password) {
-        setError('E-mail não encontrado ou acesso já foi configurado. Use a tela de login normal.');
+      const profile = rows?.[0];
+
+      if (profileError || !profile) {
+        setError('E-mail não encontrado. Verifique o endereço informado.');
         return;
       }
 
-      // Dispara webhook para n8n enviar o OTP via WhatsApp
+      if (profile.password_changed === true) {
+        setError('Acesso já configurado. Use a tela de login normal.');
+        return;
+      }
+
+      if (!profile.has_pending_otp) {
+        setError('Código de acesso não encontrado. Entre em contato com seu líder de coordenação.');
+        return;
+      }
+
+      // Dispara webhook — n8n busca o OTP no Supabase via service key e envia via WhatsApp
       await fetch(SEND_OTP_WEBHOOK, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
           name: profile.name,
-          otp_password: profile.otp_password,
           action: 'send_otp',
         }),
       });
