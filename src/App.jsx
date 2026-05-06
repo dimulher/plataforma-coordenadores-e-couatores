@@ -97,6 +97,7 @@ function AppRoutes() {
       <Route path="/login/admin" element={<LoginPage />} />
       <Route path="/register/coordinator/:managerId" element={<CoordinatorInvitePage />} />
       <Route path="/register/coordinator/:managerId/:projectId" element={<CoordinatorInvitePage />} />
+      <Route path="/register/coordinator/:managerId/:projectId/:theme" element={<CoordinatorInvitePage />} />
       <Route path="/register/coautor/:coordinatorId" element={<CoauthorRegisterPage />} />
       <Route path="/register/autor-sp/:coordinatorId" element={<CoauthorRegisterSPPage />} />
       <Route path="/change-password" element={<ProtectedRoute><ChangePasswordPage /></ProtectedRoute>} />

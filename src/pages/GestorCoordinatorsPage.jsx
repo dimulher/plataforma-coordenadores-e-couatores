@@ -28,7 +28,7 @@ const GestorCoordinatorsPage = () => {
   };
 
   useEffect(() => {
-    supabase.from('projects').select('id, name').eq('status', 'ativo').order('name')
+    supabase.from('projects').select('id, name, theme').eq('status', 'ativo').order('name')
       .then(({ data }) => setProjects(data || []));
   }, []);
 
@@ -108,9 +108,10 @@ const GestorCoordinatorsPage = () => {
             {projects.length === 0
               ? <p className="text-sm italic text-center py-4" style={{ color: `${NAV}70` }}>Nenhum projeto ativo encontrado.</p>
               : projects.map(proj => {
-                  const link = `${window.location.origin}/register/coordinator/${user?.id}/${proj.id}`;
-                  const isSP = proj.name.toLowerCase().includes('paulo');
-                  const isPT = proj.name.toLowerCase().includes('portugal');
+                  const theme = proj.theme || (proj.name.toLowerCase().includes('portugal') ? 'portugal' : 'saopaulo');
+                  const link = `${window.location.origin}/register/coordinator/${user?.id}/${proj.id}/${theme}`;
+                  const isSP = theme === 'saopaulo';
+                  const isPT = theme === 'portugal';
                   const labelStyle = isSP
                     ? { color: '#009C3B', background: 'rgba(0,156,59,0.10)', border: '1.5px solid rgba(0,156,59,0.25)' }
                     : isPT

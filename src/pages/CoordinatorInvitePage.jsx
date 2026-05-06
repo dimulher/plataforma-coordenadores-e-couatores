@@ -41,7 +41,7 @@ const THEMES = {
 };
 
 const CoordinatorInvitePage = () => {
-    const { managerId, projectId } = useParams();
+    const { managerId, projectId, theme: themeParam } = useParams();
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -60,7 +60,7 @@ const CoordinatorInvitePage = () => {
             .then(({ data }) => { setWhatsappGroupUrl(data?.whatsapp_group_url ?? null); });
     }, [managerId]);
 
-    const isSP = (projectName ?? '').toLowerCase().includes('paulo');
+    const isSP = themeParam ? themeParam === 'saopaulo' : (projectName ?? '').toLowerCase().includes('paulo');
     const theme = isSP ? THEMES.saopaulo : THEMES.portugal;
     const [formData, setFormData] = useState({
         name: '',
