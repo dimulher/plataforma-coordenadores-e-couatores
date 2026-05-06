@@ -5,3 +5,7 @@ ALTER TABLE public.profiles
 -- Adiciona coluna whatsapp pessoal para identidade do coautor/coordenador
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS whatsapp TEXT;
+
+-- Controle de troca de senha no primeiro acesso
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS password_changed BOOLEAN DEFAULT FALSE;

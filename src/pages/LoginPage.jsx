@@ -50,7 +50,11 @@ export default function LoginPage() {
   /* redirect when user is set (after profile fetch) */
   useEffect(() => {
     if (user && !loading) {
-      navigate(ROLE_DESTINATIONS[user.role] || '/app/dashboard', { replace: true });
+      if (user.role === 'COORDENADOR' && !user.password_changed) {
+        navigate('/change-password', { replace: true });
+      } else {
+        navigate(ROLE_DESTINATIONS[user.role] || '/app/dashboard', { replace: true });
+      }
     }
   }, [user, loading, navigate]);
 

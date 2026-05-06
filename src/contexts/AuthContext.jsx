@@ -92,6 +92,8 @@ export const AuthProvider = ({ children }) => {
         instagram: profile.instagram || null,
         contact_email: profile.contact_email || null,
         chapter_photo_url: profile.chapter_photo_url || null,
+        whatsapp: profile.whatsapp || null,
+        password_changed: profile.password_changed ?? false,
       });
     } catch (err) {
       console.error('Error fetching profile, falling back to metadata:', err);

@@ -56,6 +56,7 @@ import VendedorLeadsPage from '@/pages/VendedorLeadsPage';
 import VendedorLinksPage from '@/pages/VendedorLinksPage';
 import VendedorSettingsPage from '@/pages/VendedorSettingsPage';
 import CoordinatorInvitePage from '@/pages/CoordinatorInvitePage';
+import ChangePasswordPage from '@/pages/ChangePasswordPage';
 import CoauthorRegisterPage from '@/pages/CoauthorRegisterPage';
 import CoauthorRegisterSPPage from '@/pages/CoauthorRegisterSPPage';
 
@@ -97,6 +98,7 @@ function AppRoutes() {
       <Route path="/register/coordinator/:managerId/:projectId" element={<CoordinatorInvitePage />} />
       <Route path="/register/coautor/:coordinatorId" element={<CoauthorRegisterPage />} />
       <Route path="/register/autor-sp/:coordinatorId" element={<CoauthorRegisterSPPage />} />
+      <Route path="/change-password" element={<ProtectedRoute><ChangePasswordPage /></ProtectedRoute>} />
 
       {/* Main App Routes (Admin) */}
       <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
