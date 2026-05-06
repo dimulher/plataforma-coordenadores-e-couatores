@@ -9,3 +9,7 @@ ALTER TABLE public.profiles
 -- Controle de troca de senha no primeiro acesso
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS password_changed BOOLEAN DEFAULT FALSE;
+
+-- OTP temporário enviado ao coordenador no cadastro
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS otp_password TEXT;

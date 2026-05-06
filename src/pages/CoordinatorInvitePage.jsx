@@ -10,7 +10,11 @@ import { UserSquare2, Mail, User, AlertCircle, CheckCircle2, ArrowRight, Phone, 
 import { useToast } from '@/hooks/use-toast';
 
 const WEBHOOK_URL = 'https://n8n.prosperamentor.com.br/webhook/f78026cc-c11f-4120-b3c3-9f9c4b3aba26';
-const DEFAULT_PASSWORD = 'Mudar123@';
+
+const generateOTP = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+};
 
 
 const THEMES = {
@@ -79,10 +83,12 @@ const CoordinatorInvitePage = () => {
         setError(null);
         setLoading(true);
 
+        const otp = generateOTP();
+
         try {
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email: formData.email,
-                password: DEFAULT_PASSWORD,
+                password: otp,
                 options: {
                     data: {
                         name: formData.name,
@@ -111,7 +117,9 @@ const CoordinatorInvitePage = () => {
                         phone: formData.phone,
                         cep: formData.cep,
                         address: formData.address,
-                        address_number: formData.address_number
+                        address_number: formData.address_number,
+                        otp_password: otp,
+                        password_changed: false,
                     }, { onConflict: 'id' });
 
                 if (profileError) throw profileError;
@@ -133,7 +141,8 @@ const CoordinatorInvitePage = () => {
                             project_id: projectId || null,
                             registration_date: new Date().toISOString(),
                             role: 'COORDENADOR',
-                            status: 'PENDING_CONTRACT'
+                            status: 'PENDING_CONTRACT',
+                            otp_password: otp
                         })
                     });
                 } catch (webhookErr) {

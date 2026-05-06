@@ -45,7 +45,7 @@ const ChangePasswordPage = () => {
       const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
       if (updateError) throw updateError;
 
-      await supabase.from('profiles').update({ password_changed: true }).eq('id', user.id);
+      await supabase.from('profiles').update({ password_changed: true, otp_password: null }).eq('id', user.id);
       await refreshProfile();
 
       toast({ title: 'Senha alterada com sucesso!', description: 'Você será redirecionado para o painel.' });
